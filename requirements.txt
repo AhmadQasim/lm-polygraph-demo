@@ -1,0 +1,10 @@
+# Primary dependencies. Install into a Python 3.10-3.12 venv
+# (lm-polygraph 0.7.0 does not support 3.13/3.14).
+#
+#   python3.10 -m venv .venv
+#   .venv/bin/pip install -r requirements.txt
+#
+# requirements-lock.txt holds the exact resolved versions that were
+# verified working on MPS (macOS, Apple Silicon).
+lm-polygraph==0.7.0
+torch==2.14.1

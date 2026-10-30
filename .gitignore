@@ -1,2 +1,27 @@
+# Data (kept out of git deliberately)
 mock_data/
 mock_data_challenging/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Model / dataset caches
+.cache/
+cache/
+hf_cache/
+*.safetensors
+*.gguf
+
+# Generated artefacts
+outputs/
+figures/
+*.pkl
+
+# IDE
+.idea/
+
+# macOS
+.DS_Store
