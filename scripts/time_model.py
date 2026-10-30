@@ -1,5 +1,10 @@
-"""Time LM-Polygraph estimators on MPS at 7B, to see whether a full BioASQ run
-is affordable on this machine.
+"""Time LM-Polygraph estimators on MPS, to see whether a full BioASQ run is
+affordable on this machine. Pass --model to compare sizes.
+
+Memory is the binding constraint, not compute. SemanticEntropy loads a DeBERTa
+NLI model (~1.6GB) alongside the LLM, so the pair must fit in available RAM or
+the run thrashes: at 7B bf16 (14.4GB) on a 24GB machine, per-question time went
+bimodal (54s median, 1523s worst). 3B bf16 (~6.2GB) leaves comfortable room.
 
 Notes on the settings here, all of which were learned the hard way:
   * attn_implementation="eager" is REQUIRED. transformers 5.x defaults to sdpa,
@@ -28,7 +33,7 @@ from lm_polygraph.utils.generation_parameters import GenerationParameters
 
 warnings.filterwarnings("ignore")
 
-MODEL = "Qwen/Qwen2.5-7B-Instruct"
+MODEL = "Qwen/Qwen2.5-3B-Instruct"
 
 QUESTIONS = [
     "What is the mode of inheritance of Wilson's disease?",
