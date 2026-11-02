@@ -47,7 +47,12 @@ def main() -> None:
     print(f"torch {torch.__version__} | device: {device}")
 
     t0 = time.time()
-    tokenizer = AutoTokenizer.from_pretrained(args.model)
+    # padding_side="left" is REQUIRED for a decoder-only model whenever
+    # batch_size > 1. lm-polygraph sets it inside the deprecated
+    # WhiteboxModel.from_pretrained; building the model directly (as the
+    # deprecation notice tells you to) skips that, and right-padding makes
+    # batched generation silently wrong.
+    tokenizer = AutoTokenizer.from_pretrained(args.model, padding_side="left")
     # attn_implementation="eager" is REQUIRED: with transformers 5.x the default
     # sdpa backend returns no attention tensors, and lm-polygraph's greedy_probs
     # stat calculator indexes into them unconditionally (IndexError otherwise).

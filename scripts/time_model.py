@@ -83,7 +83,12 @@ def main() -> None:
     print(f"swap used before load: {swap_mb():.0f} MB")
 
     t0 = time.time()
-    tokenizer = AutoTokenizer.from_pretrained(args.model)
+    # padding_side="left" is REQUIRED for a decoder-only model whenever
+    # batch_size > 1. lm-polygraph sets it inside the deprecated
+    # WhiteboxModel.from_pretrained; building the model directly (as the
+    # deprecation notice tells you to) skips that, and right-padding makes
+    # batched generation silently wrong.
+    tokenizer = AutoTokenizer.from_pretrained(args.model, padding_side="left")
     hf_model = AutoModelForCausalLM.from_pretrained(
         args.model, dtype=DTYPES[args.dtype], attn_implementation="eager"
     ).to(dev)
