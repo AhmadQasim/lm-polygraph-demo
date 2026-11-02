@@ -29,30 +29,62 @@ from lm_polygraph.utils.builder_enviroment_stat_calculator import (  # noqa: E40
 from lm_polygraph.defaults.register_default_stat_calculators import (  # noqa: E402
     register_default_stat_calculators,
 )
-from lm_polygraph.estimators import (  # noqa: E402
-    SemanticEntropy,
-    MeanTokenEntropy,
-    MaximumSequenceProbability,
-    PTrue,
-    NumSemSets,
-    EigValLaplacian,
-)
+import lm_polygraph.estimators as E  # noqa: E402
 
 warnings.filterwarnings("ignore")
 
 OUT = pathlib.Path(__file__).parent.parent / "outputs"
 
 
-def estimators():
-    """Semantic entropy plus the baselines the talk compares it against."""
-    return [
-        SemanticEntropy(),
-        MeanTokenEntropy(),
-        MaximumSequenceProbability(),
-        PTrue(),
-        NumSemSets(),
-        EigValLaplacian(),
-    ]
+def default_device() -> str:
+    if torch.cuda.is_available():
+        return "cuda"
+    if torch.backends.mps.is_available():
+        return "mps"
+    return "cpu"
+
+
+# Estimators grouped by what they cost, which is the axis the talk is about.
+# Tiers are cumulative: running "4" also runs 1-3, so the wall-clock delta
+# between tier runs is the marginal cost of that tier. Attention-based methods
+# (RAUQ, CSL, AttentionScore) are excluded - they need output_attentions=True,
+# which forces the slow eager path on transformers 5.x.
+TIERS = {
+    # One greedy forward pass. Logits only, no extra model, no sampling.
+    1: [
+        "MaximumSequenceProbability",
+        "Perplexity",
+        "MeanTokenEntropy",
+        "FisherRao",
+        "RenyiNeg",
+        "SelfCertainty",
+        "BoostedProbSequence",
+        # These two need a second, context-free LM pass (~2x tier-1 cost).
+        "MeanPointwiseMutualInformation",
+        "MeanConditionalPointwiseMutualInformation",
+    ],
+    # Ask the model about its own answer: one or two extra prompts.
+    # Verbalized1S is deliberately absent: it regex-parses a confidence out of
+    # the model's own text and raises IndexError on Qwen2.5-3B, which does not
+    # emit a parseable confidence. That is a finding, not a bug to fix here.
+    2: ["PTrue", "PTrueEmpirical"],
+    # Sample N continuations (~10x), but no entailment model.
+    3: ["MonteCarloSequenceEntropy", "MonteCarloNormalizedSequenceEntropy",
+        "LexicalSimilarity"],
+    # Sampling plus a DeBERTa NLI model over the sample set: the expensive tier.
+    4: ["SemanticEntropy", "DegMat", "Eccentricity", "EigValLaplacian",
+        "NumSemSets", "KernelLanguageEntropy"],
+}
+
+
+def estimators(max_tier: int):
+    out = []
+    for tier in sorted(TIERS):
+        if tier > max_tier:
+            break
+        for name in TIERS[tier]:
+            out.append(getattr(E, name)())
+    return out
 
 
 def run(args) -> dict:
@@ -89,11 +121,12 @@ def run(args) -> dict:
         model_type="Whitebox",
         output_attentions=False,
         output_hidden_states=False,
+        deberta_batch_size=args.deberta_batch_size,
     )
     manager = UEManager(
         data=Dataset(x=prompts, y=targets, batch_size=args.batch_size),
         model=model,
-        estimators=estimators(),
+        estimators=estimators(args.max_tier),
         builder_env_stat_calc=BuilderEnvironmentStatCalculator(model),
         available_stat_calculators=calcs,
         generation_metrics=[],
@@ -113,6 +146,7 @@ def run(args) -> dict:
     scores = {name: list(map(float, vals)) for (_lvl, name), vals in manager.estimations.items()}
     return {
         "model": args.model,
+        "max_tier": args.max_tier,
         "n": len(items),
         "seed": args.seed,
         "elapsed_s": elapsed,
@@ -127,18 +161,22 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="Qwen/Qwen2.5-3B-Instruct")
     ap.add_argument("--n", type=int, default=100)
+    ap.add_argument("--max-tier", type=int, default=4, choices=[1, 2, 3, 4],
+                    help="cumulative cost tier; see TIERS")
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--device", default="mps")
+    ap.add_argument("--device", default=default_device())
     ap.add_argument("--attn", default="sdpa", choices=["sdpa", "eager"])
     ap.add_argument("--batch-size", type=int, default=1)
     ap.add_argument("--max-new-tokens", type=int, default=24)
+    ap.add_argument("--deberta-batch-size", type=int, default=10,
+                    help="NLI batch size; raise well above the default on a CUDA GPU")
     ap.add_argument("--strict", action="store_true", help="do not swallow estimator errors")
     ap.add_argument("--force", action="store_true", help="recompute even if cached")
     args = ap.parse_args()
 
     OUT.mkdir(exist_ok=True)
     tag = args.model.split("/")[-1]
-    cache = OUT / f"bioasq_{tag}_n{args.n}_seed{args.seed}.json"
+    cache = OUT / f"bioasq_{tag}_n{args.n}_seed{args.seed}_t{args.max_tier}.json"
 
     if cache.exists() and not args.force:
         print(f"using cached {cache}")

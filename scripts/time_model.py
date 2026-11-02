@@ -73,17 +73,20 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default=MODEL)
     ap.add_argument("--dtype", default="bf16", choices=list(DTYPES))
+    ap.add_argument("--device", default=None, help="cuda / mps / cpu; auto if unset")
     ap.add_argument("--max-new-tokens", type=int, default=20)
     args = ap.parse_args()
 
-    print(f"torch {torch.__version__} | mps | {args.model} | dtype={args.dtype}")
+    dev = args.device or ("cuda" if torch.cuda.is_available()
+                          else "mps" if torch.backends.mps.is_available() else "cpu")
+    print(f"torch {torch.__version__} | {dev} | {args.model} | dtype={args.dtype}")
     print(f"swap used before load: {swap_mb():.0f} MB")
 
     t0 = time.time()
     tokenizer = AutoTokenizer.from_pretrained(args.model)
     hf_model = AutoModelForCausalLM.from_pretrained(
         args.model, dtype=DTYPES[args.dtype], attn_implementation="eager"
-    ).to("mps")
+    ).to(dev)
     hf_model.eval()
     print(f"loaded in {time.time() - t0:.1f}s | {sum(p.numel() for p in hf_model.parameters())/1e9:.2f}B params")
     print(f"mps allocated: {gb(torch.mps.current_allocated_memory())} | swap used: {swap_mb():.0f} MB")
