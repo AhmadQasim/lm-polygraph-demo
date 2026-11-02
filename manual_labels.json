@@ -1,0 +1,37 @@
+{
+  "_comment": "Human adjudication of gradings the automated matcher could not settle. Keyed by question text. 'correct' overrides bioasq.grade(). Proposed by Claude; needs a domain check on the entries marked debatable.",
+  "labels": {
+    "Which is the most prevalent form of arrhythmia worldwide?": {
+      "correct": true,
+      "note": "Prediction 'Atrial fibrillation' is right; the GOLD is misspelled ('atrial fibrilation'), which is why token matching failed."
+    },
+    "Which human disease is experimental autoimmune encephalomyelitis (EAE) model for?": {
+      "correct": true,
+      "note": "'Multiple sclerosis' is exactly what EAE models; gold phrases it as 'Model of MS (Multiple Sclerosis)'."
+    },
+    "Which is the causative agent of malaria?": {
+      "correct": true,
+      "note": "'Plasmodium parasite' and gold 'Plasmodium species' are the same answer."
+    },
+    "What is the function of the protein SERT?": {
+      "correct": true,
+      "note": "'Transports serotonin' is the verb form of gold 'Serotonin transporter'."
+    },
+    "Sclerostin regulates what process?": {
+      "correct": true,
+      "note": "DEBATABLE. 'Bone formation' vs gold 'bone metabolism' - sclerostin inhibits bone formation, so arguably more precise than the gold."
+    },
+    "Which ligament is most commonly injured in dashboard injury?": {
+      "correct": false,
+      "note": "GRADER FALSE POSITIVE. Model said 'anterior cruciate ligament'; dashboard injury damages the POSTERIOR cruciate. Token overlap on 'cruciate ligament' made the matcher accept it."
+    },
+    "What does gepotidacin do to bacteria?": {
+      "correct": false,
+      "note": "DEBATABLE. 'Inhibits bacterial growth' is true but misses the mechanism in gold ('inhibits bacterial DNA replication'); kept wrong as too vague for a factoid."
+    },
+    "What is the drug target for Eliquis (Apixaban)?": {
+      "correct": false,
+      "note": "Factor X and Factor Xa are different molecules (zymogen vs active enzyme). Matcher was right to reject."
+    }
+  }
+}
