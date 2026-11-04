@@ -8,13 +8,14 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > Where a method looks for doubt
+  > Where the signal comes from
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > Two questions place every method: what you can see of the model, and how many
-  > answers you draw.
+  > Two properties locate every estimator: the model access it needs and the number of
+  > answers it draws.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Further right needs more access: a hosted API gives only text, an open model also
-  > gives token probabilities and hidden states. Lower down, the same question is
-  > sampled several times. The next slides take each family in turn.
+  > Position further right indicates greater access required: a hosted API exposes text
+  > only, an open model also exposes token probabilities and hidden states. The lower
+  > row samples the same question several times. The following slides treat each family
+  > in turn.

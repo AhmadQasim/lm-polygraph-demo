@@ -11,9 +11,9 @@ one paragraph. Titles do not flow.
   > What each tier adds
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > Sampling and an NLI model add consistency, not a higher ceiling.
+  > Sampling and an NLI model narrow the spread without raising the maximum.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Each dot is one estimator, placed in its tier; the bar is the tier median. Tiers are
-  > cumulative: each column adds one requirement to the one before — a second prompt,
-  > then sampling, then a DeBERTa NLI model over the sample set.
+  > Each dot is one estimator, placed in its tier; the bar marks the tier median. Tiers
+  > are cumulative: each column adds one requirement to the preceding one — an
+  > additional prompt, then sampling, then a DeBERTa NLI model over the samples.

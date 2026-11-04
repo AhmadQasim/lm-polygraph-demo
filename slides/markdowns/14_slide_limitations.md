@@ -8,12 +8,12 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > What this is, and what it is not
+  > Scope and limitations
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > An introduction, not a benchmark: your mileage may vary.
+  > An introduction rather than a benchmark: the ranking is specific to this setting.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Treat the ranking as a starting point. Before relying on an estimator, re-run the
-  > comparison on your own task, model and grading; LM-Polygraph makes that a short
-  > script.
+  > The ranking is conditioned on one dataset, one prompt and one grading procedure.
+  > Replicating the comparison on a target task and model is a short script in
+  > LM-Polygraph.

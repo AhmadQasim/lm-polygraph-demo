@@ -8,14 +8,13 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > UEManager: a whole dataset at once
+  > UEManager: dataset-level evaluation
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > One object runs every estimator over a dataset and scores how well each ranks the
-  > answers.
+  > One object runs every estimator over a dataset and scores each ranking.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Each answer gets a quality from the generation metric and a score from every
-  > estimator; the UE metric then asks how well each estimator's ranking follows the
-  > quality. The BioASQ study in this talk is this call with 20 estimators and its own
-  > grader.
+  > Each answer receives a quality score from the generation metric and an uncertainty
+  > score from every estimator; the UE metric then measures how closely each estimator's
+  > ranking follows the quality. The BioASQ study is this call with 20 estimators and a
+  > task-specific grader.

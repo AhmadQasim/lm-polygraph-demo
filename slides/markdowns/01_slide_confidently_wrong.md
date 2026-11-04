@@ -8,12 +8,12 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > Confidently wrong
+  > High-confidence errors
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > A wrong answer arrives with the same certainty as a right one.
+  > Model probability does not separate wrong answers from right ones.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Four of the 7B model's BioASQ answers. Each is wrong against the reference, and each
-  > got a probability above 0.98 from the model itself. Nothing in the text of an answer
-  > says which ones to check.
+  > Four BioASQ answers from the 7B model. Each is incorrect against the reference, and
+  > each was assigned a probability above 0.98 by the model itself. The text of an
+  > answer gives no indication of which to verify.

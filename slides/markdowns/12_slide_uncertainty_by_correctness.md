@@ -11,9 +11,9 @@ one paragraph. Titles do not flow.
   > The scores behind the AUROC
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > Tier 1 against tier 4 — the overlap looks much the same.
+  > The tier-1 and tier-4 score distributions overlap to a similar degree.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Raw uncertainty scores for every question, split by whether the answer was graded
-  > correct. An AUROC in the high 0.7s still means two heavily overlapping
-  > distributions: this is a triage signal, not a verdict.
+  > Raw uncertainty scores for every question, separated by whether the answer was
+  > graded correct. An AUROC near 0.8 still corresponds to substantially overlapping
+  > distributions: the score supports triage, not a decision on an individual answer.

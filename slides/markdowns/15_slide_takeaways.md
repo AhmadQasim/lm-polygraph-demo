@@ -8,11 +8,12 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > Take-home
+  > Summary
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > Wrap your model once, score every answer, and check the scores on your own task.
+  > The families differ in the access they need; the ranking between them is
+  > task-specific.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Point three is the one result carried over from the BioASQ example, and the previous
-  > slide says how far it travels. The rest holds whatever the task.
+  > Point three is the only item drawn from the BioASQ results, and the preceding slide
+  > gives its range across models. The remainder is independent of the task.

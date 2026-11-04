@@ -11,8 +11,8 @@ one paragraph. Titles do not flow.
   > References
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > Where the methods, the library and the data come from.
+  > Sources for the methods, the library and the data.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > The key on the left says what each paper backs, in the colour it has on the method
-  > slides. The LM-Polygraph README credits a paper for each of its 38 methods.
+  > The key on the left indicates what each paper supports, in the colour used for it on
+  > the method slides. The LM-Polygraph README cites a paper for each of its 38 methods.

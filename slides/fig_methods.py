@@ -895,9 +895,9 @@ def limitations(n_judgement):
         ("One dataset",
          "BioASQ factoids: short, English, biomedical answers. Long answers or "
          "extraction may well rank the methods differently."),
-        ("Two small models",
-         "Qwen2.5 3B and 7B, one family, open weights. Larger and hosted models "
-         "were not tested."),
+        ("Six open models",
+         "Qwen2.5 3B/7B, Llama 3.2-3B and 3.1-8B, Mistral-7B, OLMo-2-7B. Larger and "
+         "hosted models were not tested."),
         ("One setting",
          "Greedy answers, one few-shot prompt, 10 samples per question, one seed."),
         ("Imperfect labels",
@@ -916,7 +916,11 @@ def count_judgement_calls():
     import json
     labels = json.loads(MANUAL.read_text())["labels"]
     flat = [l for v in labels.values() for l in (v if isinstance(v, list) else [v])]
-    return sum(l.get("note", "").startswith("JUDGEMENT CALL") for l in flat)
+    # Two label passes, two note prefixes: the first wrote "JUDGEMENT CALL", the
+    # second "DEBATABLE". Both mean the same thing - a call that is not a plain
+    # synonym match - so the card must count both or it understates the caveat.
+    return sum(l.get("note", "").startswith(("JUDGEMENT CALL", "DEBATABLE"))
+               for l in flat)
 
 
 def fig_limitations():
@@ -944,21 +948,22 @@ def fig_limitations():
 # 15. take-home: what to do on Monday
 # =====================================================================================
 TAKEAWAYS = [
-    ("Fluent is not reliable",
-     "A model can be wrong with a probability above 0.98. Score every answer, separately "
-     "from the answer itself."),
-    ("Let your access choose the family",
-     "An API gives text, so consistency or self-report. An open model adds token "
-     "probabilities. A trained probe needs labels."),
-    ("Try one forward pass first",
-     "In the BioASQ example, mean token entropy did as well as methods that sample and "
-     "run an NLI model. Add sampling only if it helps on your data."),
-    ("Use scores to triage, not to judge",
-     "Flag the least certain answers for a human. Choose the threshold on your own "
-     "data; AUROC does not choose it for you."),
-    ("Compare on your task with LM-Polygraph",
-     "Wrap the model once, and UEManager runs any set of estimators over your data. "
-     "A method of your own is a short class."),
+    ("Fluency is not reliability",
+     "Errors in this run carried model probabilities above 0.98. Correctness has to be "
+     "scored separately from the answer."),
+    ("Access determines the family",
+     "An API exposes text, so consistency or self-report. An open model adds token "
+     "probabilities. Probes also require labels."),
+    ("One pass is a fair default",
+     "On BioASQ, mean token entropy matched the sampling-plus-NLI methods on four of "
+     "six models. Sampling is worth adding where it helps."),
+    ("Triage, not adjudication",
+     "The least certain answers go to review. The threshold is set on the target data; "
+     "AUROC does not determine it."),
+    # Not "cheap": section 1 of CLAUDE.md rules out cost language on the slides.
+    ("Repeating it is a short script",
+     "A model is wrapped once and UEManager runs any set of estimators over a dataset. "
+     "A new method is a short class."),
 ]
 
 
@@ -1060,127 +1065,134 @@ def slide_copy(acc, half, st=None):
     copy = {
         "confidently_wrong": (
             "01",
-            "Confidently wrong",
-            "A wrong answer arrives with the same certainty as a right one.",
-            "Four of the 7B model's BioASQ answers. Each is wrong against the reference, "
-            "and each got a probability above 0.98 from the model itself. Nothing in "
-            "the text of an answer says which ones to check.",
+            "High-confidence errors",
+            "Model probability does not separate wrong answers from right ones.",
+            "Four BioASQ answers from the 7B model. Each is incorrect against the "
+            "reference, and each was assigned a probability above 0.98 by the model "
+            "itself. The text of an answer gives no indication of which to verify.",
         ),
         "selective_generation": (
             "02",
-            "What an uncertainty score is for",
-            "Rank the answers, flag the least certain, and what is kept gets better.",
-            f"Accuracy of the answers kept as the most uncertain are flagged for "
-            f"review, ranked by mean token entropy. Flagging half of them lifts the "
-            f"kept accuracy from {acc:.0%} to {half:.0%}. A useless score stays on "
-            f"the flat line; a perfect one follows the upper dashed line. AUROC, used "
-            f"in the results, measures how well the ranking separates right from wrong.",
+            "Selective answering",
+            "Withholding the least certain answers raises the accuracy of the rest.",
+            f"Accuracy of the answers that remain as the most uncertain are "
+            f"progressively withheld, ranked by mean token entropy. Withholding half "
+            f"raises the "
+            f"accuracy of the remainder from {acc:.0%} to {half:.0%}. An uninformative "
+            f"score follows the flat line; a perfect ranking follows the upper dashed "
+            f"line. AUROC, reported throughout, measures how far a ranking separates "
+            f"correct answers from incorrect ones.",
         ),
         "uq_types": (
             "03",
-            "Five places to look for doubt",
-            "Every estimator reads one of five signals, and each needs different "
-            "access to the model.",
-            "White-box needs the model's probabilities or internals; black-box needs "
-            "only its text. Families and method names follow Vazhentsev et al. "
-            "(arXiv:2605.14570); self-report is added here because p(True) is in the "
-            "run. T1–T4 are the tiers the results are grouped by.",
+            "Five signal types",
+            "Each estimator reads one of five signals, and each signal requires a "
+            "different level of model access.",
+            "White-box methods require the model's probabilities or internal states; "
+            "black-box methods require only its text. Families and method names follow "
+            "Vazhentsev et al. (arXiv:2605.14570); self-report is added here because "
+            "p(True) is included in the run. T1–T4 denote the tiers used to group the "
+            "results.",
         ),
         "information_based": (
             "04",
-            "Reading the probabilities",
-            "One forward pass, and the model has already said how sure it was.",
-            "All three come out of the pass that produced the answer, so they need "
-            "nothing beyond generation. They need the token probabilities, which "
-            "many hosted APIs do not return.",
+            "Information-based estimators",
+            "These estimators need only the forward pass that produced the answer.",
+            "All three are computed from the generation pass itself, so they add no "
+            "further computation. They require token probabilities, which many hosted "
+            "APIs do not return.",
         ),
         "self_report": (
             "05",
-            "Asking the model",
-            "A second prompt asks the model to judge its own answer.",
-            "p(True) reads the probability the model puts on “True”; the empirical "
-            "variant samples the verdict ten times and counts. Both need one more "
-            "prompt per answer, which is tier 2.",
+            "Self-report estimators",
+            "A second prompt asks the model to assess its own answer.",
+            "p(True) takes the probability the model assigns to “True”; the empirical "
+            "variant samples the verdict ten times and counts. Both require one "
+            "additional prompt per answer, which defines tier 2.",
         ),
         "consistency": (
             "06",
-            "Asking again",
-            "If repeated samples disagree, the first answer was a guess.",
-            "Sample several answers to the same question and measure how far they "
-            "agree: by shared words, or by meaning, with an NLI model testing whether "
-            "two answers entail each other. Sampling is tier 3; the NLI model on top "
-            "is tier 4. White-box variants also weight each sample by its probability.",
+            "Consistency estimators",
+            "Disagreement among resampled answers indicates uncertainty.",
+            "Several answers are sampled for the same question and their agreement "
+            "measured, either by shared words or by meaning, with an NLI model testing "
+            "whether two answers entail each other. Sampling defines tier 3; the NLI "
+            "model on top defines tier 4. White-box variants additionally weight each "
+            "sample by its probability.",
         ),
         "trained_probes": (
             "07",
-            "Training a detector",
-            "A classifier on the model's hidden states can learn what a wrong "
-            "answer looks like — given labels.",
-            "Probes need graded answers from the task they will be used on, and a new "
-            "set for every new task or model. They are named here for completeness "
-            "and were not run.",
+            "Trained probes",
+            "A classifier on the model's hidden states can predict incorrectness, "
+            "given labelled data.",
+            "Probes require graded answers from the task they will be applied to, and "
+            "retraining for each new task or model. They are included here for "
+            "completeness and were not run.",
         ),
         "lm_polygraph": (
             "08",
             "LM-Polygraph",
-            "One library runs every one of these estimators behind one interface.",
-            "Open source, pip-installable. An estimator returns one uncertainty score per "
-            "answer, higher meaning less sure; grading the answers and scoring the "
-            "estimators against them is a separate step.",
+            "A single library implements these estimators behind one interface.",
+            "Open source and pip-installable. An estimator returns one uncertainty "
+            "score per answer, higher indicating less certainty; grading the answers "
+            "and scoring the estimators against those grades are separate steps.",
         ),
         "types_by_tier": (
             "09",
             "Every estimator, by type and tier",
-            "Types say what signal a method reads; tiers, what it needs to run.",
-            "Every estimator in the results, placed by signal type and tier. "
-            "Tiers are cumulative: each adds one requirement to the one before. Sampling "
-            "methods split across tiers 3 and 4 by whether they also need the NLI "
-            "model.",
+            "Type denotes the signal an estimator reads; tier, what it requires to run.",
+            "Every estimator in the results, placed by signal type and tier. Tiers are "
+            "cumulative: each adds one requirement to the preceding one. Sampling "
+            "methods divide between tiers 3 and 4 according to whether they also "
+            "require the NLI model.",
         ),
     }
     if st is not None:
         copy["dataset"] = (
             "09b",
-            "The benchmark: BioASQ factoids",
-            f"{st['n']:,} short biomedical questions, each with a short reference answer.",
-            "Questions from the BioASQ challenges, kept only where a reference answer is "
-            "at most five words, so right and wrong can be told apart. Answers are graded "
-            "by exact match, then by token rules, then by manual labels for what no rule "
-            "can settle. Those labels were proposed with LLM help and checked, not set by "
-            "domain experts.",
+            "The evaluation set: BioASQ factoids",
+            f"{st['n']:,} biomedical factoid questions, each with a short reference "
+            f"answer.",
+            "Questions are drawn from the BioASQ challenges and retained only where the "
+            "reference answer is at most five words, so correctness can be determined. "
+            "Answers are graded by exact match, then by token rules, then by manual "
+            "labels where no rule applies. The labels were proposed with LLM assistance "
+            "and reviewed; they were not set by domain experts.",
         )
     copy["uq_map"] = (
         "02b",
-        "Where a method looks for doubt",
-        "Two questions place every method: what you can see of the model, and how "
-        "many answers you draw.",
-        "Further right needs more access: a hosted API gives only text, an open model "
-        "also gives token probabilities and hidden states. Lower down, the same "
-        "question is sampled several times. The next slides take each family in turn.",
+        "Where the signal comes from",
+        "Two properties locate every estimator: the model access it needs and the "
+        "number of answers it draws.",
+        "Position further right indicates greater access required: a hosted API "
+        "exposes text only, an open model also exposes token probabilities and hidden "
+        "states. The lower row samples the same question several times. The following "
+        "slides treat each family in turn.",
     )
     copy["takeaways"] = (
         "15",
-        "Take-home",
-        "Wrap your model once, score every answer, and check the scores on your own "
-        "task.",
-        "Point three is the one result carried over from the BioASQ example, and the "
-        "previous slide says how far it travels. The rest holds whatever the task.",
+        "Summary",
+        "The families differ in the access they need; the ranking between them is "
+        "task-specific.",
+        "Point three is the only item drawn from the BioASQ results, and the preceding "
+        "slide gives its range across models. The remainder is independent of the task.",
     )
     copy["references"] = (
         "16",
         "References",
-        "Where the methods, the library and the data come from.",
-        "The key on the left says what each paper backs, in the colour it has on the "
-        "method slides. The LM-Polygraph README credits a paper for each of its 38 "
-        "methods.",
+        "Sources for the methods, the library and the data.",
+        "The key on the left indicates what each paper supports, in the colour used "
+        "for it on the method slides. The LM-Polygraph README cites a paper for each "
+        "of its 38 methods.",
     )
     copy["limitations"] = (
         "14",
-        "What this is, and what it is not",
-        "An introduction, not a benchmark: your mileage may vary.",
-        "Treat the ranking as a starting point. Before relying on an estimator, re-run "
-        "the comparison on your own task, model and grading; LM-Polygraph makes that "
-        "a short script.",
+        "Scope and limitations",
+        "An introduction rather than a benchmark: the ranking is specific to this "
+        "setting.",
+        "The ranking is conditioned on one dataset, one prompt and one grading "
+        "procedure. Replicating the comparison on a target task and model is a short "
+        "script in LM-Polygraph.",
     )
     return copy
 

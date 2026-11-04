@@ -8,14 +8,12 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > What is in the library
+  > The method catalogue
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > Thirty-eight methods, filed under five categories, with the plumbing to compare
-  > them.
+  > Thirty-eight methods in five categories, with the infrastructure to compare them.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Categories and counts are LM-Polygraph's own, from its README; the grey note on each
-  > bar is the closest family on the methods slides. Density-based and ensembling
-  > methods need training data or several models, which is why the talk does not run
-  > them.
+  > Categories and counts are LM-Polygraph's own, taken from its README; the grey note
+  > on each bar gives the nearest family from the methods slides. Density-based and
+  > ensembling methods require training data or several models, and were not run here.

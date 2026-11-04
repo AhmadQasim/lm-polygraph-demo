@@ -11,9 +11,9 @@ one paragraph. Titles do not flow.
   > LM-Polygraph
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > One library runs every one of these estimators behind one interface.
+  > A single library implements these estimators behind one interface.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Open source, pip-installable. An estimator returns one uncertainty score per answer,
-  > higher meaning less sure; grading the answers and scoring the estimators against
-  > them is a separate step.
+  > Open source and pip-installable. An estimator returns one uncertainty score per
+  > answer, higher indicating less certainty; grading the answers and scoring the
+  > estimators against those grades are separate steps.

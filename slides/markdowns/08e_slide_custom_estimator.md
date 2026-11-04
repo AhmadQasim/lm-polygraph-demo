@@ -8,11 +8,11 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > Adding your own estimator
+  > Defining a new estimator
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > A new method is a class with three parts, and it plugs into everything above.
+  > A new method is a class with three members and integrates with the components above.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > This one scores an answer by its least likely token. It ran inside UEManager
-  > alongside the built-in estimators, sharing their statistics.
+  > This estimator scores an answer by its least likely token. It was run inside
+  > UEManager alongside the built-in estimators, sharing their statistics.

@@ -8,14 +8,14 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > Five places to look for doubt
+  > Five signal types
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > Every estimator reads one of five signals, and each needs different access to the
-  > model.
+  > Each estimator reads one of five signals, and each signal requires a different level
+  > of model access.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > White-box needs the model's probabilities or internals; black-box needs only its
-  > text. Families and method names follow Vazhentsev et al. (arXiv:2605.14570);
-  > self-report is added here because p(True) is in the run. T1–T4 are the tiers the
-  > results are grouped by.
+  > White-box methods require the model's probabilities or internal states; black-box
+  > methods require only its text. Families and method names follow Vazhentsev et al.
+  > (arXiv:2605.14570); self-report is added here because p(True) is included in the
+  > run. T1–T4 denote the tiers used to group the results.

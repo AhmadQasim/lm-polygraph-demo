@@ -11,10 +11,10 @@ one paragraph. Titles do not flow.
   > Wrapping a model
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > Wrap the model once, then score any answer with any estimator.
+  > One wrapper exposes any model to any estimator.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > WhiteboxModel takes a Hugging Face model and tokenizer; BlackboxModel takes an API,
-  > which limits you to black-box estimators unless it returns log-probabilities. Eager
-  > attention is required on transformers 5.x. The left block was run as shown; its
-  > output is underneath.
+  > which restricts the available estimators to black-box methods unless
+  > log-probabilities are returned. Eager attention is required on transformers 5.x. The
+  > left-hand block was executed as shown; its output appears beneath it.

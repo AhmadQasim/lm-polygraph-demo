@@ -357,40 +357,39 @@ def fig_custom_estimator():
 SLIDE_COPY = {
     "polygraph_catalogue": (
         "08b",
-        "What is in the library",
-        "Thirty-eight methods, filed under five categories, with the plumbing to "
-        "compare them.",
-        "Categories and counts are LM-Polygraph's own, from its README; the grey note "
-        "on each bar is the closest family on the methods slides. Density-based and "
-        "ensembling methods need training data or several models, which is why the "
-        "talk does not run them.",
+        "The method catalogue",
+        "Thirty-eight methods in five categories, with the infrastructure to compare "
+        "them.",
+        "Categories and counts are LM-Polygraph's own, taken from its README; the grey "
+        "note on each bar gives the nearest family from the methods slides. "
+        "Density-based and ensembling methods require training data or several models, "
+        "and were not run here.",
     ),
     "wrap_model": (
         "08c",
         "Wrapping a model",
-        "Wrap the model once, then score any answer with any estimator.",
+        "One wrapper exposes any model to any estimator.",
         "WhiteboxModel takes a Hugging Face model and tokenizer; BlackboxModel takes "
-        "an API, which limits you to black-box estimators unless it returns log-"
-        "probabilities. Eager attention is required on transformers 5.x. The left "
-        "block was run as shown; its output is underneath.",
+        "an API, which restricts the available estimators to black-box methods unless "
+        "log-probabilities are returned. Eager attention is required on transformers "
+        "5.x. The left-hand block was executed as shown; its output appears beneath it.",
     ),
     "ue_manager": (
         "08d",
-        "UEManager: a whole dataset at once",
-        "One object runs every estimator over a dataset and scores how well each "
-        "ranks the answers.",
-        "Each answer gets a quality from the generation metric and a score from every "
-        "estimator; the UE metric then asks how well each estimator's ranking follows "
-        "the quality. The BioASQ study in this talk is this call with 20 estimators "
-        "and its own grader.",
+        "UEManager: dataset-level evaluation",
+        "One object runs every estimator over a dataset and scores each ranking.",
+        "Each answer receives a quality score from the generation metric and an "
+        "uncertainty score from every estimator; the UE metric then measures how "
+        "closely each estimator's ranking follows the quality. The BioASQ study is "
+        "this call with 20 estimators and a task-specific grader.",
     ),
     "custom_estimator": (
         "08e",
-        "Adding your own estimator",
-        "A new method is a class with three parts, and it plugs into everything "
+        "Defining a new estimator",
+        "A new method is a class with three members and integrates with the components "
         "above.",
-        "This one scores an answer by its least likely token. It ran inside UEManager "
-        "alongside the built-in estimators, sharing their statistics.",
+        "This estimator scores an answer by its least likely token. It was run inside "
+        "UEManager alongside the built-in estimators, sharing their statistics.",
     ),
 }
 

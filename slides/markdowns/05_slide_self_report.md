@@ -8,12 +8,12 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > Asking the model
+  > Self-report estimators
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > A second prompt asks the model to judge its own answer.
+  > A second prompt asks the model to assess its own answer.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > p(True) reads the probability the model puts on “True”; the empirical variant
-  > samples the verdict ten times and counts. Both need one more prompt per answer,
-  > which is tier 2.
+  > p(True) takes the probability the model assigns to “True”; the empirical variant
+  > samples the verdict ten times and counts. Both require one additional prompt per
+  > answer, which defines tier 2.

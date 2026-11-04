@@ -8,12 +8,13 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > Training a detector
+  > Trained probes
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > A classifier on the model's hidden states can learn what a wrong answer looks like —
-  > given labels.
+  > A classifier on the model's hidden states can predict incorrectness, given labelled
+  > data.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Probes need graded answers from the task they will be used on, and a new set for
-  > every new task or model. They are named here for completeness and were not run.
+  > Probes require graded answers from the task they will be applied to, and retraining
+  > for each new task or model. They are included here for completeness and were not
+  > run.

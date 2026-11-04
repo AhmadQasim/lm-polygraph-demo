@@ -651,40 +651,42 @@ SLIDE_COPY = {
     "auroc_by_method": (
         "10",
         "Every estimator, ranked",
-        "Tier 1 holds both the winner and the traps.",
-        "AUROC for separating wrong answers from right ones, with 95% bootstrap "
-        "confidence intervals. Blue is tier 1 — one forward pass, no sampling "
-        "and no second model. Hollow markers are sign-inverted: they return a "
-        "confidence rather than an uncertainty, and read as 1−AUROC.",
+        "Tier 1 contains both the strongest estimator and the weakest.",
+        "AUROC for separating incorrect answers from correct ones, with 95% "
+        "bootstrap confidence intervals. Blue denotes tier 1: one forward pass, no "
+        "sampling and no second model. Hollow markers are sign-inverted, returning "
+        "a confidence rather than an uncertainty, and are read as 1−AUROC.",
     ),
     "auroc_by_tier": (
         "11",
         "What each tier adds",
-        "Sampling and an NLI model add consistency, not a higher ceiling.",
-        "Each dot is one estimator, placed in its tier; the bar is the tier "
-        "median. Tiers are cumulative: each column adds one requirement to the one "
-        "before — a second prompt, then sampling, then a DeBERTa NLI model over the "
-        "sample set.",
+        "Sampling and an NLI model narrow the spread without raising the maximum.",
+        "Each dot is one estimator, placed in its tier; the bar marks the tier "
+        "median. Tiers are cumulative: each column adds one requirement to the "
+        "preceding one — an additional prompt, then sampling, then a DeBERTa NLI "
+        "model over the samples.",
     ),
     "uncertainty_by_correctness": (
         "12",
         "The scores behind the AUROC",
-        "Tier 1 against tier 4 — the overlap looks much the same.",
-        "Raw uncertainty scores for every question, split by whether the answer was "
-        "graded correct. An AUROC in the high 0.7s still means two heavily "
-        "overlapping distributions: this is a triage signal, not a verdict.",
+        "The tier-1 and tier-4 score distributions overlap to a similar degree.",
+        "Raw uncertainty scores for every question, separated by whether the answer "
+        "was graded correct. An AUROC near 0.8 still corresponds to substantially "
+        "overlapping distributions: the score supports triage, not a decision on an "
+        "individual answer.",
     ),
     "model_size_comparison": (
         "13",
-        "The same methods on other models",
-        "Of the one-pass methods, only mean token entropy holds everywhere.",
-        "Each line is one estimator's AUROC across six models from four families: "
-        "flat means it holds. The ranking mostly transfers (mean pairwise Spearman "
-        "\u03c1 0.87). Mean token entropy is the only tier-1 method that stays above "
-        "0.75 on all six, between 0.76 and 0.83; max sequence probability and "
-        "perplexity, read from the same forward pass, fall to around 0.60 on Mistral. "
-        "A tier-4 method beats mean token entropy significantly on two of the six. "
-        "All six runs were graded with the full manual label set.",
+        "The same methods on six models",
+        "Among single-pass estimators, only mean token entropy transfers.",
+        "Each line traces one estimator's AUROC across six instruction-tuned models from "
+        "four families; a flat line indicates stability. Mean pairwise Spearman "
+        "\u03c1 = 0.87, so the ranking is largely preserved. Mean token entropy is the only "
+        "tier-1 estimator above 0.75 on every model (0.76\u20130.83); maximum sequence "
+        "probability and perplexity, computed from the same forward pass, fall to "
+        "approximately 0.60 on Mistral. The best tier-4 estimator exceeds mean token "
+        "entropy by a significant margin on two of the six (paired bootstrap). All runs "
+        "use the same 1,000 questions and the full manual label set.",
     ),
 }
 
