@@ -1,0 +1,56 @@
+{
+  "_comment": "The chapter dividers in journal_club_template.pptx, and the short pill each gets in the navigation bar. Edit here and re-run scripts/set_chapters.py; nothing else holds these strings. 'slide' is the absolute slide number in the template as PowerPoint shows it.",
+  "_casing": "Sentence case with a 'Category:' prefix, which is the template's own convention - five of the eight titles it arrived with used it. The three that were SHOUTING had been retitled by the slides repo's rename_chapter.py, which is an accident of that history and not a design. Earth_Custom Layout sets no cap='all', so what is written here is what shows on the slide.",
+  "_pills": "Roughly 12 characters of room. Without a pill, nav_bar.py falls back to whatever prefix of the title fits, which for 'Methods: The four cost tiers' would have been 'Methods' - the same word as the next chapter.",
+  "title_slide": {
+    "slide": 1,
+    "title": "Knowing when an LLM is wrong: an introduction to LM-Polygraph, and what uncertainty estimators cost",
+    "subtitle": [
+      "Ahmad Bin Qasim",
+      ""
+    ]
+  },
+  "chapters": [
+    {
+      "slide": 2,
+      "title": "Problem: Confidently wrong",
+      "pill": "Problem"
+    },
+    {
+      "slide": 3,
+      "title": "Background: Where the uncertainty is",
+      "pill": "Background"
+    },
+    {
+      "slide": 4,
+      "title": "Tooling: LM-Polygraph",
+      "pill": "Polygraph"
+    },
+    {
+      "slide": 5,
+      "title": "Methods: The four cost tiers",
+      "pill": "Cost tiers"
+    },
+    {
+      "slide": 6,
+      "title": "Methods: BioASQ, and grading it",
+      "pill": "Benchmark"
+    },
+    {
+      "slide": 7,
+      "title": "Results: What works, and what it costs",
+      "pill": "Results"
+    },
+    {
+      "slide": 8,
+      "title": "Conclusions and outlook",
+      "pill": "Conclusions"
+    },
+    {
+      "slide": 9,
+      "title": "Backup",
+      "pill": "Backup"
+    }
+  ],
+  "_title_slide": "A draft title - change it here and re-run, it is one edit. The date is deliberately an empty line rather than a guess: nothing in this repo records when the talk is. The vitiligo deck wrote its date as DD.MM.YYYY, which is the convention to follow."
+}
