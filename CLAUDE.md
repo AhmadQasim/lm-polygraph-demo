@@ -208,7 +208,32 @@ Headline findings, all of which survived the grader fix:
 - **Sampling and an NLI model add consistency, not a higher ceiling**: the T3/T4 methods
   cluster just under the best T1 methods, while T1 also holds the worst ones.
 - **The ranking transfers across scale.** Spearman ρ = 0.902 over all 20 methods (p ≈
-  5e-8; the value the slide-13 figure computes).
+  5e-8, 3B vs 7B).
+- **Other families (backup slide 13).** n=1000 runs also exist for Mistral-7B-Instruct-v0.3
+  (38.5% correct), OLMo-2-1124-7B-Instruct (27.6%) and Llama-3.1-8B-Instruct (40.5%). All
+  five are on slide 13. The three non-Qwen runs are graded by `grade()` only (the manual
+  labels were written against the Qwen answers: 129 apply to Qwen-7B but only 19–35 to the
+  others), so their accuracies are under-corrected and their AUROCs carry more label
+  noise. Mean pairwise ρ over the five is 0.863.
+- **One forward pass is not beaten, on four models of five.** Paired bootstrap, the best
+  tier-4 method minus MeanTokenEntropy: Qwen-3B −0.009 [−0.032, +0.014], Qwen-7B −0.009
+  [−0.031, +0.013], **Mistral +0.031 [+0.006, +0.055]**, OLMo-2 +0.003 [−0.023, +0.028],
+  Llama +0.016 [−0.005, +0.037]. Only Mistral is significant. Tier-4 methods take the top
+  *ranks* on Mistral, OLMo and Llama, but the gap is inside the noise except on Mistral,
+  which is also the model whose token probabilities are broken. So the claim is "a single
+  forward pass is statistically indistinguishable from the full sampling+NLI pipeline on
+  four of five models", not "tier 1 wins".
+- **Steadiness across models.** Over the five runs, swing (best minus worst model) ranks:
+  Self-certainty 0.053 but it never clears 0.76; MeanTokenEntropy 0.063 (0.766–0.829);
+  KLE 0.065; EigVal/DegMat/NumSemSets 0.069; SemanticEntropy 0.115; and the collapsing
+  tier-1 trio Boosted prob. 0.173, Perplexity 0.190, MSP 0.197, all of them on Mistral.
+  `fig_model_compare` picks its "steadiest" row with a 0.75 floor for exactly this reason
+  — at 0.70 self-certainty wins the row on being flat and mediocre.
+- **Llama is the only model that abstains**: 22 of 1000 answers are "I couldn't find any
+  information on …". Qwen, Mistral and OLMo abstain zero times. It is also the only model
+  where p(True) sits significantly *below* chance (0.453 [0.418, 0.489]), i.e. it ranks
+  correct answers as less true. p(True) swings 0.215 across the five, the widest of any
+  method.
 - **Detection gets somewhat harder on the bigger model**: mean AUROC change −0.021 over
   the 17 methods above chance, with 15 of 20 below the diagonal. Before the grader fix
   this looked twice as large; part of it was label noise.
@@ -331,8 +356,9 @@ the text from their `slide_copy` / `SLIDE_COPY`. That is also the only way a cap
 picks up a changed number: slide 02 quotes 45% → 67%, slide 01 says "above 0.98".
 
 **Which data each figure uses.** Slides 01–02 come from the 7B run, and 09b from both. Slides 10–12 come
-from the 3B run. Slide 13 compares 3B and 7B, and needs
-`--labels "Qwen2.5-3B,Qwen2.5-7B"` or its axes say "small/big". `build_deck.FIGURES`
+from the 3B run. Slide 13 (backup) is a slopegraph over
+Qwen 3B, Qwen 7B, Mistral 7B, OLMo-2 7B and Llama-3.1 8B (`build_deck.CACHE_OTHERS`),
+with names from `--labels`. `build_deck.FIGURES`
 passes all of this. Running `plot_bioasq.py` on 7B alone **overwrites** the 3B results
 figures.
 

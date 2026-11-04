@@ -11,11 +11,12 @@ one paragraph. Titles do not flow.
   > The same methods on other models
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > The ranking mostly holds; one cheap method collapses.
+  > Mean token entropy is the steadiest method that is also any good.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Each line is one estimator's AUROC across models — flat means robust, a dive means
-  > model-dependent. Most run roughly parallel, so the ranking transfers across a change
-  > of size and of family. The exception carries the lesson: max sequence probability
-  > collapses on Mistral while mean token entropy, which costs exactly the same single
-  > forward pass, barely moves. The panel gives the figures.
+  > Each line is one estimator's AUROC across five models from four families: flat means
+  > it holds. The ranking mostly transfers (mean pairwise Spearman ρ 0.86). Mean token
+  > entropy stays between 0.77 and 0.83, while max sequence probability, read from the
+  > same forward pass, drops to 0.62 on Mistral. A tier-4 method beats mean token
+  > entropy significantly on Mistral only. The three non-Qwen models were graded mostly
+  > by the matcher alone: the manual labels were written against the Qwen answers.

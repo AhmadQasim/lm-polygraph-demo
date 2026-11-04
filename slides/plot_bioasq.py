@@ -476,8 +476,8 @@ def fig_scores(d, y, methods=("MeanTokenEntropy", "SemanticEntropy")):
 # =====================================================================================
 # 4. two model sizes
 # =====================================================================================
-# Traced by name: the cheap one that holds, the cheap one that collapses, the
-# paper's method, and the expensive one that is steadiest. Colour still means
+# Traced by name: the tier-1 method that holds, the tier-1 method that collapses,
+# the paper's method, and the tier-4 method that is steadiest. Colour still means
 # tier - two tier-1 lines going opposite ways is the point, not a clash.
 TRACED = ["MeanTokenEntropy", "MaximumSequenceProbability",
           "SemanticEntropy", "EigValLaplacian_NLI_score_entail"]
@@ -524,7 +524,10 @@ def fig_model_compare(caches, manual, labels_for=None):
     spread = {n: max(a[n] for a in aucs) - min(a[n] for a in aucs) for n in shown}
     worst = max(spread, key=spread.get)
     # "Stable" has to mean stable AND useful, or a flat mediocre line wins.
-    useful = [n for n in shown if min(a[n] for a in aucs) >= 0.70] or shown
+    # The floor is 0.75, not 0.70: at 0.70 self-certainty takes the row on a
+    # 0.053 swing while never clearing 0.76, which reads as a recommendation
+    # for the flattest line rather than the steadiest useful one.
+    useful = [n for n in shown if min(a[n] for a in aucs) >= 0.75] or shown
     steady = min(useful, key=spread.get)
 
     x = np.arange(len(caches))
@@ -547,18 +550,35 @@ def fig_model_compare(caches, manual, labels_for=None):
         tier1 = bioasq.tier_of(n) == 1
         ax.plot(x, [a[n] for a in aucs], "-", color=TIER1 if tier1 else TIER_REST,
                 lw=WEIGHT["context"], alpha=0.30, zorder=3)
-    for n in TRACED:
-        if n not in shown:
-            continue
+    traced = [n for n in TRACED if n in shown]
+    # End labels: the traced lines can finish within a hair of each other, so
+    # the labels are pushed apart to one line-height and keep a short leader.
+    pt_per_auc = box_h * 7.2 / (hi - lo)        # box_h figure units = box_h/10 in
+    gap = 15.0 / pt_per_auc                     # one 11 pt line plus air, in AUROC
+    ends = sorted(traced, key=lambda n: aucs[-1][n])
+    placed = {}
+    for n in ends:
+        want = aucs[-1][n]
+        placed[n] = max(want, placed[ends[ends.index(n) - 1]] + gap) if placed else want
+    over = max(placed.values()) - (hi - 0.005)
+    if over > 0:                                 # pushed off the top: shift all down,
+        for n in ends:                           # then re-space upwards from the bottom
+            placed[n] -= over
+        for i in range(len(ends) - 2, -1, -1):
+            placed[ends[i]] = min(placed[ends[i]], placed[ends[i + 1]] - gap)
+    for n in traced:
         ys = [a[n] for a in aucs]
         tier1 = bioasq.tier_of(n) == 1
         colour = TIER1 if tier1 else TIER_REST
         ax.plot(x, ys, "-o", color=colour, lw=WEIGHT["focus"], ms=7,
                 markeredgewidth=0.0, zorder=6)
-        ax.annotate(f"  {PRETTY.get(n, n)}", (x[-1], ys[-1]),
-                    textcoords="offset points", xytext=(8, 0), ha="left",
+        dy = (placed[n] - ys[-1]) * pt_per_auc
+        ax.annotate(PRETTY.get(n, n), (x[-1], ys[-1]),
+                    textcoords="offset points", xytext=(16, dy), ha="left",
                     va="center", color=DARK if tier1 else AXIS,
                     fontproperties=halvar(TYPE["tick"], bold=tier1),
+                    arrowprops=dict(arrowstyle="-", color=GRAY22, lw=0.8,
+                                    shrinkA=0, shrinkB=5) if abs(dy) > 3 else None,
                     clip_on=False, zorder=7)
 
     for xi, (tag, acc) in enumerate(zip(tags, accs)):
@@ -587,13 +607,13 @@ def fig_model_compare(caches, manual, labels_for=None):
          f"mean pairwise Spearman \u03c1 over {len(caches)} models"),
         ("BUT ONE METHOD SWINGS", f"{spread[worst]:.3f}",
          f"{PRETTY.get(worst, worst)}, best to worst model"),
-        ("STEADIEST ABOVE 0.70", f"{spread[steady]:.3f}",
+        ("STEADIEST ABOVE 0.75", f"{spread[steady]:.3f}",
          f"{PRETTY.get(steady, steady)}, same range"),
     ]
-    inset, pad_x = 2.2, 3.4
+    inset, pad_x = 1.6, 3.4
     pitch = (ph - 2 * inset) / len(rows)
     gloss_font = halvar(TYPE["gloss"])
-    room = int((pitch - 6.8) / 1.75)
+    room = int((pitch - 6.3) / 1.75)
     for i, (head, value, gloss) in enumerate(rows):
         top = ph - inset - i * pitch
         pax.text(pad_x, top, head, ha="left", va="top", color=DARK,
@@ -601,7 +621,7 @@ def fig_model_compare(caches, manual, labels_for=None):
         pax.text(pad_x, top - 2.9, value, ha="left", va="top", color=DARK,
                  fontproperties=hermann(TYPE["claim"]))
         for j, line in enumerate(wrap_measured(fig, gloss, gloss_font, pw - 2 * pad_x)[:room]):
-            pax.text(pad_x, top - 6.8 - j * 1.75, line, ha="left", va="top",
+            pax.text(pad_x, top - 6.3 - j * 1.75, line, ha="left", va="top",
                      color=AXIS, fontproperties=gloss_font)
 
     caveat(fig, size,
@@ -645,13 +665,14 @@ SLIDE_COPY = {
     "model_size_comparison": (
         "13",
         "The same methods on other models",
-        "The ranking mostly holds; one cheap method collapses.",
-        "Each line is one estimator's AUROC across models — flat means robust, a "
-        "dive means model-dependent. Most run roughly parallel, so the ranking "
-        "transfers across a change of size and of family. The exception carries "
-        "the lesson: max sequence probability collapses on Mistral while mean "
-        "token entropy, which costs exactly the same single forward pass, barely "
-        "moves. The panel gives the figures.",
+        "Mean token entropy is the steadiest method that is also any good.",
+        "Each line is one estimator's AUROC across five models from four families: "
+        "flat means it holds. The ranking mostly transfers (mean pairwise Spearman "
+        "\u03c1 0.86). Mean token entropy stays between 0.77 and 0.83, while max "
+        "sequence probability, read from the same forward pass, drops to 0.62 on "
+        "Mistral. A tier-4 method beats mean token entropy significantly on Mistral "
+        "only. The three non-Qwen models were graded mostly by the matcher alone: "
+        "the manual labels were written against the Qwen answers.",
     ),
 }
 
