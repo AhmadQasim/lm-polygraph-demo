@@ -175,7 +175,7 @@ def main() -> None:
     ap.add_argument("--model", default="Qwen/Qwen2.5-3B-Instruct")
     ap.add_argument("--n", type=int, default=100)
     ap.add_argument("--max-tier", type=int, default=4, choices=[1, 2, 3, 4],
-                    help="cumulative cost tier; see TIERS")
+                    help="highest tier to run (cumulative); see TIERS")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device", default=default_device())
     ap.add_argument("--attn", default="sdpa", choices=["sdpa", "eager"])

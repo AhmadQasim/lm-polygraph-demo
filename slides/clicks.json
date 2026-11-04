@@ -43,7 +43,7 @@
   },
 
   "uncertainty_by_correctness": {
-    "_": "Cheapest method, then the most expensive one beside it.",
+    "_": "The tier-1 method, then the tier-4 one beside it.",
     "rects": [[0, 4, 67, 42], [67, 4, 124, 42]]
   },
 

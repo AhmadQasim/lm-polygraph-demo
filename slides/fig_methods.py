@@ -10,8 +10,8 @@ These are the slides that come *before* the results in `plot_bioasq.py`:
   05 self_report           - asking the model to judge itself (T2)
   06 consistency           - asking again: sampling, with and without NLI (T3, T4)
   07 trained_probes        - supervised detectors on hidden states (not run)
-  08 lm_polygraph          - the library, and why the cost is shared
-  09 types_by_tier         - every estimator run, by signal type and cost tier
+  08 lm_polygraph          - the library, and how it shares statistics
+  09 types_by_tier         - every estimator run, by signal type and tier
 
 Run:  .venv/bin/python slides/fig_methods.py
 
@@ -60,7 +60,7 @@ CACHE_7B = ROOT / "outputs" / "bioasq_Qwen2.5-7B-Instruct_n1000_seed0_t4.json"
 MANUAL = ROOT / "manual_labels.json"
 
 CW, CH = GEOM["canvas"]   # 124 x 44.5 u
-CHEAP, PAID = BLUE, BLUE60
+TIER1, TIER_REST = BLUE, BLUE60
 WRONG, WRONG_TEXT = ORANGE, ORANGE_DARK
 
 S = TYPE  # sizes, by role
@@ -123,7 +123,7 @@ def header(ax, x, y, text, color=GRAY85, ha="left"):
 
 
 def tier_hue(t):
-    return CHEAP if t == 1 else PAID
+    return TIER1 if t == 1 else TIER_REST
 
 
 def method_table(fig, ax, x0, x1, top, rows, pitch=3.7, name_w=21.0):
@@ -151,7 +151,7 @@ def method_table(fig, ax, x0, x1, top, rows, pitch=3.7, name_w=21.0):
                 ha="right")
         else:
             label = f"T{tier}" if isinstance(tier, int) else tier
-            hue = CHEAP if label == "T1" else PAID
+            hue = TIER1 if label == "T1" else TIER_REST
             tag(ax, x1, base, label, hue, ha="right")
         y -= h
         rule(ax, x0, x1, y)
@@ -257,22 +257,22 @@ def fig_selective_generation(d, y):
     ax.plot(r, oracle, color=GRAY45, lw=WEIGHT["reference"], dashes=REFERENCE_DASH)
     ax.plot([0, 0.9], [acc, acc], color=GRAY85, lw=WEIGHT["reference"],
             dashes=REFERENCE_DASH)
-    ax.plot(r, curve, color=CHEAP, lw=WEIGHT["focus"])
+    ax.plot(r, curve, color=TIER1, lw=WEIGHT["focus"])
 
     half = kept_accuracy(u, y, [0.5])[0]
-    ax.plot([0.5], [half], "o", color=CHEAP, ms=8, zorder=5)
+    ax.plot([0.5], [half], "o", color=TIER1, ms=8, zorder=5)
 
     lab = halvar(S["tick"])
     ax_b.text(101.5, 8 + (oracle[-1] - 0.2) / 0.8 * 32, "perfect ranking",
               fontproperties=lab, color=GRAY85, va="center")
     ax_b.text(101.5, 8 + (curve[-1] - 0.2) / 0.8 * 32, "mean token entropy",
-              fontproperties=halvar(S["tick"], bold=True), color=CHEAP, va="center")
+              fontproperties=halvar(S["tick"], bold=True), color=TIER1, va="center")
     ax_b.text(101.5, 8 + (acc - 0.2) / 0.8 * 32, "random flags",
               fontproperties=lab, color=GRAY85, va="center")
 
     hx = 12 + 0.5 / 0.9 * 88
     hy = 8 + (half - 0.2) / 0.8 * 32
-    put(ax_b, hx + 1.0, hy - 4.6, f"{half:.0%}", hermann(S["claim"]), CHEAP)
+    put(ax_b, hx + 1.0, hy - 4.6, f"{half:.0%}", hermann(S["claim"]), TIER1)
     put(ax_b, hx + 8.6, hy - 4.6, f"right after flagging half, from {acc:.0%}",
         halvar(S["tick"]), DARK)
 
@@ -342,7 +342,7 @@ def fig_uq_types():
             yy -= 2.05
             put(ax, x + pad, yy + 0.4, m, halvar(S["tick"]), GRAY85)
         if tier:
-            tag(ax, x + pad, 5.4, tier, CHEAP if tier == "T1" else PAID)
+            tag(ax, x + pad, 5.4, tier, TIER1 if tier == "T1" else TIER_REST)
         else:
             put(ax, x + pad, 5.6, "not run here", halvar(S["tick"], italic=True), GRAY85)
     footnote(ax, "")
@@ -544,12 +544,12 @@ def fig_lm_polygraph():
         if k < n - 1:
             arrow(ax, x + w + 0.6, (top + bot) / 2, x + w + gap - 0.6, (top + bot) / 2)
 
-    put(ax, 0, 14.0, "WHY THE COST IS SHARED", hermann(S["category"]), BLUE)
+    put(ax, 0, 14.0, "SHARED STATISTICS", hermann(S["category"]), BLUE)
     lines(fig, ax, 0, 10.8,
           "An estimator declares the statistics it needs, and each is computed "
           "once per answer. Every sampling estimator reads the same samples, and "
           "every NLI-based one the same entailment matrix, so estimators that "
-          "share a statistic pay for it once.",
+          "share a statistic compute it once.",
           halvar(S["tick"]), 80.0, DARK, pitch=2.2)
     put(ax, CW, 14.0, "IN THIS TALK", hermann(S["category"]), GRAY85, ha="right")
     for j, ln in enumerate(["lm-polygraph 0.7.0", "Qwen2.5 3B and 7B, bf16",
@@ -680,13 +680,13 @@ def slide_copy(acc, half):
             "White-box needs the model's probabilities or internals; black-box needs "
             "only its text. Families and method names follow Vazhentsev et al. "
             "(arXiv:2605.14570); self-report is added here because p(True) is in the "
-            "run. T1–T4 are this talk's cost tiers.",
+            "run. T1–T4 are the tiers the results are grouped by.",
         ),
         "information_based": (
             "04",
             "Reading the probabilities",
             "One forward pass, and the model has already said how sure it was.",
-            "All three come out of the pass that produced the answer, so they cost "
+            "All three come out of the pass that produced the answer, so they need "
             "nothing beyond generation. They need the token probabilities, which "
             "many hosted APIs do not return.",
         ),
@@ -695,7 +695,7 @@ def slide_copy(acc, half):
             "Asking the model",
             "A second prompt asks the model to judge its own answer.",
             "p(True) reads the probability the model puts on “True”; the empirical "
-            "variant samples the verdict ten times and counts. Both cost one more "
+            "variant samples the verdict ten times and counts. Both need one more "
             "prompt per answer, which is tier 2.",
         ),
         "consistency": (
@@ -726,10 +726,10 @@ def slide_copy(acc, half):
         ),
         "types_by_tier": (
             "09",
-            "The same methods, priced",
-            "The tiers sort these methods by what they cost, not by what they read.",
-            "Every estimator in the results, placed by signal type and cost tier. "
-            "Tiers are cumulative: a tier-4 run also pays for tiers 1–3. Sampling "
+            "Every estimator, by type and tier",
+            "Types say what signal a method reads; tiers, what it needs to run.",
+            "Every estimator in the results, placed by signal type and tier. "
+            "Tiers are cumulative: each adds one requirement to the one before. Sampling "
             "methods split across tiers 3 and 4 by whether they also need the NLI "
             "model.",
         ),

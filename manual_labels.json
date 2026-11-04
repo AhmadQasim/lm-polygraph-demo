@@ -1,5 +1,5 @@
 {
-  "_comment": "Human adjudication of gradings the automated matcher could not settle. Keyed by question text; each value is one label, or a list of labels when the 3B and 7B models gave different answers. 'pred' records the model output a label was judged against, and a label is applied only when the run produces exactly that prediction, so a label never silently carries over to a different answer. 'models' says which runs produced it. Proposed by Claude: every non-exact-match answer in the 3B and 7B n=1000 runs was reviewed (2026-11-04) and only verdicts that differ from bioasq.grade() are stored. Entries marked DEBATABLE need a domain check.",
+  "_comment": "Human adjudication of gradings the automated matcher could not settle. Keyed by question text; each value is one label, or a list of labels when the 3B and 7B models gave different answers. 'pred' records the model output a label was judged against, and a label is applied only when the run produces exactly that prediction, so a label never silently carries over to a different answer. 'models' says which runs produced it. Proposed by Claude: every non-exact-match answer in the 3B and 7B n=1000 runs was reviewed (2026-11-04) and only verdicts that differ from bioasq.grade() are stored. Entries whose note starts JUDGEMENT CALL are not simple synonym matches: the answer is less specific than the gold, phrased indirectly, or right where the gold is wrong or outdated. All were re-checked against the rubric on 2026-11-04; a biomedical expert may still disagree with individual calls.",
   "labels": {
     "Which is the most prevalent form of arrhythmia worldwide?": {
       "correct": true,
@@ -51,7 +51,7 @@
     },
     "What does gepotidacin do to bacteria?": {
       "correct": false,
-      "note": "DEBATABLE. 'Inhibits bacterial growth' is true but misses the mechanism in gold ('inhibits bacterial DNA replication'); kept wrong as too vague for a factoid.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. 'Inhibits bacterial growth' is true but misses the mechanism in gold ('inhibits bacterial DNA replication'); kept wrong as too vague for a factoid.",
       "pred": "Inhibits bacterial growth"
     },
     "What is the drug target for Eliquis (Apixaban)?": {
@@ -78,7 +78,7 @@
     },
     "What is a mitosome?": {
       "correct": true,
-      "note": "DEBATABLE. Mitosomes are mitochondrion-derived (related) organelles, same concept as gold.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Mitosomes are mitochondrion-derived (related) organelles, same concept as gold.",
       "pred": "Mitochondria-derived organelle",
       "models": [
         "3B"
@@ -112,7 +112,7 @@
     "When is the protein OAS1 activated?": [
       {
         "correct": true,
-        "note": "DEBATABLE. OAS1 is enzymatically activated by dsRNA; the gold describes IFN induction instead.",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. OAS1 is enzymatically activated by dsRNA; the gold describes IFN induction instead.",
         "pred": "Upon activation by double-stranded RNA",
         "models": [
           "3B"
@@ -120,7 +120,7 @@
       },
       {
         "correct": true,
-        "note": "DEBATABLE. OAS1 is induced/activated in viral infection via IFN; matches gold in substance.",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. OAS1 is induced/activated in viral infection via IFN; matches gold in substance.",
         "pred": "Viral infection",
         "models": [
           "7B"
@@ -146,8 +146,8 @@
       }
     ],
     "What type of enzyme is peroxiredoxin 2 (PRDX2)?": {
-      "correct": true,
-      "note": "DEBATABLE. PRDX2 is a peroxidase (antioxidant enzyme); 'thermostable' is an odd qualifier.",
+      "correct": false,
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. PRDX2 is a peroxidase, but 'thermostable' is a false property; an answer that adds a false claim is not accepted.",
       "pred": "Thermostable peroxidase",
       "models": [
         "3B"
@@ -240,7 +240,7 @@
     "What drug cures hepatitis C?": [
       {
         "correct": true,
-        "note": "DEBATABLE. Direct-acting antivirals is the class that includes sofosbuvir-based therapy.",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Direct-acting antivirals is the class that includes sofosbuvir-based therapy.",
         "pred": "Direct acting antivirals",
         "models": [
           "3B"
@@ -248,7 +248,7 @@
       },
       {
         "correct": true,
-        "note": "DEBATABLE. Sofosbuvir-based regimens are direct-acting antivirals; class answer is acceptable.",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Sofosbuvir-based regimens are direct-acting antivirals; class answer is acceptable.",
         "pred": "Direct-acting antiviral drugs",
         "models": [
           "7B"
@@ -265,7 +265,7 @@
     },
     "To the ligand of which receptors does Denosumab (Prolia) bind?": {
       "correct": true,
-      "note": "DEBATABLE. The question asks for the receptor whose ligand denosumab binds, which is RANK; gold lists the ligand.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. The question asks for the receptor whose ligand denosumab binds, which is RANK; gold lists the ligand.",
       "pred": "RANK receptors",
       "models": [
         "3B"
@@ -274,7 +274,7 @@
     "What can be predicted with the Wells criteria?": [
       {
         "correct": true,
-        "note": "DEBATABLE. Wells criteria predict VTE (PE and DVT); this covers the gold.",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Wells criteria predict VTE (PE and DVT); this covers the gold.",
         "pred": "Venous thromboembolism risk",
         "models": [
           "3B"
@@ -282,7 +282,7 @@
       },
       {
         "correct": true,
-        "note": "DEBATABLE. Wells criteria exist for both DVT and PE; gold lists only PE.",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Wells criteria exist for both DVT and PE; gold lists only PE.",
         "pred": "Deep vein thrombosis risk",
         "models": [
           "7B"
@@ -360,7 +360,7 @@
     },
     "What is the estimated impact of social determinants of health on health outcomes?": {
       "correct": true,
-      "note": "DEBATABLE. 'Substantial' matches 'highly significant impact'.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. 'Substantial' matches 'highly significant impact'.",
       "pred": "Substantial",
       "models": [
         "3B"
@@ -384,7 +384,7 @@
     },
     "What is a bacteriocin?": {
       "correct": true,
-      "note": "DEBATABLE. Bacteriocins are bacterial proteinaceous toxins, a standard definition.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Bacteriocins are bacterial proteinaceous toxins, a standard definition.",
       "pred": "A protein toxin",
       "models": [
         "3B"
@@ -409,7 +409,7 @@
     "What is DILI-CAT used for?": [
       {
         "correct": true,
-        "note": "DEBATABLE. DILI-CAT is a drug-induced liver injury causality tool; matches item judged correct for the same question.",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. DILI-CAT is a drug-induced liver injury causality tool; matches item judged correct for the same question.",
         "pred": "Diagnosis of drug-induced liver injury",
         "models": [
           "3B"
@@ -417,7 +417,7 @@
       },
       {
         "correct": true,
-        "note": "DEBATABLE. DILI-CAT is a drug-induced liver injury causality/scoring tool; prediction matches.",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. DILI-CAT is a drug-induced liver injury causality/scoring tool; prediction matches.",
         "pred": "Drug-induced liver injury classification",
         "models": [
           "7B"
@@ -494,7 +494,7 @@
     },
     "How many genera comprise the Flaviviridae family?": {
       "correct": true,
-      "note": "DEBATABLE. Flaviviridae currently has four genera (incl. Pegivirus); gold three is outdated.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Flaviviridae currently has four genera (incl. Pegivirus); gold three is outdated.",
       "pred": "Four genera",
       "models": [
         "3B"
@@ -528,8 +528,8 @@
       ]
     },
     "Which is the histone residue methylated by MLL1?": {
-      "correct": true,
-      "note": "DEBATABLE. K4 is the residue; MLL1 is the H3K4 methyltransferase, histone not explicitly named.",
+      "correct": false,
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. 'K4' without the histone does not identify the residue (MLL1 methylates H3K4); too unspecific for the question.",
       "pred": "K4",
       "models": [
         "3B"
@@ -571,7 +571,7 @@
     },
     "Which CYP gene polymorphism is a well-known predictor of efavirenz disposition?": {
       "correct": true,
-      "note": "DEBATABLE. CYP2B6 is the gene whose polymorphism (516G>T) predicts efavirenz levels.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. CYP2B6 is the gene whose polymorphism (516G>T) predicts efavirenz levels.",
       "pred": "CYP2B6",
       "models": [
         "3B",
@@ -589,7 +589,7 @@
     },
     "What is the most commonly used pain scale for the measurement of pain in children?": {
       "correct": false,
-      "note": "DEBATABLE. Wong-Baker FACES is not among the gold scales (FLACC, FPS-R, COMFORT).",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Wong-Baker FACES is not among the gold scales (FLACC, FPS-R, COMFORT).",
       "pred": "The Wong-Baker FACES Pain Scale",
       "models": [
         "3B"
@@ -598,7 +598,7 @@
     "From what age is it recommended to start population screening for colorectal cancer?": [
       {
         "correct": true,
-        "note": "DEBATABLE. Age 50 lies within the gold range 45-50.",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Age 50 lies within the gold range 45-50.",
         "pred": "Over 50 years old",
         "models": [
           "3B"
@@ -649,7 +649,7 @@
     },
     "In what part of the body would a periprosthetic infection occur?": {
       "correct": true,
-      "note": "DEBATABLE. Prosthetic joint area matches gold.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Prosthetic joint area matches gold.",
       "pred": "Joint or prosthetic joint",
       "models": [
         "3B"
@@ -682,7 +682,7 @@
     },
     "Bimekizumab is used for treatment of which disease?": {
       "correct": true,
-      "note": "DEBATABLE. Bimekizumab is also approved for psoriatic arthritis.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Bimekizumab is also approved for psoriatic arthritis.",
       "pred": "Psoriatic arthritis",
       "models": [
         "3B"
@@ -716,7 +716,7 @@
     ],
     "Which disease is treated with Fexinidazole?": {
       "correct": true,
-      "note": "DEBATABLE. Trypanosomiasis here means human African trypanosomiasis.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Trypanosomiasis here means human African trypanosomiasis.",
       "pred": "Trypanosomiasis",
       "models": [
         "3B"
@@ -751,7 +751,7 @@
     },
     "From which tissue was the NCI-H520 cell-line derived?": {
       "correct": true,
-      "note": "DEBATABLE. NCI-H520 is derived from lung (squamous NSCLC); lung answers 'tissue'.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. NCI-H520 is derived from lung (squamous NSCLC); lung answers 'tissue'.",
       "pred": "Lung",
       "models": [
         "3B",
@@ -796,7 +796,7 @@
     },
     "What does RUNX1T1 stand for?": {
       "correct": true,
-      "note": "DEBATABLE. RUNX1T1 = RUNX1 translocated to 1; gold names RUNX1 itself, prediction matches the actual expansion.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. RUNX1T1 = RUNX1 translocated to 1; gold names RUNX1 itself, prediction matches the actual expansion.",
       "pred": "Runx1 translocation 1",
       "models": [
         "3B"
@@ -805,7 +805,7 @@
     "Which receptor is targeted by Erenumab?": [
       {
         "correct": true,
-        "note": "DEBATABLE. Erenumab binds the CGRP receptor's CLR/RAMP1 complex; CLR is its core component.",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Erenumab binds the CGRP receptor's CLR/RAMP1 complex; CLR is its core component.",
         "pred": "Calcitonin receptor-like receptor",
         "models": [
           "3B"
@@ -944,7 +944,7 @@
       },
       {
         "correct": true,
-        "note": "DEBATABLE. Protamine 2 is expressed in testis (spermatids/sperm).",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Protamine 2 is expressed in testis (spermatids/sperm).",
         "pred": "Testis",
         "models": [
           "7B"
@@ -953,7 +953,7 @@
     ],
     "What is the cause of lactose intolerance?": {
       "correct": false,
-      "note": "DEBATABLE. Hedged answer includes the wrong alternative 'lactose deficiency'.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Hedged answer includes the wrong alternative 'lactose deficiency'.",
       "pred": "Lactose deficiency or lactase deficiency",
       "models": [
         "3B"
@@ -978,7 +978,7 @@
     "Which enzyme is inhibited by a drug Lorlatinib?": [
       {
         "correct": true,
-        "note": "DEBATABLE. Lorlatinib is an ALK/ROS1 inhibitor, so ROS1 kinase is a valid target though gold lists only ALK.",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Lorlatinib is an ALK/ROS1 inhibitor, so ROS1 kinase is a valid target though gold lists only ALK.",
         "pred": "ROS1 kinase",
         "models": [
           "3B"
@@ -1014,7 +1014,7 @@
     "What happens to H2AX upon DNA bouble strand breaks?": [
       {
         "correct": true,
-        "note": "DEBATABLE. H2AX is phosphorylated (gammaH2AX) at DSBs; canonical answer even though gold phrases it as concentration.",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. H2AX is phosphorylated (gammaH2AX) at DSBs; canonical answer even though gold phrases it as concentration.",
         "pred": "It is phosphorylated",
         "models": [
           "3B"
@@ -1022,7 +1022,7 @@
       },
       {
         "correct": true,
-        "note": "DEBATABLE. H2AX is phosphorylated (gamma-H2AX) at DSBs; canonical answer, gold is odd.",
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. H2AX is phosphorylated (gamma-H2AX) at DSBs; canonical answer, gold is odd.",
         "pred": "Phosphorylation",
         "models": [
           "7B"
@@ -1031,7 +1031,7 @@
     ],
     "What does davunetide do to microtubules?": {
       "correct": true,
-      "note": "DEBATABLE. Davunetide (NAP) is reported to promote microtubule assembly/stability.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Davunetide (NAP) is reported to promote microtubule assembly/stability.",
       "pred": "Promotes assembly",
       "models": [
         "7B"
@@ -1055,7 +1055,7 @@
     },
     "What biologic process in the body is associated with Mast cells?": {
       "correct": true,
-      "note": "DEBATABLE. Anaphylaxis is a specific allergic process; instance of gold 'allergy'.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Anaphylaxis is a specific allergic process; instance of gold 'allergy'.",
       "pred": "Anaphylaxis",
       "models": [
         "7B"
@@ -1094,8 +1094,8 @@
       ]
     },
     "Which translocation is harbored in the Askin tumor cells?": {
-      "correct": true,
-      "note": "DEBATABLE. The Ewing sarcoma translocation is t(11;22); indirect but same entity.",
+      "correct": false,
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Names the tumour family, not the translocation, and Ewing sarcoma has more than one (t(11;22), t(21;22)).",
       "pred": "Ewing sarcoma translocation",
       "models": [
         "7B"
@@ -1143,7 +1143,7 @@
     },
     "What is the mode of action of primaquine?": {
       "correct": true,
-      "note": "DEBATABLE. Malaria parasite clearance is equivalent to anti-malarial action.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Malaria parasite clearance is equivalent to anti-malarial action.",
       "pred": "Malaria parasite clearance",
       "models": [
         "7B"
@@ -1167,7 +1167,7 @@
     },
     "What is the method FASP used for?": {
       "correct": true,
-      "note": "DEBATABLE. FASP (filter-aided sample preparation) is for proteomic sample prep including digestion.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. FASP (filter-aided sample preparation) is for proteomic sample prep including digestion.",
       "pred": "Protein digestion",
       "models": [
         "7B"
@@ -1175,7 +1175,7 @@
     },
     "What is the effect of nocodazole cell treatment?": {
       "correct": true,
-      "note": "DEBATABLE. Nocodazole depolymerizes microtubules, the direct cause of the gold's mitotic arrest.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Nocodazole depolymerizes microtubules, the direct cause of the gold's mitotic arrest.",
       "pred": "Microtubule depolymerization",
       "models": [
         "7B"
@@ -1343,7 +1343,7 @@
     },
     "When are itaconic acid levels elevated?": {
       "correct": true,
-      "note": "DEBATABLE. Itaconate rises in inflammatory/immune activation, matching gold in substance.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Itaconate rises in inflammatory/immune activation, matching gold in substance.",
       "pred": "Inflammatory conditions",
       "models": [
         "7B"
@@ -1487,7 +1487,7 @@
     },
     "In what proportion of children with heart failure has Enalapril been shown to be safe and effective?": {
       "correct": true,
-      "note": "DEBATABLE. 50% lies within the 50-80% gold range (boundary).",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. 50% lies within the 50-80% gold range (boundary).",
       "pred": "50%",
       "models": [
         "7B"
@@ -1503,7 +1503,7 @@
     },
     "Which disease is treated with lucinactant?": {
       "correct": true,
-      "note": "DEBATABLE. Neonatal RDS is surfactant-deficiency lung disease.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Neonatal RDS is surfactant-deficiency lung disease.",
       "pred": "Surfactant deficiency pulmonary disease",
       "models": [
         "7B"
@@ -1543,7 +1543,7 @@
     },
     "Which protein is the main inhibitor of protein phosphatase 1 (PP1)?": {
       "correct": true,
-      "note": "DEBATABLE. PPP1R1A (regulatory subunit 1A) is inhibitor-1.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. PPP1R1A (regulatory subunit 1A) is inhibitor-1.",
       "pred": "Regulatory subunit 1A",
       "models": [
         "7B"
@@ -1583,7 +1583,7 @@
     },
     "What is targeted by Palbociclib?": {
       "correct": true,
-      "note": "DEBATABLE. Palbociclib targets CDK4/6; gold (EGFR) is factually wrong.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Palbociclib targets CDK4/6; gold (EGFR) is factually wrong.",
       "pred": "CDK4/CDK6",
       "models": [
         "7B"
@@ -1599,7 +1599,7 @@
     },
     "How is the STING protein activated?": {
       "correct": true,
-      "note": "DEBATABLE. STING is directly activated by cGAMP (made from cytosolic DNA); gold is upstream trigger.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. STING is directly activated by cGAMP (made from cytosolic DNA); gold is upstream trigger.",
       "pred": "By cyclic GMP-AMP",
       "models": [
         "7B"
@@ -1623,7 +1623,7 @@
     },
     "By which method do micro RNAs (miRNAs) primarily aid in transcriptional and post-transcriptional regulation?": {
       "correct": true,
-      "note": "DEBATABLE. Gene silencing encompasses mRNA degradation/translational repression.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Gene silencing encompasses mRNA degradation/translational repression.",
       "pred": "Gene silencing",
       "models": [
         "7B"
@@ -1671,7 +1671,7 @@
     },
     "What is a exposome?": {
       "correct": true,
-      "note": "DEBATABLE. Exposure history ~ environmental exposure record.",
+      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Exposure history ~ environmental exposure record.",
       "pred": "Exposure history",
       "models": [
         "7B"

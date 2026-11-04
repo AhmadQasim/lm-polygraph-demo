@@ -11,7 +11,7 @@ one paragraph. Titles do not flow.
   > The scores behind the AUROC
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > Cheapest against dearest — the overlap looks much the same.
+  > Tier 1 against tier 4 — the overlap looks much the same.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > Raw uncertainty scores for every question, split by whether the answer was graded

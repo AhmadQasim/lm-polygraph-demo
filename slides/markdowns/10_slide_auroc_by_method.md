@@ -11,7 +11,7 @@ one paragraph. Titles do not flow.
   > Every estimator, ranked
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > The cheapest tier holds both the winner and the traps.
+  > Tier 1 holds both the winner and the traps.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > AUROC for separating wrong answers from right ones, with 95% bootstrap confidence

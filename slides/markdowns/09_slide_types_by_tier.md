@@ -8,12 +8,12 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > The same methods, priced
+  > Every estimator, by type and tier
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > The tiers sort these methods by what they cost, not by what they read.
+  > Types say what signal a method reads; tiers, what it needs to run.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Every estimator in the results, placed by signal type and cost tier. Tiers are
-  > cumulative: a tier-4 run also pays for tiers 1–3. Sampling methods split across
-  > tiers 3 and 4 by whether they also need the NLI model.
+  > Every estimator in the results, placed by signal type and tier. Tiers are
+  > cumulative: each adds one requirement to the one before. Sampling methods split
+  > across tiers 3 and 4 by whether they also need the NLI model.

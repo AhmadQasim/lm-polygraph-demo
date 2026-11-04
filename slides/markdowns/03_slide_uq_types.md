@@ -17,5 +17,5 @@ one paragraph. Titles do not flow.
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > White-box needs the model's probabilities or internals; black-box needs only its
   > text. Families and method names follow Vazhentsev et al. (arXiv:2605.14570);
-  > self-report is added here because p(True) is in the run. T1–T4 are this talk's cost
-  > tiers.
+  > self-report is added here because p(True) is in the run. T1–T4 are the tiers the
+  > results are grouped by.

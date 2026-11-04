@@ -14,5 +14,5 @@ one paragraph. Titles do not flow.
   > One forward pass, and the model has already said how sure it was.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > All three come out of the pass that produced the answer, so they cost nothing beyond
+  > All three come out of the pass that produced the answer, so they need nothing beyond
   > generation. They need the token probabilities, which many hosted APIs do not return.

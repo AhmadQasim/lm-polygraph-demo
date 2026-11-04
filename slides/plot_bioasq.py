@@ -1,13 +1,13 @@
-"""Figures for the LM-Polygraph cost-vs-performance journal club talk.
+"""Figures for the results slides of the LM-Polygraph journal club talk.
 
 Drawn in the Helmholtz house style, against `slides/hgf_style.py` (vendored from
 ~/projects/slides). Read `STYLE.md` in that repo for the full spec; the parts
 that bind here are repeated below.
 
   1. auroc_by_method.png   - all estimators ranked, 95% bootstrap CI per method.
-  2. auroc_by_tier.png     - AUROC spread within each cost tier.
-  3. uncertainty_by_correctness.png - raw scores split by correctness, cheapest
-     good method against the most expensive one.
+  2. auroc_by_tier.png     - AUROC spread within each tier.
+  3. uncertainty_by_correctness.png - raw scores split by correctness, the best
+     tier-1 method against semantic entropy (tier 4).
   4. model_size_comparison.png - the same methods on two model sizes (--compare).
 
 Run:  .venv/bin/python slides/plot_bioasq.py outputs/<cache>.json
@@ -15,8 +15,8 @@ Run:  .venv/bin/python slides/plot_bioasq.py outputs/<cache>.json
 THE COLOUR KEY. Colour is semantic here and holds across all four figures - a
 reader decodes a hue once. Do not use these decoratively.
 
-    tier 1, one forward pass - the cheap tier, and the story   blue      #005AA0
-    tiers 2-4, the paid-for tiers - context                    blue 60   #669CC6
+    tier 1, one forward pass - the story                       blue      #005AA0
+    tiers 2-4 - context                                        blue 60   #669CC6
     the model answered correctly                               darkblue  #002864
     the model answered incorrectly - what we detect            orange    #ED7D31
     chance, axes, scope caveats                                gray 85   #738084
@@ -74,8 +74,8 @@ FIGDIR = SLIDES / "figures"
 MDDIR = SLIDES / "markdowns"
 
 # --- the colour key, by meaning (see the module docstring) ---------------------------
-CHEAP = BLUE          # tier 1: one forward pass. The story.
-PAID = BLUE60         # tiers 2-4: context.
+TIER1 = BLUE          # tier 1: one forward pass. The story.
+TIER_REST = BLUE60    # tiers 2-4: context.
 CORRECT_C = DARK      # the model was right
 INCORRECT_C = ORANGE  # the model was wrong - what an estimator has to catch
 AXIS = GRAY85         # axis, ticks, reference lines, scope caveats
@@ -292,13 +292,13 @@ def fig_by_method(d, y, stats):
         for i, name in enumerate(names):
             auc, lo, hi = stats[name]
             tier = bioasq.tier_of(name)
-            cheap = tier == 1
-            colour = CHEAP if cheap else PAID
+            tier1 = tier == 1
+            colour = TIER1 if tier1 else TIER_REST
             inverted = hi < 0.5
 
             ax.plot([lo, hi], [i, i], color=colour, lw=WEIGHT["data"],
                     solid_capstyle="round", zorder=4)
-            ax.plot([auc], [i], "o", ms=8 if cheap else 7,
+            ax.plot([auc], [i], "o", ms=8 if tier1 else 7,
                     markerfacecolor="none" if inverted else colour,
                     markeredgecolor=colour,
                     markeredgewidth=WEIGHT["context"] if inverted else 0.0,
@@ -307,8 +307,8 @@ def fig_by_method(d, y, stats):
             # the method name, in its own gutter to the left of the plot
             ax.annotate(PRETTY.get(name, name), (0.0, i), xycoords=_blend(ax),
                         textcoords="offset points", xytext=(-7, 0), ha="right",
-                        va="center", color=DARK if cheap else AXIS,
-                        fontproperties=halvar(TYPE["tick"], bold=cheap),
+                        va="center", color=DARK if tier1 else AXIS,
+                        fontproperties=halvar(TYPE["tick"], bold=tier1),
                         clip_on=False, zorder=7)
             # the tier tag - the only thing that says which tier this is
             ax.annotate(TIER_NAME[tier], (1.0, i), xycoords=_blend(ax),
@@ -321,7 +321,7 @@ def fig_by_method(d, y, stats):
             ax.annotate(f"{auc:.3f}", (1.0, i), xycoords=_blend(ax),
                         textcoords="offset points", xytext=(26, 0), ha="left",
                         va="center",
-                        color=DARK if is_claim else (DARK if cheap else AXIS),
+                        color=DARK if is_claim else (DARK if tier1 else AXIS),
                         fontproperties=(hermann(TYPE["panel_header"]) if is_claim
                                         else halvar(TYPE["value"], bold=True)),
                         clip_on=False, zorder=7)
@@ -342,10 +342,10 @@ def fig_by_method(d, y, stats):
 
 
 # =====================================================================================
-# 2. spread within each cost tier
+# 2. spread within each tier
 # =====================================================================================
 def fig_by_tier(d, y, stats):
-    """One column per cost tier, every estimator a dot, the median a bar."""
+    """One column per tier, every estimator a dot, the median a bar."""
     rng = np.random.default_rng(0)
     fig, size = canvas()
     ml, mr, mt, mb = MARGINS
@@ -366,11 +366,11 @@ def fig_by_tier(d, y, stats):
         v = np.asarray([stats[n][0] for n in names])
         inv = np.asarray([stats[n][2] < 0.5 for n in names])
         x = tier + rng.uniform(-0.13, 0.13, len(v))
-        cheap = tier == 1
-        colour = CHEAP if cheap else PAID
+        tier1 = tier == 1
+        colour = TIER1 if tier1 else TIER_REST
 
         if (~inv).any():
-            ax.plot(x[~inv], v[~inv], "o", ms=8 if cheap else 7, color=colour,
+            ax.plot(x[~inv], v[~inv], "o", ms=8 if tier1 else 7, color=colour,
                     markeredgewidth=0.0, zorder=5)
         if inv.any():
             ax.plot(x[inv], v[inv], "o", ms=7, markerfacecolor="none",
@@ -382,7 +382,7 @@ def fig_by_tier(d, y, stats):
         # category + gloss, which is what removes the legend
         ax.annotate(TIER_NAME[tier], (tier, 0.0), xycoords=_blend_y(ax),
                     textcoords="offset points", xytext=(0, -8), ha="center",
-                    va="top", color=DARK if cheap else AXIS,
+                    va="top", color=DARK if tier1 else AXIS,
                     fontproperties=hermann(TYPE["category"]), clip_on=False,
                     zorder=7)
         ax.annotate(TIER_GLOSS[tier], (tier, 0.0), xycoords=_blend_y(ax),
@@ -391,8 +391,8 @@ def fig_by_tier(d, y, stats):
                     clip_on=False, zorder=7)
         ax.annotate(f"{np.median(v):.3f}", (tier + 0.28, np.median(v)),
                     textcoords="offset points", xytext=(4, 0), ha="left",
-                    va="center", color=DARK if cheap else AXIS,
-                    fontproperties=(hermann(TYPE["panel_header"]) if cheap
+                    va="center", color=DARK if tier1 else AXIS,
+                    fontproperties=(hermann(TYPE["panel_header"]) if tier1
                                     else halvar(TYPE["value"], bold=True)),
                     clip_on=False, zorder=7)
 
@@ -409,7 +409,7 @@ def fig_by_tier(d, y, stats):
 # 3. the scores themselves
 # =====================================================================================
 def fig_scores(d, y, methods=("MeanTokenEntropy", "SemanticEntropy")):
-    """Raw uncertainty scores split by correctness, cheapest against dearest."""
+    """Raw uncertainty scores split by correctness, tier 1 against tier 4."""
     rng = np.random.default_rng(0)
     fig, size = canvas()
     ml, mr, mt, mb = MARGINS
@@ -538,16 +538,16 @@ def fig_model_compare(caches, manual, labels_for=None):
     for n in shown:
         xv, yv = a_small[n], a_big[n]
         tier = bioasq.tier_of(n)
-        cheap = tier == 1
-        colour = CHEAP if cheap else PAID
-        ax.plot([xv], [yv], "o", ms=8 if cheap else 7, color=colour,
+        tier1 = tier == 1
+        colour = TIER1 if tier1 else TIER_REST
+        ax.plot([xv], [yv], "o", ms=8 if tier1 else 7, color=colour,
                 markeredgewidth=0.0, zorder=5)
         if n in labels_for:
             dx, dy = OFFSETS.get(n, (9, -2))
             ax.annotate(PRETTY.get(n, n), (xv, yv), textcoords="offset points",
                         xytext=(dx, dy), ha="right" if dx < 0 else "left",
-                        va="center", color=DARK if cheap else AXIS,
-                        fontproperties=halvar(TYPE["tick"], bold=cheap),
+                        va="center", color=DARK if tier1 else AXIS,
+                        fontproperties=halvar(TYPE["tick"], bold=tier1),
                         clip_on=False, zorder=7)
 
     heading(ax, f"AUROC on {big_tag}", dy=12)
@@ -613,7 +613,7 @@ SLIDE_COPY = {
     "auroc_by_method": (
         "10",
         "Every estimator, ranked",
-        "The cheapest tier holds both the winner and the traps.",
+        "Tier 1 holds both the winner and the traps.",
         "AUROC for separating wrong answers from right ones, with 95% bootstrap "
         "confidence intervals. Blue is tier 1 — one forward pass, no sampling "
         "and no second model. Hollow markers are sign-inverted: they return a "
@@ -621,17 +621,17 @@ SLIDE_COPY = {
     ),
     "auroc_by_tier": (
         "11",
-        "What each cost tier buys",
-        "Paying more buys consistency, not a higher ceiling.",
-        "Each dot is one estimator, placed in its cost tier; the bar is the tier "
-        "median. Tiers are cumulative, so the step from one column to the next is "
-        "the marginal cost of that tier — a second forward pass, then sampling, "
-        "then a DeBERTa NLI model over the sample set.",
+        "What each tier adds",
+        "Sampling and an NLI model add consistency, not a higher ceiling.",
+        "Each dot is one estimator, placed in its tier; the bar is the tier "
+        "median. Tiers are cumulative: each column adds one requirement to the one "
+        "before — a second prompt, then sampling, then a DeBERTa NLI model over the "
+        "sample set.",
     ),
     "uncertainty_by_correctness": (
         "12",
         "The scores behind the AUROC",
-        "Cheapest against dearest — the overlap looks much the same.",
+        "Tier 1 against tier 4 — the overlap looks much the same.",
         "Raw uncertainty scores for every question, split by whether the answer was "
         "graded correct. An AUROC in the high 0.7s still means two heavily "
         "overlapping distributions: this is a triage signal, not a verdict.",
@@ -690,7 +690,7 @@ def wrap_measured(fig, text, font, max_u):
 
     The slides repo lays its figures out by hand and has `copy_check.py` because
     a guessed characters-per-line estimate lets a one-word edit run off a panel
-    with nothing failing. Measuring is the cheap version of that: the string
+    with nothing failing. Measuring is the light version of that: the string
     that gets drawn is the string that gets measured.
     """
     renderer = fig.canvas.get_renderer()

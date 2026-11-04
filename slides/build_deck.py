@@ -65,7 +65,7 @@ SLIDES: list[tuple[str, str]] = [
     ("consistency", "Background"),
     ("trained_probes", "Background"),
     ("lm_polygraph", "Tooling"),
-    ("types_by_tier", "Methods: The four cost tiers"),
+    ("types_by_tier", "Methods: Four tiers of estimators"),
     ("auroc_by_method", "Results"),
     ("auroc_by_tier", "Results"),
     ("uncertainty_by_correctness", "Results"),

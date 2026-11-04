@@ -2,9 +2,9 @@
   "Problem: Confidently wrong": "Problem",
   "Background: Where the uncertainty is": "Background",
   "Tooling: LM-Polygraph": "Polygraph",
-  "Methods: The four cost tiers": "Cost tiers",
+  "Methods: Four tiers of estimators": "Tiers",
   "Methods: BioASQ, and grading it": "Benchmark",
-  "Results: What works, and what it costs": "Results",
+  "Results: What works": "Results",
   "Conclusions and outlook": "Conclusions",
   "Backup": "Backup"
 }

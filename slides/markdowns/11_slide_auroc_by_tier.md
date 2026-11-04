@@ -8,13 +8,12 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > What each cost tier buys
+  > What each tier adds
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > Paying more buys consistency, not a higher ceiling.
+  > Sampling and an NLI model add consistency, not a higher ceiling.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Each dot is one estimator, placed in its cost tier; the bar is the tier median.
-  > Tiers are cumulative, so the step from one column to the next is the marginal cost
-  > of that tier — a second forward pass, then sampling, then a DeBERTa NLI model over
-  > the sample set.
+  > Each dot is one estimator, placed in its tier; the bar is the tier median. Tiers are
+  > cumulative: each column adds one requirement to the one before — a second prompt,
+  > then sampling, then a DeBERTa NLI model over the sample set.

@@ -15,5 +15,5 @@ one paragraph. Titles do not flow.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > p(True) reads the probability the model puts on “True”; the empirical variant
-  > samples the verdict ten times and counts. Both cost one more prompt per answer,
+  > samples the verdict ten times and counts. Both need one more prompt per answer,
   > which is tier 2.

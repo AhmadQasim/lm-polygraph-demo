@@ -14,9 +14,8 @@ from typing import Iterable
 
 HF_DATASET = "jmhb/BioASQ"
 
-# Estimators grouped by what they cost, which is the axis the talk is about.
-# Tiers are cumulative: running "4" also runs 1-3, so the wall-clock delta
-# between tier runs is the marginal cost of that tier. Attention-based methods
+# Estimators grouped by what they need to run. Tiers are cumulative: each adds
+# one requirement to the one before, and running "4" also runs 1-3. Attention-based methods
 # (RAUQ, CSL, AttentionScore) are excluded - they need output_attentions=True,
 # which forces the slow eager path on transformers 5.x.
 TIERS = {
@@ -29,7 +28,7 @@ TIERS = {
         "RenyiNeg",
         "SelfCertainty",
         "BoostedProbSequence",
-        # These two need a second, context-free LM pass (~2x tier-1 cost).
+        # These two need a second, context-free LM pass.
         "MeanPointwiseMutualInformation",
         "MeanConditionalPointwiseMutualInformation",
     ],
@@ -38,10 +37,10 @@ TIERS = {
     # the model's own text and raises IndexError on Qwen2.5-3B, which does not
     # emit a parseable confidence. That is a finding, not a bug to fix here.
     2: ["PTrue", "PTrueEmpirical"],
-    # Sample N continuations (~10x), but no entailment model.
+    # Sample several continuations (10 by default), but no entailment model.
     3: ["MonteCarloSequenceEntropy", "MonteCarloNormalizedSequenceEntropy",
         "LexicalSimilarity"],
-    # Sampling plus a DeBERTa NLI model over the sample set: the expensive tier.
+    # Sampling plus a DeBERTa NLI model over the sample set.
     4: ["SemanticEntropy", "DegMat", "Eccentricity", "EigValLaplacian",
         "NumSemSets", "KernelLanguageEntropy"],
 }
@@ -226,7 +225,7 @@ def grade(pred: str, golds: Iterable[str], f1_threshold: float = 0.6) -> dict:
 
 
 def tier_of(display_name: str) -> int | None:
-    """Map an LM-Polygraph display name back to its cost tier.
+    """Map an LM-Polygraph display name back to its tier.
 
     Display names carry suffixes the TIERS keys do not ("DegMat" ->
     "DegMat_NLI_score_entail"), so match on the longest class-name prefix.
