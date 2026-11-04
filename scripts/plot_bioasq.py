@@ -216,11 +216,91 @@ def fig_scores(d, y, methods=("MeanTokenEntropy", "SemanticEntropy")):
     return out
 
 
+def fig_model_compare(caches, manual, labels_for=None):
+    """Same methods, same questions, two model sizes.
+
+    A scatter against the y=x diagonal shows both things at once: how stable the
+    ranking is (scatter along the line) and that every point sits BELOW it
+    (detection is harder on the stronger model). Labels are selective - the
+    points that carry the argument - rather than one per mark.
+    """
+    from scipy.stats import spearmanr
+
+    (small_path, small_tag), (big_path, big_tag) = caches
+    aucs, accs = [], []
+    for path in (small_path, big_path):
+        d, y = load(path, manual)
+        aucs.append({n: fast_auc(y, np.asarray(v, float)) for n, v in d["scores"].items()})
+        accs.append(int((y == 0).sum()) / len(y))
+    a_small, a_big = aucs
+    names = [n for n in a_small if n in a_big]
+    rho, _ = spearmanr([a_small[n] for n in names], [a_big[n] for n in names])
+
+    # The three sign-inverted estimators sit near 0.3 and would squash the
+    # informative 0.70-0.81 cluster into a corner. They are shown in
+    # auroc_by_method.png; here the range is cut to where the comparison lives.
+    shown = [n for n in names if max(a_small[n], a_big[n]) >= 0.45]
+    n_omitted = len(names) - len(shown)
+
+    fig, ax = plt.subplots(figsize=(6.6, 6.2), facecolor=SURFACE)
+    style(ax)
+    lim = (0.45, 0.83)
+    ax.plot(lim, lim, color=GRID, lw=1.4, ls="--", zorder=0)
+    ax.text(0.818, 0.812, "equal", fontsize=8, color=MUTED, rotation=45,
+            ha="right", va="bottom")
+
+    # Hand-placed offsets: the top cluster is tight enough that a uniform
+    # offset overlaps neighbouring labels and runs off the axis.
+    OFFSETS = {
+        "MeanTokenEntropy": (-10, 10),
+        "SemanticEntropy": (10, -12),
+        "PTrue": (11, -2),
+        "PTrueEmpirical": (10, -10),
+    }
+    labels_for = labels_for or set()
+    for n in shown:
+        x, yv = a_small[n], a_big[n]
+        tier = bioasq.tier_of(n)
+        col = ACCENT if tier == 1 else MUTED
+        ax.plot([x], [yv], "o", ms=8, color=col, alpha=0.85,
+                markeredgecolor=SURFACE, markeredgewidth=1.4)
+        if n in labels_for:
+            dx, dy = OFFSETS.get(n, (10, -3))
+            ax.annotate(PRETTY.get(n, n), (x, yv), textcoords="offset points",
+                        xytext=(dx, dy), fontsize=8.5,
+                        ha="right" if dx < 0 else "left",
+                        color=INK if tier == 1 else INK_SOFT)
+
+    ax.set_xlim(*lim)
+    ax.set_ylim(*lim)
+    ax.set_aspect("equal")
+    ax.set_xlabel(f"AUROC on {small_tag}   ({accs[0]:.0%} of answers correct)",
+                  fontsize=9.5, color=INK_SOFT)
+    ax.set_ylabel(f"AUROC on {big_tag}   ({accs[1]:.0%} correct)",
+                  fontsize=9.5, color=INK_SOFT)
+    ax.text(0.035, 0.965,
+            f"Spearman $\\rho$ = {rho:.3f} over all {len(names)} methods\n"
+            f"every method below the line",
+            transform=ax.transAxes, va="top", fontsize=9, color=INK_SOFT)
+    fig.suptitle("The ranking survives scale; the task gets harder",
+                 x=0.012, ha="left", fontsize=13, color=INK, fontweight="bold")
+    ax.set_title(f"blue = tier 1 (one forward pass); "
+                 f"{n_omitted} sign-inverted methods off-range",
+                 loc="left", fontsize=9.5, color=INK_SOFT, pad=10)
+    fig.tight_layout(rect=(0, 0, 1, 0.95))
+    out = FIGDIR / "model_size_comparison.png"
+    fig.savefig(out, dpi=200, facecolor=SURFACE)
+    plt.close(fig)
+    return out
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("cache")
     ap.add_argument("--manual", default=str(ROOT / "manual_labels.json"))
     ap.add_argument("--n-boot", type=int, default=2000)
+    ap.add_argument("--compare", help="second cache: plot model-size comparison")
+    ap.add_argument("--labels", default="small,big", help="axis labels for --compare")
     args = ap.parse_args()
 
     FIGDIR.mkdir(exist_ok=True)
@@ -241,9 +321,14 @@ def main() -> None:
         flag = "  inverted" if hi < 0.5 else ""
         print(f"{PRETTY.get(n,n):<30}{'T'+str(bioasq.tier_of(n)):>5}{a:>8.3f}   [{lo:.3f}, {hi:.3f}]{flag}")
 
-    for out in (fig_by_method(d, y, stats),
-                fig_by_tier(d, y, stats),
-                fig_scores(d, y)):
+    outs = [fig_by_method(d, y, stats), fig_by_tier(d, y, stats), fig_scores(d, y)]
+    if args.compare:
+        small, big = args.labels.split(",")
+        outs.append(fig_model_compare(
+            [(args.cache, small), (args.compare, big)], args.manual,
+            labels_for={"MeanTokenEntropy", "SemanticEntropy", "PTrue",
+                        "PTrueEmpirical"}))
+    for out in outs:
         print(f"wrote {out}")
 
 

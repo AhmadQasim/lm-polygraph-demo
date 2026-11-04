@@ -74,6 +74,14 @@ def run(args) -> dict:
     # deprecation notice tells you to) skips that, and right-padding makes
     # batched generation silently wrong.
     tokenizer = AutoTokenizer.from_pretrained(args.model, padding_side="left")
+    if tokenizer.pad_token is None:
+        # Mistral (and several other families) ship no pad token, which makes
+        # tokenizer(..., padding=True) raise as soon as batch_size > 1. Falling
+        # back to EOS is safe here: we left-pad, so prompt padding never enters
+        # the generated span, and greedy_probs cuts the output at the first EOS
+        # anyway - which is exactly where a trailing pad would start.
+        tokenizer.pad_token = tokenizer.eos_token
+
     # attn_implementation matters: with output_attentions=True transformers 5.x
     # must use eager (sdpa returns no attention tensors and lm-polygraph's
     # greedy_probs indexes them unconditionally). We do not use any

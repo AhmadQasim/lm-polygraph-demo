@@ -20,6 +20,15 @@ outputs/
 figures/
 *.pkl
 
+# Deck template — 187 MB Helmholtz PowerPoint, copied from ~/projects/slides.
+# Read-only source: build into a copy, never save over it. Git would keep a
+# whole copy per commit, so it stays out.
+journal_club_template.pptx
+*.pptx
+
+# Build output
+build/
+
 # IDE
 .idea/
 
