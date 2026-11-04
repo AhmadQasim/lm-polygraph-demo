@@ -1,0 +1,54 @@
+{
+  "_comment": "Which figures build up click by click, and what arrives on each click. Bands are in figure units - 10 to the inch, origin bottom left, so the whole canvas is 0..124 x 0..44.5, the same numbers fig_methods.py and plot_bioasq.py lay out in. Run `python3 slides/hgf_layers.py` for the click count per figure.",
+  "_how": "'split_x': [a, b] cuts the full canvas into bands at those x positions. 'rects': [[x0,y0,x1,y1], ...] declares them outright, which is what to use when the bands should NOT reach the figure's heading or its grey scope line - anything outside every band is furniture and stays on screen for every click. 'groups': [[0,1],[2]] makes bands arrive together; the default is one band per click.",
+  "_absent": "A figure with no entry here gets no layers and no animation. selective_generation is one plate with three overlapping curves, so there is nothing to reveal in sequence; it is left alone deliberately rather than forgotten.",
+
+  "confidently_wrong": {
+    "_": "Four example rows, one per click. Bands stop below the column headers at y 40.9 and above the footnote, so both stay on screen throughout.",
+    "rects": [[0, 32.3, 124, 40.5], [0, 23.7, 124, 32.3],
+              [0, 15.1, 124, 23.7], [0, 5.8, 124, 15.1]]
+  },
+
+  "uq_types": {
+    "_": "Five signal-type columns, 22.88 u wide on a 2.4 u gap. Cut at the gap midpoints.",
+    "split_x": [24.08, 49.36, 74.64, 99.92]
+  },
+
+  "information_based": {"_": "How it works, then the methods table.", "split_x": [58.5]},
+  "self_report":       {"split_x": [58.5]},
+  "consistency":       {"split_x": [58.5]},
+  "trained_probes":    {"split_x": [58.5]},
+
+  "lm_polygraph": {
+    "_": "The four pipeline stages left to right, then the two notes underneath. Bands are contiguous so each arrow arrives with the stage it leaves.",
+    "rects": [[0, 18, 29.75, 44.5], [29.75, 18, 62, 44.5],
+              [62, 18, 94.25, 44.5], [94.25, 18, 124, 44.5],
+              [0, 0, 124, 18]]
+  },
+
+  "types_by_tier": {
+    "_": "One tier column per click. The row labels at x 0..23 are outside every band, so the five signal types are the scaffold and the tiers fill in.",
+    "rects": [[23.5, 0, 48.85, 44.5], [48.85, 0, 74.1, 44.5],
+              [74.1, 0, 99.35, 44.5], [99.35, 0, 124, 44.5]]
+  },
+
+  "auroc_by_method": {
+    "_": "Ranks 1-10, then 11-20. Bands stop short of the heading at y 42 and the scope line at y 2.",
+    "rects": [[0, 5, 64.5, 40], [64.5, 5, 124, 40]]
+  },
+
+  "auroc_by_tier": {
+    "_": "Tier 1 alone, then tiers 2-4 together - which is the figure's claim. Four separate bands would leave the CHANCE label, which sits past the last column, arriving on its own.",
+    "rects": [[0, 0, 41, 36.5], [41, 0, 124, 36.5]]
+  },
+
+  "uncertainty_by_correctness": {
+    "_": "Cheapest method, then the most expensive one beside it.",
+    "rects": [[0, 4, 67, 42], [67, 4, 124, 42]]
+  },
+
+  "model_size_comparison": {
+    "_": "The scatter, then the reading panel on the right.",
+    "rects": [[0, 0, 52, 44.5], [52, 0, 124, 44.5]]
+  }
+}

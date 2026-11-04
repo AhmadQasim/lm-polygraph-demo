@@ -24,10 +24,10 @@ does not need in PowerPoint.
 No backup is written, because the pristine original is still sitting at
 ~/projects/slides/vitiligo_voucher.pptx and this file is a copy of it:
 
-    cp ~/projects/slides/vitiligo_voucher.pptx journal_club_template.pptx
+    cp ~/projects/slides/vitiligo_voucher.pptx slides/journal_club_template.pptx
 
-Run:  python3 scripts/strip_template.py            # --check first, then strip
-      python3 scripts/strip_template.py --check    # report, change nothing
+Run:  python3 slides/strip_template.py            # --check first, then strip
+      python3 slides/strip_template.py --check    # report, change nothing
 """
 
 from __future__ import annotations
@@ -38,8 +38,8 @@ import shutil
 import zipfile
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-TEMPLATE = ROOT / "journal_club_template.pptx"
+HERE = Path(__file__).resolve().parent
+TEMPLATE = HERE / "journal_club_template.pptx"
 PRISTINE = Path.home() / "projects" / "slides" / "vitiligo_voucher.pptx"
 
 SLIDE_PART = re.compile(r"^ppt/slides/slide\d+\.xml$")

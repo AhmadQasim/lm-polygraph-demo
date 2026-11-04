@@ -32,7 +32,7 @@ case "$MODE" in
     echo
     echo "Pulled. Analyse and plot locally:"
     echo "  .venv/bin/python scripts/analyze_bioasq.py outputs/<file>.json --manual manual_labels.json"
-    echo "  .venv/bin/python scripts/plot_bioasq.py outputs/<file>.json"
+    echo "  .venv/bin/python slides/plot_bioasq.py outputs/<file>.json"
     ;;
   *)
     echo "usage: REMOTE=user@host:/path scripts/sync_gpu.sh {push|pull}" >&2

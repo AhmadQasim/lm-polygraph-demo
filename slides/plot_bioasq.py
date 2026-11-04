@@ -1,6 +1,6 @@
 """Figures for the LM-Polygraph cost-vs-performance journal club talk.
 
-Drawn in the Helmholtz house style, against `scripts/hgf_style.py` (vendored from
+Drawn in the Helmholtz house style, against `slides/hgf_style.py` (vendored from
 ~/projects/slides). Read `STYLE.md` in that repo for the full spec; the parts
 that bind here are repeated below.
 
@@ -10,7 +10,7 @@ that bind here are repeated below.
      good method against the most expensive one.
   4. model_size_comparison.png - the same methods on two model sizes (--compare).
 
-Run:  .venv/bin/python scripts/plot_bioasq.py outputs/<cache>.json
+Run:  .venv/bin/python slides/plot_bioasq.py outputs/<cache>.json
 
 THE COLOUR KEY. Colour is semantic here and holds across all four figures - a
 reader decodes a hue once. Do not use these decoratively.
@@ -40,7 +40,7 @@ rows of 11 pt text has to use two columns - which is why auroc_by_method does.
 WORDS. The claim headline, the blue lead line and the grey caption are NOT drawn
 into the PNG: on a slide `deck_common.figure_slide()` places them itself, and a
 figure carrying its own title would double up. They are written beside each
-figure as `markdowns/{nn}_slide_{name}.md` in the slides repo's format. Method
+figure as `slides/markdowns/{nn}_slide_{name}.md` in the slides repo's format. Method
 names (PRETTY) and tier labels stay in Python because they double as lookup keys.
 """
 
@@ -55,29 +55,23 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
+# The figure code lives in slides/; the BioASQ grading and AUROC code it reuses
+# stays with the experiment in scripts/.
+SLIDES = pathlib.Path(__file__).resolve().parent
+ROOT = SLIDES.parent
+sys.path.insert(0, str(SLIDES))
+sys.path.insert(0, str(ROOT / "scripts"))
 import bioasq  # noqa: E402
 from analyze_bioasq import bootstrap_auc, fast_auc  # noqa: E402
 from hgf_style import (  # noqa: E402
     BLUE, DARK, GRAY22, GRAY85, BLUE60, ORANGE, ORANGE_DARK, PALE, HIGHLIGHT,
     TYPE, WEIGHT, GEOM, REFERENCE_DASH, CHART_MIN_SIZE,
-    halvar, hermann, save, slab, use_hgf,
+    halvar, hermann, slab, use_hgf,
 )
+from hgf_layers import layered_save as save  # noqa: E402  # writes the click layers too
 
-def _project_root() -> pathlib.Path:
-    """Work whether the script sits in <proj>/scripts/ or flat in <proj>/.
-
-    sync_gpu.sh used to flatten the layout on the remote, which made a
-    hardcoded parent.parent resolve one level too high and scatter results
-    outside the project.
-    """
-    here = pathlib.Path(__file__).resolve().parent
-    return here.parent if here.name == "scripts" else here
-
-
-ROOT = _project_root()
-FIGDIR = ROOT / "figures"
-MDDIR = ROOT / "markdowns"
+FIGDIR = SLIDES / "figures"
+MDDIR = SLIDES / "markdowns"
 
 # --- the colour key, by meaning (see the module docstring) ---------------------------
 CHEAP = BLUE          # tier 1: one forward pass. The story.
@@ -654,7 +648,7 @@ SLIDE_COPY = {
 }
 
 
-def write_markdown(stem):
+def write_markdown(stem, force=False):
     """The slide's three lines, in the slides repo's `{slide}_slide_*.md` format.
 
     They are deliberately not drawn into the PNG: `deck_common.figure_slide()`
@@ -663,6 +657,11 @@ def write_markdown(stem):
     """
     number, title, lead, caption = SLIDE_COPY[stem]
     MDDIR.mkdir(exist_ok=True)
+    existing = sorted(MDDIR.glob(f"*_slide_{stem}.md"))
+    if existing and not force:
+        # The markdown is where the slide's wording is edited, so a figure re-run
+        # must not overwrite it. --rewrite-copy regenerates it from the Python.
+        return existing[0], False
     path = MDDIR / f"{number}_slide_{stem}.md"
     path.write_text(
         f"# slide_{stem}\n\n"
@@ -678,12 +677,12 @@ def write_markdown(stem):
         "- **caption** — the grey paragraph under the figure — it wraps on its own\n"
         + "".join(f"  > {line}\n" for line in _wrap(caption, 84))
     )
-    return path
+    return path, True
 
 
 def _wrap(text, width):
     import textwrap
-    return textwrap.wrap(text, width)
+    return textwrap.wrap(text, width, break_on_hyphens=False)
 
 
 def wrap_measured(fig, text, font, max_u):
@@ -723,6 +722,8 @@ def main() -> None:
     ap.add_argument("--n-boot", type=int, default=2000)
     ap.add_argument("--compare", help="second cache: plot model-size comparison")
     ap.add_argument("--labels", default="small,big", help="axis labels for --compare")
+    ap.add_argument("--rewrite-copy", action="store_true",
+                    help="regenerate the slide markdowns, overwriting edits made there")
     args = ap.parse_args()
 
     use_hgf()
@@ -753,8 +754,9 @@ def main() -> None:
                         "PTrueEmpirical"}))
     print()
     for out in outs:
-        md = write_markdown(out.stem)
-        print(f"wrote {out}\n      {out.with_suffix('.svg')}\n      {md}")
+        md, wrote = write_markdown(out.stem, force=args.rewrite_copy)
+        print(f"wrote {out}\n      {out.with_suffix('.svg')}\n      "
+              f"{md}{'' if wrote else '  (kept: edited copy)'}")
 
 
 if __name__ == "__main__":

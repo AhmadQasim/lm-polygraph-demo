@@ -2,7 +2,7 @@
 """Helmholtz house style for every matplotlib figure in this deck.
 
 **Vendored from ~/projects/slides/scripts/hgf_style.py.** Copied verbatim except
-for FONT_DIR, which points at this repo's own `fonts/` rather than the Beamer
+for FONT_DIR, which points at `slides/fonts/` beside this file rather than the Beamer
 template submodule. Keep it a copy, not a fork: if the house style changes there,
 re-copy and re-apply the FONT_DIR line. The deck-specific helpers (likert, the
 vitiligo ROLE assignments) are kept rather than pruned so a diff against the
@@ -32,7 +32,7 @@ from matplotlib import font_manager
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyBboxPatch, Polygon, Rectangle
 
-FONT_DIR = Path(__file__).resolve().parent.parent / "fonts"
+FONT_DIR = Path(__file__).resolve().parent / "fonts"
 
 # --- the exact palette from theme/beamercolorthemehelmholtzai.sty ----------------------
 HGF = {

@@ -101,6 +101,11 @@ def run(args) -> dict:
         args.model, dtype=torch.bfloat16, attn_implementation=args.attn
     ).to(args.device)
     hf_model.eval()
+    if hf_model.generation_config.pad_token_id is None:
+        # Cosmetic: generate() otherwise falls back to eos_token_id on every
+        # call and says so, once per batch. Setting it explicitly is the same
+        # behaviour, just silent and visible in the recorded config.
+        hf_model.generation_config.pad_token_id = tokenizer.pad_token_id
     print(f"  loaded in {time.time()-t0:.1f}s")
 
     model = WhiteboxModel(

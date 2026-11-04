@@ -13,7 +13,7 @@ These are the slides that come *before* the results in `plot_bioasq.py`:
   08 lm_polygraph          - the library, and why the cost is shared
   09 types_by_tier         - every estimator run, by signal type and cost tier
 
-Run:  .venv/bin/python scripts/fig_methods.py
+Run:  .venv/bin/python slides/fig_methods.py
 
 SOURCES. The family names and the method names outside our own run follow the
 taxonomy in Vazhentsev et al., "Uncertainty Quantification for Large Language
@@ -28,7 +28,7 @@ seven are diagrams and need nothing.
 Drawn in the same house style as `plot_bioasq.py`, on the same 124 x 44.5 u
 canvas, and with the same colour key: blue is tier 1, blue 60 is tiers 2-4,
 orange is a wrong answer. Each figure gets its slide's title / lead / caption
-written beside it as `markdowns/{nn}_slide_{name}.md`.
+written beside it as `slides/markdowns/{nn}_slide_{name}.md`.
 """
 
 import pathlib
@@ -41,18 +41,21 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 from matplotlib.patches import FancyArrowPatch  # noqa: E402
 
-sys.path.insert(0, str(pathlib.Path(__file__).parent))
+SLIDES = pathlib.Path(__file__).resolve().parent
+ROOT = SLIDES.parent
+sys.path.insert(0, str(SLIDES))
+sys.path.insert(0, str(ROOT / "scripts"))
 import bioasq  # noqa: E402
 from hgf_style import (  # noqa: E402
     BLUE, DARK, GRAY22, GRAY45, GRAY85, BLUE60, ORANGE, ORANGE_DARK, PALE,
     HIGHLIGHT, TYPE, WEIGHT, GEOM, REFERENCE_DASH,
-    halvar, hermann, mono, save, slab, use_hgf,
+    halvar, hermann, mono, slab, use_hgf,
 )
+from hgf_layers import layered_save as save  # noqa: E402  # writes the click layers too
 from plot_bioasq import PRETTY, TIER_GLOSS, load, wrap_measured  # noqa: E402
 
-ROOT = pathlib.Path(__file__).parent.parent
-FIGDIR = ROOT / "figures"
-MDDIR = ROOT / "markdowns"
+FIGDIR = SLIDES / "figures"
+MDDIR = SLIDES / "markdowns"
 CACHE_7B = ROOT / "outputs" / "bioasq_Qwen2.5-7B-Instruct_n1000_seed0_t4.json"
 MANUAL = ROOT / "manual_labels.json"
 
@@ -733,9 +736,14 @@ def slide_copy(acc, half):
     }
 
 
-def write_markdown(stem, number, title, lead, caption):
+def write_markdown(stem, number, title, lead, caption, force=False):
     import textwrap
     MDDIR.mkdir(exist_ok=True)
+    existing = sorted(MDDIR.glob(f"*_slide_{stem}.md"))
+    if existing and not force:
+        # The markdown is where the slide's wording is edited, so a figure re-run
+        # must not overwrite it. --rewrite-copy regenerates it from the Python.
+        return existing[0], False
     path = MDDIR / f"{number}_slide_{stem}.md"
     path.write_text(
         f"# slide_{stem}\n\n"
@@ -747,15 +755,20 @@ def write_markdown(stem, number, title, lead, caption):
         "- **title** — the slide's heading, top left\n"
         f"  > {title}\n\n"
         "- **lead** — the blue line under the title — one sentence, it wraps on its own\n"
-        + "".join(f"  > {ln}\n" for ln in textwrap.wrap(lead, 84))
+        + "".join(f"  > {ln}\n" for ln in textwrap.wrap(lead, 84, break_on_hyphens=False))
         + "\n- **caption** — the grey paragraph under the figure — it wraps on its own\n"
-        + "".join(f"  > {ln}\n" for ln in textwrap.wrap(caption, 84))
+        + "".join(f"  > {ln}\n" for ln in textwrap.wrap(caption, 84, break_on_hyphens=False))
     )
-    return path
+    return path, True
 
 
 # =====================================================================================
 def main() -> None:
+    import argparse
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--rewrite-copy", action="store_true",
+                    help="regenerate the slide markdowns, overwriting edits made there")
+    args = ap.parse_args()
     use_hgf()
     FIGDIR.mkdir(exist_ok=True)
     d, y = load(str(CACHE_7B), str(MANUAL))
@@ -768,8 +781,9 @@ def main() -> None:
 
     copy = slide_copy(acc, half)
     for out in outs:
-        md = write_markdown(out.stem, *copy[out.stem])
-        print(f"wrote {out.relative_to(ROOT)}  +  {md.relative_to(ROOT)}")
+        md, wrote = write_markdown(out.stem, *copy[out.stem], force=args.rewrite_copy)
+        print(f"wrote {out.relative_to(ROOT)}  +  {md.relative_to(ROOT)}"
+              + ("" if wrote else "  (kept: edited copy)"))
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Write the chapter divider titles into `journal_club_template.pptx`.
 
-The titles live in `scripts/chapters.json`, not here, so retitling a chapter is
-a data edit. Running this also regenerates `scripts/nav_labels.json`, the
+The titles live in `slides/chapters.json`, not here, so retitling a chapter is
+a data edit. Running this also regenerates `slides/nav_labels.json`, the
 {title: pill} map `nav_bar.py` reads in the slides repo - a title without a pill
 gets whatever prefix happens to fit, which is rarely the useful word.
 
@@ -16,11 +16,11 @@ chapter dividers, and `nav_bar.detect_chapters()` finds chapters by reading the
 divider titles. A deck built on a template whose dividers say nothing gets no
 chapters at all, so these strings have to be in the file itself.
 
-    python3 scripts/set_chapters.py            # write them
-    python3 scripts/set_chapters.py --check    # show what would change
+    python3 slides/set_chapters.py            # write them
+    python3 slides/set_chapters.py --check    # show what would change
 
-To start over:  cp ~/projects/slides/vitiligo_voucher.pptx journal_club_template.pptx
-                python3 scripts/strip_template.py
+To start over:  cp ~/projects/slides/vitiligo_voucher.pptx slides/journal_club_template.pptx
+                python3 slides/strip_template.py
 """
 
 from __future__ import annotations
@@ -33,10 +33,10 @@ import zipfile
 from pathlib import Path
 from xml.sax.saxutils import escape
 
-ROOT = Path(__file__).resolve().parent.parent
-TEMPLATE = ROOT / "journal_club_template.pptx"
-CHAPTERS = ROOT / "scripts" / "chapters.json"
-NAV_LABELS = ROOT / "scripts" / "nav_labels.json"
+HERE = Path(__file__).resolve().parent
+TEMPLATE = HERE / "journal_club_template.pptx"
+CHAPTERS = HERE / "chapters.json"
+NAV_LABELS = HERE / "nav_labels.json"
 
 SHAPE = re.compile(r"<p:sp>.*?</p:sp>", re.S)
 PH_TYPE = re.compile(r'<p:ph\b[^>]*\btype="([^"]+)"')

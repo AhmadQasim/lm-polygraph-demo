@@ -1,0 +1,186 @@
+{
+  "note": "What the built deck says, slide by slide. Written by slides/build_deck.py on every full build.",
+  "slides": [
+    {
+      "slide": 1,
+      "layout": "Title Slide",
+      "text": [
+        "Knowing when an LLM is wrong: an introduction to LM-Polygraph, and what uncertainty estimators cost",
+        "Ahmad Bin Qasim"
+      ]
+    },
+    {
+      "slide": 2,
+      "layout": "Earth_Custom Layout",
+      "text": [
+        "Problem: Confidently wrong"
+      ]
+    },
+    {
+      "slide": 3,
+      "layout": "Title Only",
+      "text": [
+        "Confidently wrong",
+        "A wrong answer arrives with the same certainty as a right one.",
+        "Four of the 7B model's BioASQ answers. Each is wrong against the reference, and each got a probability above 0.98 from the model itself. Nothing in the text of an answer says which ones to check."
+      ]
+    },
+    {
+      "slide": 4,
+      "layout": "Title Only",
+      "text": [
+        "What an uncertainty score is for",
+        "Rank the answers, flag the least certain, and what is kept gets better.",
+        "Accuracy of the answers kept as the most uncertain are flagged for review, ranked by mean token entropy. Flagging half of them lifts the kept accuracy from 45% to 67%. A useless score stays on the flat line; a perfect one follows the upper dashed line. AUROC, used in the results, measures how well the ranking separates right from wrong."
+      ]
+    },
+    {
+      "slide": 5,
+      "layout": "Earth_Custom Layout",
+      "text": [
+        "Background: Where the uncertainty is"
+      ]
+    },
+    {
+      "slide": 6,
+      "layout": "Title Only",
+      "text": [
+        "Five places to look for doubt",
+        "Every estimator reads one of five signals, and each needs different access to the model.",
+        "White-box needs the model's probabilities or internals; black-box needs only its text. Families and method names follow Vazhentsev et al. (arXiv:2605.14570); self-report is added here because p(True) is in the run. T1–T4 are this talk's cost tiers."
+      ]
+    },
+    {
+      "slide": 7,
+      "layout": "Title Only",
+      "text": [
+        "Reading the probabilities",
+        "One forward pass, and the model has already said how sure it was.",
+        "All three come out of the pass that produced the answer, so they cost nothing beyond generation. They need the token probabilities, which many hosted APIs do not return."
+      ]
+    },
+    {
+      "slide": 8,
+      "layout": "Title Only",
+      "text": [
+        "Asking the model",
+        "A second prompt asks the model to judge its own answer.",
+        "p(True) reads the probability the model puts on “True”; the empirical variant samples the verdict ten times and counts. Both cost one more prompt per answer, which is tier 2."
+      ]
+    },
+    {
+      "slide": 9,
+      "layout": "Title Only",
+      "text": [
+        "Asking again",
+        "If repeated samples disagree, the first answer was a guess.",
+        "Sample several answers to the same question and measure how far they agree: by shared words, or by meaning, with an NLI model testing whether two answers entail each other. Sampling is tier 3; the NLI model on top is tier 4. White-box variants also weight each sample by its probability."
+      ]
+    },
+    {
+      "slide": 10,
+      "layout": "Title Only",
+      "text": [
+        "Training a detector",
+        "A classifier on the model's hidden states can learn what a wrong answer looks like — given labels.",
+        "Probes need graded answers from the task they will be used on, and a new set for every new task or model. They are named here for completeness and were not run."
+      ]
+    },
+    {
+      "slide": 11,
+      "layout": "Earth_Custom Layout",
+      "text": [
+        "Tooling: LM-Polygraph"
+      ]
+    },
+    {
+      "slide": 12,
+      "layout": "Title Only",
+      "text": [
+        "LM-Polygraph",
+        "One library runs every one of these estimators behind one interface.",
+        "Open source, pip-installable. An estimator returns one uncertainty score per answer, higher meaning less sure; grading the answers and scoring the estimators against them is a separate step."
+      ]
+    },
+    {
+      "slide": 13,
+      "layout": "Earth_Custom Layout",
+      "text": [
+        "Methods: The four cost tiers"
+      ]
+    },
+    {
+      "slide": 14,
+      "layout": "Title Only",
+      "text": [
+        "The same methods, priced",
+        "The tiers sort these methods by what they cost, not by what they read.",
+        "Every estimator in the results, placed by signal type and cost tier. Tiers are cumulative: a tier-4 run also pays for tiers 1–3. Sampling methods split across tiers 3 and 4 by whether they also need the NLI model."
+      ]
+    },
+    {
+      "slide": 15,
+      "layout": "Earth_Custom Layout",
+      "text": [
+        "Methods: BioASQ, and grading it"
+      ]
+    },
+    {
+      "slide": 16,
+      "layout": "Earth_Custom Layout",
+      "text": [
+        "Results: What works, and what it costs"
+      ]
+    },
+    {
+      "slide": 17,
+      "layout": "Title Only",
+      "text": [
+        "Every estimator, ranked",
+        "The cheapest tier holds both the winner and the traps.",
+        "AUROC for separating wrong answers from right ones, with 95% bootstrap confidence intervals. Blue is tier 1 — one forward pass, no sampling and no second model. Hollow markers are sign-inverted: they return a confidence rather than an uncertainty, and read as 1−AUROC."
+      ]
+    },
+    {
+      "slide": 18,
+      "layout": "Title Only",
+      "text": [
+        "What each cost tier buys",
+        "Paying more buys consistency, not a higher ceiling.",
+        "Each dot is one estimator, placed in its cost tier; the bar is the tier median. Tiers are cumulative, so the step from one column to the next is the marginal cost of that tier — a second forward pass, then sampling, then a DeBERTa NLI model over the sample set."
+      ]
+    },
+    {
+      "slide": 19,
+      "layout": "Title Only",
+      "text": [
+        "The scores behind the AUROC",
+        "Cheapest against dearest — the overlap looks much the same.",
+        "Raw uncertainty scores for every question, split by whether the answer was graded correct. An AUROC in the high 0.7s still means two heavily overlapping distributions: this is a triage signal, not a verdict."
+      ]
+    },
+    {
+      "slide": 20,
+      "layout": "Title Only",
+      "text": [
+        "The same methods on a bigger model",
+        "The ranking survives scale; the task gets harder.",
+        "Every method's AUROC on the smaller model against the larger one. Points cluster along the diagonal — the ranking transfers — but most sit below it, so the stronger model's residual errors are harder to catch even though it is right more often."
+      ]
+    },
+    {
+      "slide": 21,
+      "layout": "Earth_Custom Layout",
+      "text": [
+        "Conclusions and outlook"
+      ]
+    },
+    {
+      "slide": 22,
+      "layout": "Earth_Custom Layout",
+      "text": [
+        "Backup"
+      ]
+    }
+  ]
+}
