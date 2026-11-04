@@ -9,6 +9,7 @@ import ast
 import random
 import re
 import string
+import unicodedata
 from typing import Iterable
 
 HF_DATASET = "jmhb/BioASQ"
@@ -100,17 +101,64 @@ def build_prompt(question: str) -> str:
 # --- grading -------------------------------------------------------------
 
 _ARTICLES = re.compile(r"\b(a|an|the)\b")
-_PUNCT = str.maketrans("", "", string.punctuation)
+# Punctuation becomes a SPACE, not nothing. Deleting it made "X-linked" into
+# "xlinked" while the gold's "X- linked" became "x linked", so the two never
+# matched; with spaces they agree, and the compact comparison in grade() covers
+# the opposite case ("Na+/Ca2+" against "NaCa2").
+_PUNCT = str.maketrans({c: " " for c in string.punctuation})
+_PAREN = re.compile(r"\(([^()]*)\)")
+_SPECIAL = re.compile(r"<\|[^|>]*\|>")      # "<|endoftext|>" leaking into answers
+_POSSESSIVE = re.compile(r"['\u2019]s\b")   # "Gaucher's" -> "Gaucher"
+_WORDY = re.compile(r"[A-Za-z]{2,}")           # a parenthetical that holds a word
+_GREEK = {"α": "alpha", "β": "beta", "γ": "gamma", "δ": "delta", "ε": "epsilon",
+          "κ": "kappa", "λ": "lambda", "μ": "mu", "σ": "sigma", "τ": "tau",
+          "ω": "omega"}
+# Token rewrites applied after tokenising. Only spellings that mean the same
+# thing in every BioASQ context: British/US variants, and the cytokine prefixes
+# that were the largest single source of false "wrong" grades ("IL-6" against
+# "interleukin-6"). Anything less mechanical is a manual label, not a rule here.
+_SYNONYM = {
+    "il": "interleukin", "ifn": "interferon",
+    "tumour": "tumor", "oestrogen": "estrogen", "haemoglobin": "hemoglobin",
+    "leukaemia": "leukemia", "anaemia": "anemia", "oedema": "edema",
+    "haemophilia": "hemophilia", "behaviour": "behavior", "colour": "color",
+}
 
 
 def normalize(s: str) -> str:
+    s = unicodedata.normalize("NFKC", _SPECIAL.sub(" ", s))
+    for g, name in _GREEK.items():
+        s = s.replace(g, f" {name} ")
+    # The models sometimes drift into another script mid-answer ("Migraine头痛",
+    # "B细胞表面CD19"). Those characters are not part of any gold, and left in
+    # place they glue onto the Latin token and hide it from whole-token matching.
+    s = "".join(c if ord(c) < 0x250 else " " for c in s)
+    s = _POSSESSIVE.sub("", s)
     s = s.lower().translate(_PUNCT)
     s = _ARTICLES.sub(" ", s)
+    toks = [_SYNONYM.get(t, t) for t in s.split()]
     # Crude depluralisation so "cell membranes" and "plasma membrane" share a
     # token. Without it such pairs score f1=0 and are silently graded wrong
     # rather than surfacing as borderline for review.
-    toks = [t[:-1] if len(t) > 3 and t.endswith("s") else t for t in s.split()]
+    toks = [t[:-2] if len(t) > 4 and t.endswith("oes") else
+            t[:-1] if len(t) > 3 and t.endswith("s") else t for t in toks]
     return " ".join(toks)
+
+
+def variants(s: str) -> list[str]:
+    """The string, plus each side of a parenthetical: "Platelet derived growth
+    factor-alpha (PDGFRA)" is also "Platelet derived growth factor-alpha" and
+    "PDGFRA". The gold set uses this form for name-plus-abbreviation."""
+    out = [s]
+    # Only a parenthetical holding a word is an alternative name. "t(11;22)",
+    # "Na(+)" and "mg/m(2)" are notation, and splitting them made "t(11;14)"
+    # match "t(11;22)" on the leftover "t".
+    inner = [i for i in _PAREN.findall(s) if _WORDY.search(i)]
+    if inner:
+        outer = _PAREN.sub(lambda m: " " if _WORDY.search(m.group(1)) else m.group(0),
+                           s).strip()
+        out += [outer] + [i.strip() for i in inner]
+    return [v for v in out if v.strip()]
 
 
 def token_f1(pred: str, gold: str) -> float:
@@ -129,17 +177,48 @@ def token_f1(pred: str, gold: str) -> float:
     return 2 * precision * recall / (precision + recall)
 
 
+def _numbers(norm: str) -> list[str]:
+    return sorted(t for t in norm.split() if any(c.isdigit() for c in t))
+
+
+def _contains(hay: str, needle: str) -> bool:
+    """Whole-token containment, so "ra" is not found inside "ataxia"."""
+    return bool(needle) and f" {needle} " in f" {hay} "
+
+
+def answer_text(pred: str) -> str:
+    """The answer itself: its first non-empty line, with chat tags removed.
+
+    Generations sometimes run on past the answer into "<|endoftext|>" padding,
+    a "<tool_call>" tag or a second line of chatter. None of that is part of
+    the answer, and left in it can only add tokens that dilute the match.
+    """
+    text = re.sub(r"<\|[^|>]*\|>|</?[a-z_]+>", "\n", pred)
+    return next((ln.strip() for ln in text.splitlines() if ln.strip()), "")
+
+
 def grade(pred: str, golds: Iterable[str], f1_threshold: float = 0.6) -> dict:
     """Best match over the synonym set. `correct` is the label used for AUROC."""
     best = {"em": False, "contains": False, "f1": 0.0, "gold": ""}
-    npred = normalize(pred)
+    preds = variants(answer_text(pred))
     for gold in golds:
-        ngold = normalize(gold)
-        em = npred == ngold
-        contains = bool(ngold) and ngold in npred
-        f1 = token_f1(pred, gold)
-        if (em, contains, f1) > (best["em"], best["contains"], best["f1"]):
-            best = {"em": em, "contains": contains, "f1": f1, "gold": gold}
+        for gv in variants(gold):
+            ngold = normalize(gv)
+            for pv in preds:
+                npred = normalize(pv)
+                # compact form: spacing and punctuation differences only
+                em = npred == ngold or (
+                    bool(ngold) and npred.replace(" ", "") == ngold.replace(" ", ""))
+                contains = _contains(npred, ngold)
+                f1 = token_f1(pv, gv)
+                # Token overlap cannot settle a number: "50" shares a token with
+                # the range "45-50", and "1625 mg/m2" most of its tokens with
+                # "825 mg/m2". When both sides carry numbers they must agree.
+                np_, ng_ = _numbers(npred), _numbers(ngold)
+                if np_ and ng_ and np_ != ng_:
+                    f1 = 0.0
+                if (em, contains, f1) > (best["em"], best["contains"], best["f1"]):
+                    best = {"em": em, "contains": contains, "f1": f1, "gold": gold}
     best["correct"] = best["em"] or best["contains"] or best["f1"] >= f1_threshold
     # Flag anything decided by a soft rule near the threshold for human review.
     best["borderline"] = (not best["em"]) and 0.3 <= best["f1"] < 0.8
@@ -176,11 +255,15 @@ def apply_manual_labels(graded, questions, generations, path) -> tuple[int, int]
     labels = _json.loads(p.read_text())["labels"]
     applied = stale = 0
     for i, q in enumerate(questions):
-        lab = labels.get(q)
-        if lab is None:
+        entry = labels.get(q)
+        if entry is None:
             continue
-        judged_against = lab.get("pred")
-        if judged_against is not None and judged_against != generations[i].strip():
+        # One label per distinct prediction: the 3B and 7B models answer the
+        # same question differently, and each answer needs its own verdict.
+        cands = entry if isinstance(entry, list) else [entry]
+        pred = generations[i].strip()
+        lab = next((c for c in cands if c.get("pred") in (None, pred)), None)
+        if lab is None:
             stale += 1
             continue
         if graded[i]["correct"] != lab["correct"]:

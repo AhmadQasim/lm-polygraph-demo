@@ -80,7 +80,7 @@ def main() -> None:
     y = np.array([0 if g["correct"] else 1 for g in graded])
     print(f"n={len(y)}  correct={int((y==0).sum())}  wrong={int((y==1).sum())}"
           + (f"  (manual overrides: {n_over}" if n_over else "")
-          + (f", {stale} skipped as stale" if stale else "")
+          + (f", {stale} labelled questions with no label for this answer" if stale else "")
           + (")" if n_over else ""))
 
     names = list(d["scores"].keys())

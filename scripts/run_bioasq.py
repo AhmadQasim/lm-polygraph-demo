@@ -33,7 +33,18 @@ import lm_polygraph.estimators as E  # noqa: E402
 
 warnings.filterwarnings("ignore")
 
-OUT = pathlib.Path(__file__).parent.parent / "outputs"
+def _project_root() -> pathlib.Path:
+    """Work whether the script sits in <proj>/scripts/ or flat in <proj>/.
+
+    sync_gpu.sh used to flatten the layout on the remote, which made a
+    hardcoded parent.parent resolve one level too high and scatter results
+    outside the project.
+    """
+    here = pathlib.Path(__file__).resolve().parent
+    return here.parent if here.name == "scripts" else here
+
+
+OUT = _project_root() / "outputs"
 
 
 def default_device() -> str:

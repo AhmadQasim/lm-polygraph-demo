@@ -15,7 +15,7 @@ one paragraph. Titles do not flow.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > Accuracy of the answers kept as the most uncertain are flagged for review, ranked by
-  > mean token entropy. Flagging half of them lifts the kept accuracy from 31% to 49%. A
+  > mean token entropy. Flagging half of them lifts the kept accuracy from 45% to 67%. A
   > useless score stays on the flat line; a perfect one follows the upper dashed line.
   > AUROC, used in the results, measures how well the ranking separates right from
   > wrong.

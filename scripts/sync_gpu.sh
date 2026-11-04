@@ -16,9 +16,10 @@ RSYNC=(rsync -avz --human-readable)
 
 case "$MODE" in
   push)
-    "${RSYNC[@]}" \
-      --exclude '__pycache__' \
-      scripts/ requirements.txt manual_labels.json "$REMOTE/"
+    # No trailing slash on "scripts": copy the DIRECTORY, not its contents,
+    # so the remote layout matches the local one.
+    "${RSYNC[@]}" --exclude '__pycache__' scripts "$REMOTE/"
+    "${RSYNC[@]}" requirements.txt manual_labels.json "$REMOTE/"
     echo
     echo "Sent. On the remote, once only:"
     echo "  python3 -m venv .venv && .venv/bin/pip install -r requirements.txt"

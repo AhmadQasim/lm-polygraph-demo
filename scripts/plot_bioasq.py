@@ -64,7 +64,18 @@ from hgf_style import (  # noqa: E402
     halvar, hermann, save, slab, use_hgf,
 )
 
-ROOT = pathlib.Path(__file__).parent.parent
+def _project_root() -> pathlib.Path:
+    """Work whether the script sits in <proj>/scripts/ or flat in <proj>/.
+
+    sync_gpu.sh used to flatten the layout on the remote, which made a
+    hardcoded parent.parent resolve one level too high and scatter results
+    outside the project.
+    """
+    here = pathlib.Path(__file__).resolve().parent
+    return here.parent if here.name == "scripts" else here
+
+
+ROOT = _project_root()
 FIGDIR = ROOT / "figures"
 MDDIR = ROOT / "markdowns"
 
@@ -231,7 +242,7 @@ def load(cache_path, manual_path):
         applied, stale = bioasq.apply_manual_labels(
             graded, d["questions"], d["generations"], manual_path)
         if stale:
-            print(f"note: {stale} manual labels skipped (prediction changed)")
+            print(f"note: {stale} labelled questions have no label for this exact answer")
     y = np.array([0 if g["correct"] else 1 for g in graded])
     return d, y
 
@@ -636,8 +647,8 @@ SLIDE_COPY = {
         "The same methods on a bigger model",
         "The ranking survives scale; the task gets harder.",
         "Every method's AUROC on the smaller model against the larger one. Points "
-        "cluster along the diagonal — the ranking transfers — but all of "
-        "them sit below it, so the stronger model's residual errors are harder to "
+        "cluster along the diagonal — the ranking transfers — but most "
+        "sit below it, so the stronger model's residual errors are harder to "
         "catch even though it is right more often.",
     ),
 }

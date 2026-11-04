@@ -15,6 +15,5 @@ one paragraph. Titles do not flow.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > Every method's AUROC on the smaller model against the larger one. Points cluster
-  > along the diagonal — the ranking transfers — but all of them sit below it, so the
-  > stronger model's residual errors are harder to catch even though it is right more
-  > often.
+  > along the diagonal — the ranking transfers — but most sit below it, so the stronger
+  > model's residual errors are harder to catch even though it is right more often.
