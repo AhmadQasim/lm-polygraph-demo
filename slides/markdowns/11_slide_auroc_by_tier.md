@@ -15,5 +15,5 @@ one paragraph. Titles do not flow.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > Each dot is one estimator, placed in its tier; the bar marks the tier median. Tiers
-  > are cumulative: each column adds one requirement to the preceding one — an
-  > additional prompt, then sampling, then a DeBERTa NLI model over the samples.
+  > are cumulative: each column adds one requirement to the preceding one — a second
+  > prompt, then sampling, then a DeBERTa NLI model over the samples.

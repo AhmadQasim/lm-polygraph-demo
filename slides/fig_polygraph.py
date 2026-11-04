@@ -278,7 +278,7 @@ def fig_wrap_model(result=None):
     if result:
         score, text = result
         put(ax, 0, 2.4, f"→  {score:.2f}   “{text}”", mono(S["tick"]), DARK)
-    put(ax, rx, 2.4, "not run here: needs a key", halvar(S["tick"], italic=True), GRAY85)
+    put(ax, rx, 2.4, "not run here: needs a key  ·  q as on the left", halvar(S["tick"], italic=True), GRAY85)
     out = save(fig, FIGDIR / "wrap_model", formats=("png", "svg"))
     plt.close(fig)
     return out[0]
@@ -313,7 +313,7 @@ def fig_ue_manager():
         fill, ink = LIB[kind]
         slab(ax, x0, y - 0.55, 1.0, 2.2, fill, z=1, radius=0.3)
         put(ax, x0 + 2.0, y, note, halvar(S["tick"]), ink)
-    put(ax, x0, 42.0, "imports left out; the full script runs in --test",
+    put(ax, x0, 42.0, "imports omitted",
         halvar(S["gloss"]), GRAY85)
     out = save(fig, FIGDIR / "ue_manager", formats=("png", "svg"))
     plt.close(fig)
@@ -368,11 +368,13 @@ SLIDE_COPY = {
     "wrap_model": (
         "08c",
         "Wrapping a model",
-        "One wrapper exposes any model to any estimator.",
-        "WhiteboxModel takes a Hugging Face model and tokenizer; BlackboxModel takes "
-        "an API, which restricts the available estimators to black-box methods unless "
-        "log-probabilities are returned. Eager attention is required on transformers "
-        "5.x. The left-hand block was executed as shown; its output appears beneath it.",
+        "One wrapper, for a local model or an API.",
+        "WhiteboxModel takes a Hugging Face model and tokenizer; "
+        "BlackboxModel takes an API, which restricts the available "
+        "estimators to black-box methods unless log-probabilities are "
+        "returned. Eager attention is required on transformers 5.x. The "
+        "left-hand block was executed as shown; its output appears beneath "
+        "it.",
     ),
     "ue_manager": (
         "08d",
@@ -386,10 +388,11 @@ SLIDE_COPY = {
     "custom_estimator": (
         "08e",
         "Defining a new estimator",
-        "A new method is a class with three members and integrates with the components "
-        "above.",
-        "This estimator scores an answer by its least likely token. It was run inside "
-        "UEManager alongside the built-in estimators, sharing their statistics.",
+        "A new method is a class with three members, and it works with "
+        "everything on the previous slides.",
+        "This estimator scores an answer by its least likely token. It was "
+        "run inside UEManager alongside the built-in estimators, sharing "
+        "their statistics.",
     ),
 }
 
@@ -453,7 +456,10 @@ def main() -> None:
     if result_file.exists():
         score, text = result_file.read_text().split("\n", 1)
         text = text.strip()
-        result = (float(score), text if len(text) <= 46 else text[:45] + "…")
+        # The 0.5B model answers in a paragraph. Show its first sentence and say the
+        # rest was cut, rather than a mid-word cut that reads as a broken answer.
+        first = text.split(". ")[0].rstrip(".") + "."
+        result = (float(score), first if first == text else f"{first} …")
 
     use_hgf()
     FIGDIR.mkdir(exist_ok=True)

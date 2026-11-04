@@ -1,13 +1,13 @@
 {
-  "_comment": "Human adjudication of gradings the automated matcher could not settle. Keyed by question text; each value is one label, or a list of labels when the 3B and 7B models gave different answers. 'pred' records the model output a label was judged against, and a label is applied only when the run produces exactly that prediction, so a label never silently carries over to a different answer. 'models' says which runs produced it. Proposed by Claude: every non-exact-match answer in the 3B and 7B n=1000 runs was reviewed (2026-11-04) and only verdicts that differ from bioasq.grade() are stored. Entries whose note starts JUDGEMENT CALL are not simple synonym matches: the answer is less specific than the gold, phrased indirectly, or right where the gold is wrong or outdated. All were re-checked against the rubric on 2026-11-04; a biomedical expert may still disagree with individual calls.",
+  "_comment": "Human adjudication of gradings the automated matcher could not settle. Keyed by question text; each value is one label, or a list of labels when the models gave different answers. 'pred' records the model output a label was judged against, and a label is applied only when the run produces exactly that prediction, so a label never silently carries over to a different answer. 'models' says which runs produced it (Qwen2.5-3B, Qwen2.5-7B, Llama-3.2-3B, Llama-3.1-8B, Mistral-7B-v0.3, OLMo-2-1124-7B). Proposed by Claude: every non-exact-match answer in the six n=1000 runs was reviewed (2026-11-04) and only verdicts that differ from bioasq.grade() are stored. Entries whose note starts JUDGEMENT CALL or DEBATABLE are not simple synonym matches: the answer is less specific than the gold, phrased indirectly, or right where the gold is wrong or outdated. All were re-checked against the rubric; a biomedical expert may still disagree with individual calls.",
   "labels": {
     "Which is the most prevalent form of arrhythmia worldwide?": {
       "correct": true,
       "note": "Atrial fibrillation is the gold; gold has a typo.",
       "pred": "Atrial fibrillation",
       "models": [
-        "3B",
-        "7B"
+        "Qwen2.5-3B",
+        "Qwen2.5-7B"
       ]
     },
     "Which human disease is experimental autoimmune encephalomyelitis (EAE) model for?": {
@@ -20,7 +20,7 @@
       "note": "Plasmodium parasite is the same as Plasmodium species.",
       "pred": "Plasmodium parasite",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "What is the function of the protein SERT?": {
@@ -28,7 +28,7 @@
       "note": "'Transports serotonin' is the same as serotonin transporter.",
       "pred": "Transports serotonin",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "Sclerostin regulates what process?": [
@@ -37,8 +37,8 @@
         "note": "Sclerostin inhibits bone formation, a correct, more specific instance of bone metabolism.",
         "pred": "Bone formation",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -56,8 +56,8 @@
         "note": "Dashboard injury typically injures the PCL, not the ACL.",
         "pred": "The anterior cruciate ligament",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -112,8 +112,8 @@
       "note": "S-adenosylmethionine is S-adenosyl-L-methionine.",
       "pred": "S-adenosylmethionine",
       "models": [
-        "3B",
-        "7B"
+        "Qwen2.5-3B",
+        "Qwen2.5-7B"
       ]
     },
     "What is the cause of Krabbe disease?": [
@@ -122,7 +122,7 @@
         "note": "Truncated, but names galactocerebroside beta-galactosidase defect, which matches the gold.",
         "pred": "Abnormality in galactocerebroside β-galactosid",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -156,7 +156,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Mitosomes are mitochondrion-derived (related) organelles, same concept as gold.",
         "pred": "Mitochondria-derived organelle",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -190,7 +190,7 @@
         "note": "csDMARD means conventional synthetic DMARD, not corticosteroid DMARD.",
         "pred": "Corticosteroid Disease Modifying Antirheumatic Drugs",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -208,7 +208,7 @@
         "note": "Polysomnography is the gold's sleep study.",
         "pred": "Polysomnography",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -225,8 +225,8 @@
       "note": "Trillions matches 10-100 trillion.",
       "pred": "Trillions",
       "models": [
-        "3B",
-        "7B"
+        "Qwen2.5-3B",
+        "Qwen2.5-7B"
       ]
     },
     "When is the protein OAS1 activated?": [
@@ -235,7 +235,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. OAS1 is enzymatically activated by dsRNA; the gold describes IFN induction instead.",
         "pred": "Upon activation by double-stranded RNA",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -243,7 +243,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. OAS1 is induced/activated in viral infection via IFN; matches gold in substance.",
         "pred": "Viral infection",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -285,7 +285,7 @@
         "note": "Na+ channels is the same as the sodium channel.",
         "pred": "Na⁺ channels",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -293,7 +293,7 @@
         "note": "Na+ channels = sodium channel.",
         "pred": "Na+ channels",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       }
     ],
@@ -303,7 +303,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. PRDX2 is a peroxidase, but 'thermostable' is a false property; an answer that adds a false claim is not accepted.",
         "pred": "Thermostable peroxidase",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -321,7 +321,7 @@
         "note": "Liver cancer equals HCC in this context.",
         "pred": "Liver cancer",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -349,8 +349,8 @@
         "note": "Year 2014 matches September 4, 2014; consistent with item 5 graded correct.",
         "pred": "2014",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -367,7 +367,7 @@
       "note": "Steroids is the same as corticosteroids.",
       "pred": "Steroids",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "What effect does azeliragon have on RAGE?": [
@@ -376,7 +376,7 @@
         "note": "Inhibits is the same as inhibitory.",
         "pred": "Inhibits",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -409,7 +409,7 @@
       "note": "KDEL is an ER retention signal, not a 'lysine-edited degradation sequence'.",
       "pred": "KDEL lysine-edited degradation sequence",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "What is the cause of Phenylketonuria (PKU)?": [
@@ -418,8 +418,8 @@
         "note": "Phenylalanine hydroxylase deficiency is the cause (PAH mutations).",
         "pred": "Phenylalanine hydroxylase deficiency",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -436,7 +436,7 @@
       "note": "Negative regulators are tumor suppressors, not oncogenes.",
       "pred": "Oncogenes",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "What is the association of spermidine with α-synuclein neurotoxicity?": [
@@ -445,7 +445,7 @@
         "note": "'Spermidine mitigates' matches 'protects against' the neurotoxicity.",
         "pred": "Spermidine mitigates",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -471,7 +471,7 @@
         "note": "B lymphocytes are a correct, more specific instance of immune cells.",
         "pred": "B lymphocytes",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -479,7 +479,7 @@
         "note": "pDCs are immune cells in which TLR7 escapes XCI; a more specific correct instance.",
         "pred": "Plasmacytoid dendritic cells",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -505,7 +505,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Direct-acting antivirals is the class that includes sofosbuvir-based therapy.",
         "pred": "Direct acting antivirals",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -513,7 +513,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Sofosbuvir-based regimens are direct-acting antivirals; class answer is acceptable.",
         "pred": "Direct-acting antiviral drugs",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -540,7 +540,7 @@
         "note": "eRNAs are transcribed by RNA polymerase II, not III.",
         "pred": "RNA polymerase III",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -567,7 +567,7 @@
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. The question asks for the receptor whose ligand denosumab binds, which is RANK; gold lists the ligand.",
       "pred": "RANK receptors",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "What can be predicted with the Wells criteria?": [
@@ -576,7 +576,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Wells criteria predict VTE (PE and DVT); this covers the gold.",
         "pred": "Venous thromboembolism risk",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -584,7 +584,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Wells criteria exist for both DVT and PE; gold lists only PE.",
         "pred": "Deep vein thrombosis risk",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       }
     ],
@@ -594,7 +594,7 @@
         "note": "Cellular secretome matches secreted protein content.",
         "pred": "Cellular secretome",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -620,8 +620,8 @@
         "note": "H3K9me3 is a correct, more specific form of H3K9me.",
         "pred": "H3K9me3",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -639,7 +639,7 @@
         "note": "Skin infections (impetigo) are a correct, more specific bacterial infection.",
         "pred": "Skin and soft tissue infections",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -657,7 +657,7 @@
         "note": "Differential expression is the same as differential analysis of RNA-seq data.",
         "pred": "Differential expression",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -665,7 +665,7 @@
         "note": "Same as gold: differential expression analysis of RNA-seq.",
         "pred": "RNA-seq differential expression analysis",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -691,7 +691,7 @@
         "note": "GDF15 reduces body weight; the prediction says increases.",
         "pred": "Increases body weight",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -699,7 +699,7 @@
         "note": "Reduces = reduces body weight.",
         "pred": "Reduces",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -716,7 +716,7 @@
       "note": "2020 matches February 2020.",
       "pred": "2020",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "What is the estimated impact of social determinants of health on health outcomes?": [
@@ -725,7 +725,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. 'Substantial' matches 'highly significant impact'.",
         "pred": "Substantial",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -742,7 +742,7 @@
       "note": "Ethosuximide targets T-type, not L-type, calcium channels.",
       "pred": "L-type calcium channels",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "Where does Brain (or B type) Natriuretic Protein, BNP usually originate from?": [
@@ -751,7 +751,7 @@
         "note": "Cardiac muscle cells (cardiomyocytes) are in the heart, matching the gold.",
         "pred": "Cardiac muscle cells",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -770,7 +770,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Bacteriocins are bacterial proteinaceous toxins, a standard definition.",
         "pred": "A protein toxin",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -787,7 +787,7 @@
       "note": "Canine bite is a dog bite.",
       "pred": "Canine bite",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "What is the effect of grapefruit juice on CYP3A4?": [
@@ -796,7 +796,7 @@
         "note": "Inhibition is the same as inhibitory.",
         "pred": "Inhibition",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -814,7 +814,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. DILI-CAT is a drug-induced liver injury causality tool; matches item judged correct for the same question.",
         "pred": "Diagnosis of drug-induced liver injury",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -822,7 +822,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. DILI-CAT is a drug-induced liver injury causality/scoring tool; prediction matches.",
         "pred": "Drug-induced liver injury classification",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -840,7 +840,7 @@
         "note": "Syk kinase is spleen tyrosine kinase.",
         "pred": "Syk kinase",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -848,7 +848,7 @@
         "note": "Generic 'tyrosine kinase' is too broad; the answer is spleen tyrosine kinase (SYK).",
         "pred": "Tyrosine kinase",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       }
     ],
@@ -857,7 +857,7 @@
       "note": "Adolescence falls within the second decade / before 25.",
       "pred": "Adolescence",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "What is the name of the RNAi investigational drug being developed against hereditary amyloidosis?": {
@@ -865,7 +865,7 @@
       "note": "Onpattro is the brand name of patisiran.",
       "pred": "Onpattro",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "Which mutation is targeted by Sotorasib?": [
@@ -874,7 +874,7 @@
         "note": "KRAS G12C equals KRASG12C.",
         "pred": "KRAS G12C mutation",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -882,7 +882,7 @@
         "note": "KRAS G12C = KRASG12C.",
         "pred": "KRAS G12C",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       }
     ],
@@ -891,7 +891,7 @@
       "note": "Inflammatory aortic disease is inflammation of the aorta.",
       "pred": "Inflammatory aortic disease",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "Which protein is causing Netherton syndrome?": {
@@ -899,7 +899,7 @@
       "note": "SPINK5 is the gene encoding LEKTI; gene vs protein.",
       "pred": "SPINK5",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "How many genera comprise the Flaviviridae family?": {
@@ -907,7 +907,7 @@
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. Flaviviridae currently has four genera (incl. Pegivirus); gold three is outdated.",
       "pred": "Four genera",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "What is the function of the protein encoded by PUMILIO1?": [
@@ -916,7 +916,7 @@
         "note": "Regulating mRNA stability is post-transcriptional regulation of target mRNAs.",
         "pred": "Regulates mRNA localization and stability",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -924,7 +924,7 @@
         "note": "Gold includes 'RNA-binding proteins'.",
         "pred": "RNA binding protein",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -941,8 +941,8 @@
       "note": "Ebola = Ebola virus disease.",
       "pred": "Ebola",
       "models": [
-        "3B",
-        "7B"
+        "Qwen2.5-3B",
+        "Qwen2.5-7B"
       ]
     },
     "Which is the histone residue methylated by MLL1?": {
@@ -950,7 +950,7 @@
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. 'K4' without the histone does not identify the residue (MLL1 methylates H3K4); too unspecific for the question.",
       "pred": "K4",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "Which translocation is the hallmark of Ewing sarcoma?": [
@@ -959,7 +959,7 @@
         "note": "Same translocation t(11;22)(q24;q12).",
         "pred": "t(11;22)(q24;q12)",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -994,8 +994,8 @@
         "note": "PD-1 = programmed death receptor-1.",
         "pred": "PD-1",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1013,8 +1013,8 @@
         "note": "Proteasome is the target within the ubiquitin/proteasome pathway.",
         "pred": "Proteasome",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1032,7 +1032,7 @@
         "note": "Same expansion of bDMARD.",
         "pred": "Biological Disease Modifying Anti-Rheumatic Drugs",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1050,8 +1050,8 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. CYP2B6 is the gene whose polymorphism (516G>T) predicts efavirenz levels.",
         "pred": "CYP2B6",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1069,8 +1069,8 @@
       "note": "COMT = catechol-O-methyltransferase.",
       "pred": "COMT",
       "models": [
-        "3B",
-        "7B"
+        "Qwen2.5-3B",
+        "Qwen2.5-7B"
       ]
     },
     "What is the most commonly used pain scale for the measurement of pain in children?": [
@@ -1079,7 +1079,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Wong-Baker FACES is not among the gold scales (FLACC, FPS-R, COMFORT).",
         "pred": "The Wong-Baker FACES Pain Scale",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1097,7 +1097,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Age 50 lies within the gold range 45-50.",
         "pred": "Over 50 years old",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1105,7 +1105,7 @@
         "note": "50 falls within the gold range 45-50.",
         "pred": "50",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       }
     ],
@@ -1115,8 +1115,8 @@
         "note": "Gold refers to the sphingosine-1-phosphate receptor.",
         "pred": "S1P receptor",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1141,7 +1141,7 @@
       "note": "Selpercatinib is selective RET inhibitor; ROS1 is wrong.",
       "pred": "Rearranged ROS1 and RET receptors",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "Which hormone abnormalities are common in Williams syndrome ?": {
@@ -1149,7 +1149,7 @@
       "note": "Hypothyroidism is a thyroid abnormality (more specific than gold).",
       "pred": "Hypothyroidism",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "Which cancer can be treated with Darolutamide?": {
@@ -1157,8 +1157,8 @@
       "note": "Question asks the cancer; prostate cancer suffices.",
       "pred": "Prostate cancer",
       "models": [
-        "3B",
-        "7B"
+        "Qwen2.5-3B",
+        "Qwen2.5-7B"
       ]
     },
     "In what part of the body would a periprosthetic infection occur?": [
@@ -1167,7 +1167,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Prosthetic joint area matches gold.",
         "pred": "Joint or prosthetic joint",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1209,7 +1209,7 @@
       "note": "Severe eosinophilic asthma is a correct, more specific instance.",
       "pred": "Severe eosinophilic",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "Fecal transplantation is used to treat infection with what bacteria?": [
@@ -1218,8 +1218,8 @@
         "note": "Clostridioides difficile is the renamed Clostridium difficile.",
         "pred": "Clostridioides difficile",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1237,7 +1237,7 @@
         "note": "Detecting mechanical pressure is mechanotransduction.",
         "pred": "Detecting mechanical pressure",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1270,7 +1270,7 @@
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. Bimekizumab is also approved for psoriatic arthritis.",
       "pred": "Psoriatic arthritis",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "What is the gene ABCG1 encoding?": [
@@ -1279,7 +1279,7 @@
         "note": "ABCG1 is an ABC cholesterol transporter.",
         "pred": "Bioactive cholesterol transporter",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1305,7 +1305,7 @@
         "note": "Low-sodium diet matches gold reducing sodium.",
         "pred": "Low-sodium, high-fiber diet",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1313,7 +1313,7 @@
         "note": "Low-sodium diet = reducing sodium.",
         "pred": "Low-sodium diet",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1330,7 +1330,7 @@
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. Trypanosomiasis here means human African trypanosomiasis.",
       "pred": "Trypanosomiasis",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "What is the lipid droplet used for in the cell?": [
@@ -1339,8 +1339,8 @@
         "note": "Lipid storage matches gold.",
         "pred": "Storage of lipids",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1361,8 +1361,8 @@
         "note": "CYP2C19 genotype = CYP2C19 genotyping.",
         "pred": "CYP2C19 genotype",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1379,8 +1379,8 @@
       "note": "Phase 3 = III.",
       "pred": "Phase 3",
       "models": [
-        "3B",
-        "7B"
+        "Qwen2.5-3B",
+        "Qwen2.5-7B"
       ]
     },
     "From which tissue was the NCI-H520 cell-line derived?": [
@@ -1389,8 +1389,8 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. NCI-H520 is derived from lung (squamous NSCLC); lung answers 'tissue'.",
         "pred": "Lung",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1408,7 +1408,7 @@
         "note": "'Decreases' is the same answer as 'Decreased'.",
         "pred": "Decreases",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1416,7 +1416,7 @@
         "note": "Downregulation = decreased.",
         "pred": "Downregulation",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1442,8 +1442,8 @@
         "note": "Hypercholesterolemia is the same as high cholesterol.",
         "pred": "Hypercholesterolemia",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1460,8 +1460,8 @@
       "note": "Merck is Merck & Co., Inc.",
       "pred": "Merck",
       "models": [
-        "3B",
-        "7B"
+        "Qwen2.5-3B",
+        "Qwen2.5-7B"
       ]
     },
     "What does RUNX1T1 stand for?": [
@@ -1470,7 +1470,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. RUNX1T1 = RUNX1 translocated to 1; gold names RUNX1 itself, prediction matches the actual expansion.",
         "pred": "Runx1 translocation 1",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1488,7 +1488,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Erenumab binds the CGRP receptor's CLR/RAMP1 complex; CLR is its core component.",
         "pred": "Calcitonin receptor-like receptor",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1496,7 +1496,7 @@
         "note": "CGRP receptor = calcitonin gene-related peptide receptor.",
         "pred": "CGRP receptor",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       }
     ],
@@ -1506,8 +1506,8 @@
         "note": "Integrins are transmembrane proteins of the cell membrane; same localization.",
         "pred": "Cell membrane",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1533,8 +1533,8 @@
         "note": "EpCAM is a transmembrane protein of the cell membrane; same localization.",
         "pred": "Cell membrane",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1559,8 +1559,8 @@
       "note": "SGLT2 is the abbreviation of sodium glucose co-transporter 2.",
       "pred": "SGLT2",
       "models": [
-        "3B",
-        "7B"
+        "Qwen2.5-3B",
+        "Qwen2.5-7B"
       ]
     },
     "The virus that causes FIP, Feline Infectious Peritonitis belongs to what family?": {
@@ -1568,8 +1568,8 @@
       "note": "Coronaviridae is the coronavirus family; same answer.",
       "pred": "Coronaviridae",
       "models": [
-        "3B",
-        "7B"
+        "Qwen2.5-3B",
+        "Qwen2.5-7B"
       ]
     },
     "Where is fatty acid binding protein 2 expressed?": [
@@ -1578,7 +1578,7 @@
         "note": "FABP2 is intestinal, not lung epithelial; prediction contradicts gold.",
         "pred": "Lung epithelial cells",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1596,7 +1596,7 @@
         "note": "Anti-GQ1b is the specific antiganglioside antibody in Bickerstaff encephalitis.",
         "pred": "Anti-GQ1b antibody",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1604,7 +1604,7 @@
         "note": "Anti-GQ1b is the specific antiganglioside antibody.",
         "pred": "Anti-GQ1b IgG",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1631,7 +1631,7 @@
         "note": "Contrave is indicated for weight loss/chronic weight management in obesity.",
         "pred": "Weight loss",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1649,8 +1649,8 @@
         "note": "Migraine prevention equals preventive treatment of migraine.",
         "pred": "Migraine prevention",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1668,7 +1668,7 @@
         "note": "ΔF508 is the same mutation as deltaF508.",
         "pred": "ΔF508",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1676,7 +1676,7 @@
         "note": "F508del = deltaF508.",
         "pred": "F508del",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       }
     ],
@@ -1685,7 +1685,7 @@
       "note": "Globus pallidus is in the basal ganglia, not the cerebral cortex.",
       "pred": "Brain cortex",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "What is an acceptable sequence coverage(depth) required for human whole-exome sequencing?": [
@@ -1694,7 +1694,7 @@
         "note": "30x falls inside the gold range 30x-60x.",
         "pred": "30×",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1712,7 +1712,7 @@
         "note": "Spermatozoa are sperm cells.",
         "pred": "Spermatozoa",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1720,7 +1720,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Protamine 2 is expressed in testis (spermatids/sperm).",
         "pred": "Testis",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1738,7 +1738,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Hedged answer includes the wrong alternative 'lactose deficiency'.",
         "pred": "Lactose deficiency or lactase deficiency",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1755,7 +1755,7 @@
       "note": "Seizures/epilepsy are the indication for callosotomy.",
       "pred": "Seizures",
       "models": [
-        "3B"
+        "Qwen2.5-3B"
       ]
     },
     "Which signaling pathway is activating the dishevelled proteins?": [
@@ -1764,7 +1764,7 @@
         "note": "Wnt pathway is Wnt signaling.",
         "pred": "Wnt pathway",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1790,7 +1790,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Lorlatinib is an ALK/ROS1 inhibitor, so ROS1 kinase is a valid target though gold lists only ALK.",
         "pred": "ROS1 kinase",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1798,7 +1798,7 @@
         "note": "ALK = anaplastic lymphoma kinase.",
         "pred": "ALK kinase",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1825,8 +1825,8 @@
         "note": "Lupus (SLE) is the disease associated with malar rash.",
         "pred": "Lupus",
         "models": [
-          "3B",
-          "7B"
+          "Qwen2.5-3B",
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1851,8 +1851,8 @@
       "note": "50% falls inside the gold range 11-75%.",
       "pred": "50%",
       "models": [
-        "3B",
-        "7B"
+        "Qwen2.5-3B",
+        "Qwen2.5-7B"
       ]
     },
     "What happens to H2AX upon DNA bouble strand breaks?": [
@@ -1861,7 +1861,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. H2AX is phosphorylated (gammaH2AX) at DSBs; canonical answer even though gold phrases it as concentration.",
         "pred": "It is phosphorylated",
         "models": [
-          "3B"
+          "Qwen2.5-3B"
         ]
       },
       {
@@ -1869,7 +1869,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. H2AX is phosphorylated (gamma-H2AX) at DSBs; canonical answer, gold is odd.",
         "pred": "Phosphorylation",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1886,7 +1886,7 @@
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. Davunetide (NAP) is reported to promote microtubule assembly/stability.",
       "pred": "Promotes assembly",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What is the protective efficacy of vaxchora against moderate to severe cholera?": [
@@ -1895,7 +1895,7 @@
         "note": "80% falls inside the gold range 80-100%.",
         "pred": "80%",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1928,7 +1928,7 @@
       "note": "Autosomal dominant matches gold.",
       "pred": "Autosomal dominant",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What biologic process in the body is associated with Mast cells?": [
@@ -1937,7 +1937,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Anaphylaxis is a specific allergic process; instance of gold 'allergy'.",
         "pred": "Anaphylaxis",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1955,7 +1955,7 @@
         "note": "OCT3 transports serotonin, i.e., mediates its clearance.",
         "pred": "Serotonin transport",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1972,7 +1972,7 @@
       "note": "EGFR is the abbreviation of epidermal growth factor receptor.",
       "pred": "EGFR",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What is the mechanism of action of Brigatinib?": [
@@ -1981,7 +1981,7 @@
         "note": "ALK inhibitor names the gold target anaplastic lymphoma kinase.",
         "pred": "ALK inhibitor",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -1998,7 +1998,7 @@
       "note": "PCSK9 is the abbreviation of the gold.",
       "pred": "PCSK9",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which translocation is harbored in the Askin tumor cells?": {
@@ -2006,7 +2006,7 @@
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. Names the tumour family, not the translocation, and Ewing sarcoma has more than one (t(11;22), t(21;22)).",
       "pred": "Ewing sarcoma translocation",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which gene fusion is the result of the \"philadelphia translocation\" or the \"philadelphia chromosome\" mutation?": {
@@ -2014,7 +2014,7 @@
       "note": "BCR-ABL1 is the BCR/ABL fusion.",
       "pred": "BCR-ABL1",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What is the difference between dermatillomania and skin picking disorder?": {
@@ -2022,7 +2022,7 @@
       "note": "Pred says no difference, matching gold 'None'.",
       "pred": "No difference, same condition",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which residue of alpha-synuclein was found to be phosphorylated in Lewy bodies?": {
@@ -2030,7 +2030,7 @@
       "note": "Ser129 = Serine 129.",
       "pred": "Ser129",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which diagnostic test is approved for coronavirus infection screening?": [
@@ -2039,7 +2039,7 @@
         "note": "RT-PCR is the gold real-time reverse transcription PCR.",
         "pred": "RT-PCR",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2064,7 +2064,7 @@
       "note": "Pol II = RNA polymerase II.",
       "pred": "Pol II",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What is the mode of action of primaquine?": [
@@ -2073,7 +2073,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Malaria parasite clearance is equivalent to anti-malarial action.",
         "pred": "Malaria parasite clearance",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2099,7 +2099,7 @@
         "note": "JAK1 = Janus kinase 1.",
         "pred": "JAK1",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2133,7 +2133,7 @@
       "note": "HNF4alpha = HNF4a.",
       "pred": "HNF4α",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What is the method FASP used for?": [
@@ -2142,7 +2142,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. FASP (filter-aided sample preparation) is for proteomic sample prep including digestion.",
         "pred": "Protein digestion",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2167,7 +2167,7 @@
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. Nocodazole depolymerizes microtubules, the direct cause of the gold's mitotic arrest.",
       "pred": "Microtubule depolymerization",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Phlorotannin is extracted from what plant?": [
@@ -2176,7 +2176,7 @@
         "note": "Kelp is a brown alga, a correct instance of the gold.",
         "pred": "Kelp",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2195,7 +2195,7 @@
         "note": "BCR-ABL protein = BCR-ABL tyrosine kinase.",
         "pred": "BCR-ABL protein",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2212,7 +2212,7 @@
       "note": "Belimumab targets BAFF/BLyS, not B lymphocytes themselves.",
       "pred": "B lymphocytes",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which enzyme is inhibited by Varespladib?": {
@@ -2220,7 +2220,7 @@
       "note": "PLA2G2A is the group IIA secretory phospholipase A2, a correct instance.",
       "pred": "PLA2G2A",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Mutation of which gene is implicated in the familial isolated pituitary adenoma?": [
@@ -2229,7 +2229,7 @@
         "note": "AIP is the gene symbol for aryl hydrocarbon receptor interacting protein.",
         "pred": "AIP",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2246,7 +2246,7 @@
       "note": "Leuprolide = leuprorelin.",
       "pred": "Leuprolide",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What is hyperosmia": {
@@ -2254,7 +2254,7 @@
       "note": "Enhanced sense of smell = increased olfactory acuity.",
       "pred": "Enhanced sense of smell",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What causes Katayama Fever?": [
@@ -2263,7 +2263,7 @@
         "note": "S. japonicum is a Schistosoma species, the classic cause of Katayama fever.",
         "pred": "Schistosoma japonicum",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2289,7 +2289,7 @@
         "note": "PD-1 = programmed death-1.",
         "pred": "PD-1",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2306,7 +2306,7 @@
       "note": "Rotavirus infection = rotavirus disease.",
       "pred": "Rotavirus infection",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which is the effect of the HP1a protein on chromatin?": {
@@ -2314,7 +2314,7 @@
       "note": "Heterochromatin formation is equivalent to heterochromatic silencing.",
       "pred": "Heterochromatin formation",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which disease is caused by mutations in the gene CALR?": [
@@ -2323,7 +2323,7 @@
         "note": "Myelofibrosis is a CALR-mutant myeloproliferative neoplasm, a correct instance.",
         "pred": "Myelofibrosis",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2340,7 +2340,7 @@
       "note": "Phase 3 = Phase III.",
       "pred": "Phase 3",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Can you define iatrogenic disease?": [
@@ -2349,7 +2349,7 @@
         "note": "Medically induced condition = illness caused by treatment.",
         "pred": "Medically induced condition",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2375,7 +2375,7 @@
         "note": "JAK1 = Janus kinase 1.",
         "pred": "JAK1",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2402,7 +2402,7 @@
         "note": "Cell membranes = in membranes.",
         "pred": "Cell membranes",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2428,7 +2428,7 @@
         "note": "PGI2 = prostaglandin I2.",
         "pred": "PGI2",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2447,7 +2447,7 @@
         "note": "Hedgehog pathway; gold has a typo.",
         "pred": "Hedgehog signaling pathway",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2472,7 +2472,7 @@
       "note": "GBA is the gene encoding glucocerebrosidase.",
       "pred": "GBA",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What protein is Otof gene encoding?": {
@@ -2480,7 +2480,7 @@
       "note": "Otoferlin matches.",
       "pred": "Otoferlin",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "When are itaconic acid levels elevated?": [
@@ -2489,7 +2489,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Itaconate rises in inflammatory/immune activation, matching gold in substance.",
         "pred": "Inflammatory conditions",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2515,7 +2515,7 @@
         "note": "RNA polymerase (RdRp) = viral polymerase.",
         "pred": "RNA polymerase",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2548,7 +2548,7 @@
       "note": "ALK inhibitors are approved for (ALK+) NSCLC; qualifier implied by the question.",
       "pred": "Non-small cell lung cancer",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What is the target of galcanezumab?": {
@@ -2556,7 +2556,7 @@
       "note": "Galcanezumab binds the CGRP ligand, not the receptor (that is erenumab).",
       "pred": "Calcitonin gene-related peptide (CGRP) receptor",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What is the indication for SLCO1B1 genotyping?": [
@@ -2565,7 +2565,7 @@
         "note": "Genotyping is indicated for statin myopathy risk, i.e. statin treatment.",
         "pred": "Statin-induced myopathy",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2591,7 +2591,7 @@
         "note": "Intravenous = intravenously.",
         "pred": "intravenous",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2618,7 +2618,7 @@
         "note": "p16Ink4a is p16INK4 (formatting).",
         "pred": "p16 Ink4a",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2636,7 +2636,7 @@
         "note": "ELA2 is the old symbol for ELANE.",
         "pred": "ELA2",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2654,7 +2654,7 @@
         "note": "KMT2C is a histone H3K4 lysine methyltransferase; same activity.",
         "pred": "Histone methyltransferase",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2672,7 +2672,7 @@
         "note": "1 in 3500 male births falls within gold ranges.",
         "pred": "1 in 3500 male births",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2690,7 +2690,7 @@
         "note": "Bladder cancer suffices; NMIBC qualifier not targeted by question.",
         "pred": "Bladder cancer",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2707,7 +2707,7 @@
       "note": "Hand (palm) redness = redness of the palms.",
       "pred": "Hand redness",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which is the receptor for the immunosuppressive drug cyclosporin A (CsA)?": [
@@ -2716,7 +2716,7 @@
         "note": "FKBP1a is the tacrolimus receptor, not CsA's; answer is a wrong composite.",
         "pred": "T-cell surface protein FKBP1a-Cyclophilin complex",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2734,7 +2734,7 @@
         "note": "25 nm is within the 24-25 nm gold range.",
         "pred": "25nm",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2761,7 +2761,7 @@
         "note": "Hexosaminidase A gene = HEXA.",
         "pred": "Hexosaminidase A gene",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2786,7 +2786,7 @@
       "note": "Histone H3 is the substrate; Thr3 is just the site.",
       "pred": "Histone H3",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which disease can be treated with Delamanid?": {
@@ -2794,7 +2794,7 @@
       "note": "TB = tuberculosis.",
       "pred": "TB\n\n<|endoftext|><|endoftext|><|endoftext|><|endoftext|><|endoftext|><|endoftext|><|endoftext|><|endoftext|><|endoftext|><|endoftext|>",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Tofersen has been developed for treatment of which disease?": {
@@ -2802,7 +2802,7 @@
       "note": "ALS = amyotrophic lateral sclerosis (trailing token artifact).",
       "pred": "ALS<tool_call>ai",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "In what proportion of children with heart failure has Enalapril been shown to be safe and effective?": {
@@ -2810,7 +2810,7 @@
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. 50% lies within the 50-80% gold range (boundary).",
       "pred": "50%",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What is blepharospasm?": [
@@ -2819,7 +2819,7 @@
         "note": "Eyelid spasm matches involuntary eyelid spasms.",
         "pred": "Eyelid spasm",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2844,7 +2844,7 @@
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. Neonatal RDS is surfactant-deficiency lung disease.",
       "pred": "Surfactant deficiency pulmonary disease",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which gene is most frequently mutated in hereditary angioedema ?": [
@@ -2853,7 +2853,7 @@
         "note": "C1 inhibitor is the protein encoded by SERPING1 (gene vs protein).",
         "pred": "C1 inhibitor",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2879,7 +2879,7 @@
         "note": "CYP2C19 matches gold typo CYPC19.",
         "pred": "CYP2C19",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2896,7 +2896,7 @@
       "note": "AIDS = advanced HIV infection.",
       "pred": "AIDS",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "The Shingrix vaccine is used to prevent what disease?": [
@@ -2905,7 +2905,7 @@
         "note": "Shingles = herpes zoster.",
         "pred": "Shingles",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2940,7 +2940,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. PPP1R1A (regulatory subunit 1A) is inhibitor-1.",
         "pred": "Regulatory subunit 1A",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2958,7 +2958,7 @@
         "note": "Overexpressed = HER2 positive.",
         "pred": "Overexpressed",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -2983,7 +2983,7 @@
       "note": "VEGFR = vascular endothelial growth factor receptors.",
       "pred": "VEGFR",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What is the target of the drug remdesivir?": {
@@ -2991,7 +2991,7 @@
       "note": "Remdesivir targets viral RdRp, not host RNA polymerase III.",
       "pred": "RNA polymerase III",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which kinase does PD98059 inhibit?": [
@@ -3000,7 +3000,7 @@
         "note": "MAPK/ERK kinase = MEK.",
         "pred": "MAPK/ERK kinase",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -3018,7 +3018,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Palbociclib targets CDK4/6; gold (EGFR) is factually wrong.",
         "pred": "CDK4/CDK6",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -3052,7 +3052,7 @@
         "note": "TAD = transactivation domain; role is transcriptional activation.",
         "pred": "Transcriptional activation",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -3070,7 +3070,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. STING is directly activated by cGAMP (made from cytosolic DNA); gold is upstream trigger.",
         "pred": "By cyclic GMP-AMP",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -3103,7 +3103,7 @@
       "note": "HIV/AIDS matches HIV-1.",
       "pred": "HIV/AIDS",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which disease is characterized by congenital absence of intrinsic ganglion cells of the gastrointestinal tract?": [
@@ -3112,7 +3112,7 @@
         "note": "Hirschsprung's disease matches gold.",
         "pred": "Hirschsprung's disease",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -3137,7 +3137,7 @@
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. Gene silencing encompasses mRNA degradation/translational repression.",
       "pred": "Gene silencing",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which particular intersex phenotype is related to steroid reductase?": {
@@ -3145,7 +3145,7 @@
       "note": "5-alpha-reductase deficiency is a specific form of male pseudohermaphroditism.",
       "pred": "5-Alpha-reductase deficiency",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "How early during pregnancy does non-invasive cffDNA testing allow sex determination of the fetus?": [
@@ -3154,7 +3154,7 @@
         "note": "10 weeks falls within 6th-10th week range.",
         "pred": "10 weeks",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {
@@ -3187,7 +3187,7 @@
       "note": "BTK = Bruton's tyrosine kinase.",
       "pred": "BTK",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What is the 3D tomography imaging technique for diagnosis of  eye disease?": {
@@ -3195,7 +3195,7 @@
       "note": "OCT = optical coherence tomography.",
       "pred": "OCT",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "Which protein family is epiregulin a member of?": {
@@ -3203,7 +3203,7 @@
       "note": "Epiregulin is an EGF-family ligand of EGFR; same family.",
       "pred": "EGF receptor ligand",
       "models": [
-        "7B"
+        "Qwen2.5-7B"
       ]
     },
     "What is a exposome?": [
@@ -3212,7 +3212,7 @@
         "note": "JUDGEMENT CALL, re-checked 2026-11-04. Exposure history ~ environmental exposure record.",
         "pred": "Exposure history",
         "models": [
-          "7B"
+          "Qwen2.5-7B"
         ]
       },
       {

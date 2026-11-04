@@ -11,7 +11,7 @@ one paragraph. Titles do not flow.
   > LM-Polygraph
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > A single library implements these estimators behind one interface.
+  > One library implements most of these estimators behind one interface.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > Open source and pip-installable. An estimator returns one uncertainty score per

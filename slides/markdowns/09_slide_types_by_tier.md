@@ -15,7 +15,8 @@ one paragraph. Titles do not flow.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > The twenty estimators compared in this talk, placed by signal type and tier. Tiers
-  > are cumulative: T1 needs only the forward pass that produced the answer, T2 adds a
-  > second prompt, T3 adds sampling, and T4 adds a DeBERTa NLI model over the samples.
-  > Consistency and sampling methods divide between T3 and T4 according to whether they
-  > require the NLI model. The later slides use these tiers to group the results.
+  > are cumulative: T1 needs no sampling (the answering pass, plus a question-free pass
+  > for the two PMIs), T2 adds a second prompt, T3 adds sampling, and T4 adds a DeBERTa
+  > NLI model over the samples. Consistency and sampling methods divide between T3 and
+  > T4 according to whether they require the NLI model. The later slides use these tiers
+  > to group the results.

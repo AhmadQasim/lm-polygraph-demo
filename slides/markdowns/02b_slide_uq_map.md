@@ -18,4 +18,5 @@ one paragraph. Titles do not flow.
   > Position further right indicates greater access required: a hosted API exposes text
   > only, an open model also exposes token probabilities and hidden states. The lower
   > row samples the same question several times. The next slide places every estimator
-  > in these families, and the four after it take each family in turn.
+  > in these families, and the four after it take the families in turn, the two sampling
+  > families together.

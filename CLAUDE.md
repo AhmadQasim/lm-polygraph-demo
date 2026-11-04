@@ -184,8 +184,10 @@ makes "PD-1" = "programmed death receptor-1" or "Onpattro" = "patisiran" safe).
   "Tick" for *Ixodes ricinus* and "Fusarium oxysporum" for f. sp. *cubense* are wrong. A
   number must match or fall inside a gold range. A hedged answer with a wrong alternative
   is wrong. Factor X ≠ Factor Xa.
-- **Judgement calls.** 44 labels have a note starting `JUDGEMENT CALL, re-checked
-  2026-11-04`. These are not simple synonym matches. Either the answer is less specific
+- **Judgement calls.** 206 labels are judgement calls: 44 from the first pass have a
+  note starting `JUDGEMENT CALL, re-checked 2026-11-04`, the rest from the second pass
+  start `DEBATABLE` (`fig_methods.count_judgement_calls` counts both). The 44 below are
+  the first pass's. These are not simple synonym matches. Either the answer is less specific
   than the gold, or it is phrased indirectly, or it is right where the gold is wrong or
   outdated: palbociclib → CDK4/6 (gold says EGFR), Flaviviridae has four genera (gold
   says three), H2AX is phosphorylated, lorlatinib also inhibits ROS1, bimekizumab is also
@@ -394,9 +396,9 @@ the text from their `slide_copy` / `SLIDE_COPY`. That is also the only way a cap
 picks up a changed number: slide 02 quotes 45% → 67%, slide 01 says "above 0.98".
 
 **Which data each figure uses.** Slides 01–02 come from the 7B run, and 09b from both. Slides 10–12 come
-from the 3B run. Slide 13 (backup) is a slopegraph over
-Qwen 3B, Qwen 7B, Mistral 7B, OLMo-2 7B and Llama-3.1 8B (`build_deck.CACHE_OTHERS`),
-with names from `--labels`. `build_deck.FIGURES`
+from the 3B run. Slide 13 (backup) is a slopegraph over all six runs: Qwen 3B, Qwen 7B,
+Llama-3.2 3B, Llama-3.1 8B, Mistral 7B, OLMo-2 7B (`build_deck.CACHE_OTHERS`), with
+names from `--labels`. `build_deck.FIGURES`
 passes all of this. Running `plot_bioasq.py` on 7B alone **overwrites** the 3B results
 figures.
 
@@ -407,7 +409,7 @@ Questions have a median of 9 words, references a median of 2, and 19% list synon
 they come from BioASQ challenges 5–13. The setup is closed-book: no BioASQ snippets are
 given. The grading table shows exact matches, then the net gain from token rules, then
 the net gain from manual labels. It is net so the rows sum to the final count (3B
-156+87+72 = 315, 7B 240+90+117 = 447), and the script asserts that. The example question
+156+87+75 = 318, 7B 240+90+121 = 451), and the script asserts that. The example question
 (`DATASET_EXAMPLE`, upadacitinib) has 3B answering "JAK2" (wrong) and 7B "JAK1" (right,
 decided by a manual label); the script asserts both verdicts.
 
@@ -504,13 +506,28 @@ copy; only `FONT_DIR` differs. The full spec is `~/projects/slides/STYLE.md`.
 - `save()` writes a 300 dpi PNG (what the build places) plus an SVG with real text (for
   hand-tuning in PowerPoint via Convert to Shape). It is deterministic, so a rebuild with
   no changes is a no-op.
-- In the .pptx, text is Aptos (the template's font). A LibreOffice PDF shows a serif
-  substitute; that is expected.
+- In the .pptx, slide titles are Hermann Bold (set by the master) and body text Aptos.
+  The serif titles in the PDF are Hermann, not a substitute, so a wrap seen in the PDF is
+  real. `build_deck.finish_front_matter` breaks long chapter titles after "Category:" (or
+  at the most balanced word) and sets the title slide's title dark blue: the template's
+  white is unreadable on the pale band.
 
 ## 10. Decisions, gotchas and open items
 
+- **Wording conventions** (fixed 2026-11-05, keep them):
+  - Tier glosses are `plot_bioasq.TIER_GLOSS`: T1 "no sampling" (not "one forward pass":
+    the PMI pair needs a second, question-free pass), T2 "+ a second prompt" (not
+    "self-query"), T3 "+ sampling", T4 "+ NLI model". Captions use the same words.
+  - Chart headings say "detecting a wrong answer"; the method is "Rényi-Neg"; the full
+    name "Lexical similarity" everywhere.
+  - The consistency slide is titled "Sampling-based estimators" and covers both
+    sampling families; its method names are coloured by family (`method_table` takes an
+    optional fourth element, the name colour). Slide 6's caption says so.
+  - LM-Polygraph implements "most of" the methods: the trained probes on the methods
+    slides are not in 0.7.0.
 - **Take-home slide** (`fig_methods.TAKEAWAYS`) closes the talk with five points:
-  fluent is not reliable; let your access choose the family; try one forward pass first
+  fluent is not reliable; let your access choose the family (an API gives consistency
+  or verbalized confidence; p(True) needs token probabilities); one pass is a fair default
   (the only point resting on the BioASQ result, and the caption says so); use scores to
   triage, not to judge; compare on your own task with LM-Polygraph.
 - **Not built yet**: the demo notebook. Possible extra library material:

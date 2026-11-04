@@ -11,7 +11,7 @@ one paragraph. Titles do not flow.
   > Wrapping a model
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > One wrapper exposes any model to any estimator.
+  > One wrapper, for a local model or an API.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > WhiteboxModel takes a Hugging Face model and tokenizer; BlackboxModel takes an API,

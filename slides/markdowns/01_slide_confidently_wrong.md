@@ -11,7 +11,7 @@ one paragraph. Titles do not flow.
   > High-confidence errors
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > Model probability does not separate wrong answers from right ones.
+  > A wrong answer can carry near-certain probability.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > Four BioASQ answers from the 7B model. Each is incorrect against the reference, and

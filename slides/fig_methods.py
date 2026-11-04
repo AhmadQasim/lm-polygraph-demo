@@ -189,12 +189,13 @@ def method_table(fig, ax, x0, x1, top, rows, pitch=3.7, name_w=21.0, accent=GRAY
     y = top - 1.6
     rule(ax, x0, x1, y, accent, lw=WEIGHT["context"])
     gloss_w = x1 - x0 - name_w - 9.5
-    for name, gloss, tier in rows:
+    for name, gloss, tier, *ink in rows:
         n_lines = len(wrap_measured(fig, gloss, halvar(S["tick"]), gloss_w))
         h = pitch + (n_lines - 1) * 2.05
         base = y - 2.65
         run = tier is not None
-        put(ax, x0, base, name, halvar(S["tick"], bold=True), DARK if run else GRAY85)
+        put(ax, x0, base, name, halvar(S["tick"], bold=True),
+            (ink[0] if ink else DARK) if run else GRAY85)
         lines(fig, ax, x0 + name_w, base, gloss, halvar(S["tick"]), gloss_w,
               DARK if run else GRAY85, pitch=2.05)
         if tier is None:
@@ -262,7 +263,7 @@ def fig_confidently_wrong(d, y):
 
     footnote(ax, "Qwen2.5-7B-Instruct, greedy  ·  probability = P(answer | question), "
                  "the product of its token probabilities  ·  all four graded wrong "
-                 "and checked by hand")
+                 "and checked by hand  ·  questions verbatim [sic]")
     out = save(fig, FIGDIR / "confidently_wrong", formats=("png", "svg"))
     plt.close(fig)
     return out[0]
@@ -566,23 +567,29 @@ def fig_consistency():
         ("+ LIKELIHOOD", "weight each sample by its probability", "white-box", 12.5),
     ]
     for head, what, how, yy in rows:
-        put(ax, x, yy, head, hermann(S["category"]), fam_ink(fam))
+        # the likelihood row is the other family: its colour, not consistency's
+        ink = fam_ink("Sampling + likelihood") if head.startswith("+") else fam_ink(fam)
+        put(ax, x, yy, head, hermann(S["category"]), ink)
         put(ax, x, yy - 2.6, what, halvar(S["tick"]), DARK)
-        put(ax, LEFT_W - 2, yy, how, halvar(S["tick"], italic=True), fam_ink(fam), ha="right")
+        put(ax, LEFT_W - 2, yy, how, halvar(S["tick"], italic=True), ink, ha="right")
     put(ax, x, 6.0, r"$SE = -\sum_{c}\ p(c \mid x)\,\log p(c \mid x)$",
         halvar(S["value"] + 1.0), DARK)
     put(ax, x, 0.9, "c: a cluster of samples with one meaning", halvar(S["gloss"]),
         GRAY85)
 
+    sl, co = fam_ink("Sampling + likelihood"), fam_ink(fam)
     method_table(fig, ax, TABLE_X0, CW, 42.5, [
-        ("Lexical similarity", "word overlap between samples", 3),
-        ("MC sequence entropy", "mean −log P over samples; also length-normalised", 3),
-        ("Semantic entropy", "entropy over meaning clusters", 4),
-        ("NumSemSets", "how many meaning clusters", 4),
-        ("DegMat · Ecc. · EigVal", "graph of pairwise entailment", 4),
-        ("Kernel lang. entropy", "entropy of a semantic kernel", 4),
-        ("SAR · Sem. density · CoCoA", "likelihood and meaning combined", None),
+        ("Lexical similarity", "word overlap between samples", 3, co),
+        ("NumSemSets", "how many meaning clusters", 4, co),
+        ("DegMat · Ecc. · EigVal", "graph of pairwise entailment", 4, co),
+        ("Kernel lang. entropy", "entropy of a semantic kernel", 4, co),
+        ("MC sequence entropy", "mean −log P over samples; also length-normalised", 3, sl),
+        ("Semantic entropy", "probability mass over meaning clusters", 4, sl),
+        ("SAR · Sem. density · CoCoA", "likelihood and meaning combined", None, sl),
     ], pitch=3.7, name_w=23.0, accent=fam_fill(fam))
+    put(ax, TABLE_X0, 8.0, "Consistency", halvar(S["tick"], bold=True), fam_ink(fam))
+    put(ax, TABLE_X0 + 13.5, 8.0, "Sampling + likelihood", halvar(S["tick"], bold=True), sl)
+    put(ax, TABLE_X0 + 33.0, 8.0, "name colour = family", halvar(S["tick"]), GRAY85)
     out = save(fig, FIGDIR / "consistency", formats=("png", "svg"))
     plt.close(fig)
     return out[0]
@@ -668,7 +675,7 @@ def fig_lm_polygraph():
           "share a statistic compute it once.",
           halvar(S["tick"]), 80.0, DARK, pitch=2.2)
     put(ax, CW, 14.0, "IN THIS TALK", hermann(S["category"]), GRAY85, ha="right")
-    for j, ln in enumerate(["lm-polygraph 0.7.0", "Qwen2.5 3B and 7B, bf16",
+    for j, ln in enumerate(["lm-polygraph 0.7.0", "Qwen2.5 3B and 7B; 4 more in backup",
                             "DeBERTa NLI for tier 4"]):
         put(ax, CW, 10.8 - j * 2.2, ln, halvar(S["tick"]), DARK, ha="right")
     out = save(fig, FIGDIR / "lm_polygraph", formats=("png", "svg"))
@@ -708,13 +715,27 @@ SHORT = {  # PRETTY names where the cell is too narrow for them
     "MeanPointwiseMutualInformation": "PMI",
     "MeanConditionalPointwiseMutualInformation": "cond. PMI",
     "BoostedProbSequence": "Boosted prob.",
-    "LexicalSimilarity": "Lexical sim.",
+    "LexicalSimilarity": "Lexical similarity",
     "KernelLanguageEntropy": "KLE",
     "EigValLaplacian": "EigVal",
     "MonteCarloSequenceEntropy": "MC seq. entropy",
-    "MonteCarloNormalizedSequenceEntropy": "MC norm. seq. ent.",
+    "MonteCarloNormalizedSequenceEntropy": "MC norm. seq. entropy",
     "MeanTokenEntropy": "Mean token entropy",
 }
+
+
+def wrap_items(fig, items, font, max_u):
+    """Wrap a comma list between items, never inside one ("MC norm. seq." / "ent.")."""
+    out, cur = [], ""
+    for k, item in enumerate(items):
+        piece = item + ("," if k < len(items) - 1 else "")
+        trial = f"{cur} {piece}".strip()
+        if cur and len(wrap_measured(fig, trial, font, max_u)) > 1:
+            out.append(cur)
+            cur = piece
+        else:
+            cur = trial
+    return out + ([cur] if cur else [])
 
 
 def fig_types_by_tier():
@@ -740,7 +761,7 @@ def fig_types_by_tier():
     for typ in types:
         cells = {t: [SHORT.get(n, PRETTY.get(n, n)) for n in names
                      if TYPE_OF[n] == typ and tier_of[n] == t] for t in (1, 2, 3, 4)}
-        wrapped = {t: wrap_measured(fig, ", ".join(v), font, col_w - 2.4)
+        wrapped = {t: wrap_items(fig, v, font, col_w - 2.4)
                    for t, v in cells.items() if v}
         n_lines = max([len(v) for v in wrapped.values()] + [1])
         h = 2.0 + n_lines * 2.1
@@ -952,8 +973,8 @@ TAKEAWAYS = [
      "Errors in this run carried model probabilities above 0.98. Correctness has to be "
      "scored separately from the answer."),
     ("Access determines the family",
-     "An API exposes text, so consistency or self-report. An open model adds token "
-     "probabilities. Probes also require labels."),
+     "An API exposes text: consistency, or a verbalized confidence. An open model adds "
+     "token probabilities and p(True). Probes also require labels."),
     ("One pass is a fair default",
      "On BioASQ, mean token entropy matched the sampling-plus-NLI methods on four of "
      "six models. Sampling is worth adding where it helps."),
@@ -1028,8 +1049,11 @@ REFERENCES = [
     ("BioASQ", GRAY85,
      "Tsatsaronis et al. An overview of the BIOASQ large-scale biomedical semantic "
      "indexing and question answering competition. BMC Bioinformatics 16, 138 (2015)."),
-    ("Qwen2.5", GRAY85,
-     "Qwen Team. Qwen2.5 technical report. arXiv:2412.15115 (2024)."),
+    # One row for the six models: four rows would overflow the canvas.
+    ("Models", GRAY85,
+     "Qwen Team, Qwen2.5 technical report, arXiv:2412.15115 (2024). Grattafiori et "
+     "al., The Llama 3 herd of models, arXiv:2407.21783 (2024). Jiang et al., Mistral "
+     "7B, arXiv:2310.06825 (2023). Team OLMo, 2 OLMo 2 Furious, arXiv:2501.00656 (2025)."),
     ("NLI model", GRAY85,
      "He, Liu, Gao, Chen. DeBERTa: decoding-enhanced BERT with disentangled attention. "
      "ICLR 2021."),
@@ -1041,7 +1065,7 @@ def fig_references():
     key_w = 19.0
     text_w = CW - key_w
     font = halvar(S["tick"])
-    pitch, row_gap, section_gap = 2.05, 0.6, 1.3
+    pitch, row_gap, section_gap = 2.05, 0.5, 1.2
     y = CH - 1.6
     for ref in REFERENCES:
         if ref is None:
@@ -1066,10 +1090,11 @@ def slide_copy(acc, half, st=None):
         "confidently_wrong": (
             "01",
             "High-confidence errors",
-            "Model probability does not separate wrong answers from right ones.",
-            "Four BioASQ answers from the 7B model. Each is incorrect against the "
-            "reference, and each was assigned a probability above 0.98 by the model "
-            "itself. The text of an answer gives no indication of which to verify.",
+            "A wrong answer can carry near-certain probability.",
+            "Four BioASQ answers from the 7B model. Each is incorrect "
+            "against the reference, and each was assigned a probability "
+            "above 0.98 by the model itself. The text of an answer gives no "
+            "indication of which to verify.",
         ),
         "selective_generation": (
             "02",
@@ -1097,28 +1122,30 @@ def slide_copy(acc, half, st=None):
         "information_based": (
             "04",
             "Information-based estimators",
-            "These estimators need only the forward pass that produced the answer.",
-            "All three are computed from the generation pass itself, so they add no "
-            "further computation. They require token probabilities, which many hosted "
-            "APIs do not return.",
+            "These estimators need no sampling: the answering pass, plus a "
+            "question-free pass for PMI.",
+            "All three are computed from the generation pass itself, so they"
+            " add no further computation. They require token probabilities, "
+            "which many hosted APIs do not return.",
         ),
         "self_report": (
             "05",
             "Self-report estimators",
             "A second prompt asks the model to assess its own answer.",
-            "p(True) takes the probability the model assigns to “True”; the empirical "
-            "variant samples the verdict ten times and counts. Both require one "
-            "additional prompt per answer, which defines tier 2.",
+            "p(True) takes the probability the model assigns to “True”; the "
+            "empirical variant samples the verdict ten times and counts. "
+            "Both require a second prompt per answer, which defines tier 2.",
         ),
         "consistency": (
             "06",
-            "Consistency estimators",
-            "Disagreement among resampled answers indicates uncertainty.",
-            "Several answers are sampled for the same question and their agreement "
-            "measured, either by shared words or by meaning, with an NLI model testing "
-            "whether two answers entail each other. Sampling defines tier 3; the NLI "
-            "model on top defines tier 4. White-box variants additionally weight each "
-            "sample by its probability.",
+            "Sampling-based estimators",
+            "Disagreement among resampled answers indicates uncertainty; "
+            "some methods also weigh each sample by its probability.",
+            "Two families share the samples. Consistency methods measure "
+            "agreement by shared words or by meaning, with an NLI model "
+            "testing whether two answers entail each other; sampling + "
+            "likelihood methods also weight each sample by its probability. "
+            "Sampling defines tier 3; the NLI model on top defines tier 4.",
         ),
         "trained_probes": (
             "07",
@@ -1132,21 +1159,26 @@ def slide_copy(acc, half, st=None):
         "lm_polygraph": (
             "08",
             "LM-Polygraph",
-            "A single library implements these estimators behind one interface.",
-            "Open source and pip-installable. An estimator returns one uncertainty "
-            "score per answer, higher indicating less certainty; grading the answers "
-            "and scoring the estimators against those grades are separate steps.",
+            "One library implements most of these estimators behind one "
+            "interface.",
+            "Open source and pip-installable. An estimator returns one "
+            "uncertainty score per answer, higher indicating less certainty;"
+            " grading the answers and scoring the estimators against those "
+            "grades are separate steps.",
         ),
         "types_by_tier": (
             "09",
             "Every estimator, by type and tier",
-            "Type denotes the signal an estimator reads; tier, what it requires to run.",
-            "The twenty estimators compared in this talk, placed by signal type and "
-            "tier. Tiers are cumulative: T1 needs only the forward pass that produced "
-            "the answer, T2 adds a second prompt, T3 adds sampling, and T4 adds a "
-            "DeBERTa NLI model over the samples. Consistency and sampling methods "
-            "divide between T3 and T4 according to whether they require the NLI model. "
-            "The later slides use these tiers to group the results.",
+            "Type denotes the signal an estimator reads; tier, what it "
+            "requires to run.",
+            "The twenty estimators compared in this talk, placed by signal "
+            "type and tier. Tiers are cumulative: T1 needs no sampling (the "
+            "answering pass, plus a question-free pass for the two PMIs), T2"
+            " adds a second prompt, T3 adds sampling, and T4 adds a DeBERTa "
+            "NLI model over the samples. Consistency and sampling methods "
+            "divide between T3 and T4 according to whether they require the "
+            "NLI model. The later slides use these tiers to group the "
+            "results.",
         ),
     }
     if st is not None:
@@ -1170,7 +1202,7 @@ def slide_copy(acc, half, st=None):
         "exposes text only, an open model also exposes token probabilities and hidden "
         "states. The lower row samples the same question several times. The next "
         "slide places every estimator in these families, and the four after it take "
-        "each family in turn.",
+        "the families in turn, the two sampling families together.",
     )
     copy["takeaways"] = (
         "15",

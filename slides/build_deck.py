@@ -25,6 +25,7 @@ The list is the running order.
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import shutil
 import subprocess
@@ -96,8 +97,8 @@ SLIDES: list[tuple[str, str]] = [
 # keep these in step with the captions in plot_bioasq.SLIDE_COPY.
 CACHE_SMALL = ROOT / "outputs" / "bioasq_Qwen2.5-3B-Instruct_n1000_seed0_t4.json"
 CACHE_BIG = ROOT / "outputs" / "bioasq_Qwen2.5-7B-Instruct_n1000_seed0_t4.json"
-# Other families, for the backup model comparison only. Their answers were graded by
-# bioasq.grade() alone: manual_labels.json was built from the two Qwen runs.
+# Other families, for the backup model comparison only. manual_labels.json covers
+# their non-exact answers too (each label records the runs it came from).
 # Ordered so the two size ladders (Qwen 3B->7B, Llama 3B->8B) sit side by side;
 # the slopegraph's x axis is categorical, so the order is purely for reading.
 CACHE_OTHERS = [ROOT / "outputs" / "bioasq_Llama-3.2-3B-Instruct_n1000_seed0_t4.json",
@@ -222,6 +223,75 @@ def drop_empty_chapters(prs) -> list[str]:
         prs.part.drop_rel(entry.get(rel_ns))
         lst.remove(entry)
     return [c["name"] for c in empty]
+
+
+TITLE_INK = "002864"   # hgf_style.DARK
+
+
+def finish_front_matter(prs) -> str:
+    """Fix two things in the copy that the template gets wrong for this deck.
+
+    1. The title slide sets its title white, which on the pale band behind it is
+       barely readable. It is set to the deck's dark blue.
+    2. Chapter titles that do not fit on one line wrap wherever PowerPoint puts
+       them, which left "...BioASQ / study". They get an explicit break: after
+       the "Category:" prefix when the rest then fits, else at the most balanced
+       word boundary. Measured in Hermann Bold, the font the master sets.
+    """
+    from lxml import etree
+    from PIL import ImageFont
+    from pptx.oxml.ns import qn
+
+    def ink(run):
+        rpr = run._r.get_or_add_rPr()
+        for old in rpr.findall(qn("a:solidFill")):
+            rpr.remove(old)
+        fill = etree.SubElement(rpr, qn("a:solidFill"))
+        etree.SubElement(fill, qn("a:srgbClr")).set("val", TITLE_INK)
+        rpr.insert(0, fill)   # fill comes before latin/ea/cs in the schema
+
+    title_runs = 0
+    for shape in prs.slides[0].placeholders:
+        if shape.placeholder_format.type == 3:   # CENTER_TITLE
+            for para in shape.text_frame.paragraphs:
+                for run in para.runs:
+                    ink(run)
+                    title_runs += 1
+
+    font = ImageFont.truetype(str(HERE / "fonts" / "Hermann-Bold.otf"), 540)
+    width_in = lambda t: font.getlength(t) / 10 / 72          # at 54 pt
+    broken = []
+    for slide in prs.slides:
+        if not slide.slide_layout.name.startswith("Earth_Custom"):
+            continue
+        for shape in slide.placeholders:
+            if shape.placeholder_format.type != 1:   # TITLE
+                continue
+            text = shape.text_frame.text
+            room = shape.width / 914400 - 0.2       # default 0.1 in insets
+            if width_in(text) <= room:
+                continue
+            words = text.split()
+            cuts = [k for k in range(1, len(words))
+                    if max(width_in(" ".join(words[:k])),
+                           width_in(" ".join(words[k:]))) <= room]
+            if not cuts:
+                continue
+            colon = [k for k in cuts if words[k - 1].endswith(":")]
+            k = colon[0] if colon else min(cuts, key=lambda c: max(
+                width_in(" ".join(words[:c])), width_in(" ".join(words[c:]))))
+            para = shape.text_frame.paragraphs[0]
+            run = para.runs[0]
+            for extra in para.runs[1:]:
+                para._p.remove(extra._r)
+            run.text = " ".join(words[:k])
+            br = etree.SubElement(para._p, qn("a:br"))
+            run._r.addnext(br)
+            tail = copy.deepcopy(run._r)
+            tail.find(qn("a:t")).text = " ".join(words[k:])
+            br.addnext(tail)
+            broken.append(" / ".join((" ".join(words[:k]), " ".join(words[k:]))))
+    return f"title ink set on {title_runs} runs; breaks: " + "; ".join(broken)
 
 
 def snapshot_outline(prs) -> int:
@@ -378,6 +448,7 @@ def main(argv=None) -> int:
     if not args.no_clicks:
         print(f"\nclicks: {clicks} across {len(todo)} slides")
 
+    print(f"front matter: {finish_front_matter(prs)}")
     n = deck_common.number_slides(prs)
     print(f"\nnumbering: {n} slides")
     if not args.no_nav:

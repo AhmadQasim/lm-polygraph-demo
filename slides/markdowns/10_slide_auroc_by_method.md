@@ -14,7 +14,7 @@ one paragraph. Titles do not flow.
   > Tier 1 contains both the strongest estimator and the weakest.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > AUROC for separating incorrect answers from correct ones, with 95% bootstrap
-  > confidence intervals. Blue denotes tier 1: one forward pass, no sampling and no
-  > second model. Hollow markers are sign-inverted, returning a confidence rather than
-  > an uncertainty, and are read as 1−AUROC.
+  > AUROC for separating wrong answers from correct ones, with 95% bootstrap confidence
+  > intervals. Dark blue marks tier 1: no sampling and no second model. Hollow markers
+  > are sign-inverted, returning a confidence rather than an uncertainty, and are read
+  > as 1−AUROC.

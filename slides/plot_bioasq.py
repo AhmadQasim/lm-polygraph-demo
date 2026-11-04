@@ -85,8 +85,8 @@ MARGINS = GEOM["margins"]         # 9 / 4 / 6 / 7 u
 
 TIER_NAME = {1: "T1", 2: "T2", 3: "T3", 4: "T4"}
 TIER_GLOSS = {
-    1: "one forward pass",
-    2: "+ self-query",
+    1: "no sampling",
+    2: "+ a second prompt",
     3: "+ sampling",
     4: "+ NLI model",
 }
@@ -111,7 +111,7 @@ PRETTY = {
     "NumSemSets": "NumSemSets",
     "Perplexity": "Perplexity",
     "FisherRao": "Fisher-Rao",
-    "RenyiNeg": "Renyi-Neg",
+    "RenyiNeg": "Rényi-Neg",
 }
 
 
@@ -283,11 +283,11 @@ def fig_by_method(d, y, stats):
         ax.set_ylim(-0.5, per_col - 0.5)
         ax.invert_yaxis()
 
-        chance_line(ax, vertical=True, label="CHANCE" if col == 0 else "")
+        chance_line(ax, vertical=True)
         # Right-aligned: the CHANCE label sits over the 0.5 rule about a third
         # across, and a left-aligned rank header runs straight into it.
         heading(ax, f"rank {col * per_col + 1}–{col * per_col + len(names)}",
-                x=1.0, ha="right", dy=11, color=AXIS, size=TYPE["tick"])
+                x=1.0, ha="right", dy=5, color=AXIS, size=TYPE["tick"])
 
         for i, name in enumerate(names):
             auc, lo, hi = stats[name]
@@ -390,7 +390,7 @@ def fig_by_tier(d, y, stats):
                     va="top", color=AXIS, fontproperties=halvar(TYPE["gloss"]),
                     clip_on=False, zorder=7)
         ax.annotate(f"{np.median(v):.3f}", (tier + 0.28, np.median(v)),
-                    textcoords="offset points", xytext=(4, 0), ha="left",
+                    textcoords="offset points", xytext=(12, 0), ha="left",
                     va="center", color=DARK if tier1 else AXIS,
                     fontproperties=(hermann(TYPE["panel_header"]) if tier1
                                     else halvar(TYPE["value"], bold=True)),
@@ -433,7 +433,8 @@ def fig_scores(d, y, methods=("MeanTokenEntropy", "SemanticEntropy")):
 
         from matplotlib.ticker import MaxNLocator
         ticks = MaxNLocator(4).tick_values(lo, hi)
-        y_ticks(ax, ticks, fmt="{:.2f}" if hi - lo < 20 else "{:.0f}")
+        step = ticks[1] - ticks[0]
+        y_ticks(ax, ticks, fmt="{:.1f}" if step < 1 else "{:.0f}")
 
         for cls, colour in ((0, CORRECT_C), (1, INCORRECT_C)):
             vals = s[y == cls]
@@ -443,9 +444,11 @@ def fig_scores(d, y, methods=("MeanTokenEntropy", "SemanticEntropy")):
             med = float(np.median(vals))
             ax.plot([cls - 0.3, cls + 0.3], [med] * 2, color=colour,
                     lw=WEIGHT["focus"], solid_capstyle="round", zorder=6)
+            # beside the bar, past the jitter (±0.18), so no dot sits under it
             ax.annotate(f"{med:.2f}",
-                        (cls, med), textcoords="offset points", xytext=(0, 8),
-                        ha="center", va="bottom",
+                        (cls + 0.3, med), textcoords="offset points", xytext=(6, 0),
+                        ha="left", va="center",
+                        bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none"),
                         color=ORANGE_DARK if cls else colour,
                         fontproperties=halvar(TYPE["value"], bold=True),
                         clip_on=False, zorder=7)
@@ -462,7 +465,7 @@ def fig_scores(d, y, methods=("MeanTokenEntropy", "SemanticEntropy")):
         if n_off:
             ax.annotate(f"{n_off} points above the axis", (1.0, 1.0),
                         xycoords="axes fraction", textcoords="offset points",
-                        xytext=(0, -4), ha="right", va="top", color=AXIS,
+                        xytext=(0, 10), ha="right", va="bottom", color=AXIS,
                         fontproperties=halvar(TYPE["gloss"]), zorder=7)
 
     caveat(fig, size,
@@ -535,8 +538,9 @@ def fig_model_compare(caches, manual, labels_for=None):
     x = np.arange(len(caches))
     fig, size = canvas()
     ml, mr, mt, mb = MARGINS
-    box_w, box_h = 44.0, 29.0
-    ax = axes_at(fig, size, ml + 6, mb + 2, box_w, box_h)
+    # bottom raised so the % row clears the caveat line
+    box_w, box_h = 44.0, 27.5
+    ax = axes_at(fig, size, ml + 6, mb + 3.5, box_w, box_h)
 
     lo = min(min(a[n] for a in aucs) for n in shown) - 0.02
     hi = max(max(a[n] for a in aucs) for n in shown) + 0.02
@@ -602,7 +606,7 @@ def fig_model_compare(caches, manual, labels_for=None):
                         va="top", color=colour, fontproperties=font,
                         clip_on=False, zorder=7)
 
-    heading(ax, "AUROC for detecting an incorrect answer", dy=12)
+    heading(ax, "AUROC for detecting a wrong answer", dy=12)
 
     # --- the reading, as a flat panel on a pale ground --------------------------------
     px = ml + 6 + box_w + 22
@@ -619,7 +623,7 @@ def fig_model_compare(caches, manual, labels_for=None):
         ("BUT ONE METHOD SWINGS", f"{spread[worst]:.3f}",
          f"{PRETTY.get(worst, worst)}, best to worst model"),
         ("STEADIEST ONE-PASS METHOD", f"{spread[steady]:.3f}",
-         f"{PRETTY.get(steady, steady)}, same range"),
+         f"{PRETTY.get(steady, steady)}, never below 0.75"),
     ]
     inset, pad_x = 1.6, 3.4
     pitch = (ph - 2 * inset) / len(rows)
@@ -652,28 +656,32 @@ SLIDE_COPY = {
         "10",
         "Every estimator, ranked",
         "Tier 1 contains both the strongest estimator and the weakest.",
-        "AUROC for separating incorrect answers from correct ones, with 95% "
-        "bootstrap confidence intervals. Blue denotes tier 1: one forward pass, no "
-        "sampling and no second model. Hollow markers are sign-inverted, returning "
-        "a confidence rather than an uncertainty, and are read as 1−AUROC.",
+        "AUROC for separating wrong answers from correct ones, with 95% "
+        "bootstrap confidence intervals. Dark blue marks tier 1: no sampling"
+        " and no second model. Hollow markers are sign-inverted, returning a"
+        " confidence rather than an uncertainty, and are read as 1−AUROC.",
     ),
     "auroc_by_tier": (
         "11",
         "What each tier adds",
-        "Sampling and an NLI model narrow the spread without raising the maximum.",
-        "Each dot is one estimator, placed in its tier; the bar marks the tier "
-        "median. Tiers are cumulative: each column adds one requirement to the "
-        "preceding one — an additional prompt, then sampling, then a DeBERTa NLI "
-        "model over the samples.",
+        "Sampling and an NLI model narrow the spread without raising the "
+        "maximum.",
+        "Each dot is one estimator, placed in its tier; the bar marks the "
+        "tier median. Tiers are cumulative: each column adds one requirement"
+        " to the preceding one — a second prompt, then sampling, then a "
+        "DeBERTa NLI model over the samples.",
     ),
     "uncertainty_by_correctness": (
         "12",
         "The scores behind the AUROC",
-        "The tier-1 and tier-4 score distributions overlap to a similar degree.",
-        "Raw uncertainty scores for every question, separated by whether the answer "
-        "was graded correct. An AUROC near 0.8 still corresponds to substantially "
-        "overlapping distributions: the score supports triage, not a decision on an "
-        "individual answer.",
+        "The tier-1 and tier-4 score distributions overlap to a similar "
+        "degree.",
+        "Raw uncertainty scores for every question, separated by whether the"
+        " answer was graded correct. An AUROC near 0.8 still corresponds to "
+        "substantially overlapping distributions: the score supports triage,"
+        " not a decision on an individual answer. Semantic entropy as "
+        "lm-polygraph computes it can fall below zero; only the ordering of "
+        "scores matters.",
     ),
     "model_size_comparison": (
         "13",

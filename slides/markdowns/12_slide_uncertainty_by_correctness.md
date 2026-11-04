@@ -17,3 +17,5 @@ one paragraph. Titles do not flow.
   > Raw uncertainty scores for every question, separated by whether the answer was
   > graded correct. An AUROC near 0.8 still corresponds to substantially overlapping
   > distributions: the score supports triage, not a decision on an individual answer.
+  > Semantic entropy as lm-polygraph computes it can fall below zero; only the ordering
+  > of scores matters.

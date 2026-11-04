@@ -13,7 +13,7 @@
       "slide": 2,
       "layout": "Earth_Custom Layout",
       "text": [
-        "Problem: Confidently wrong"
+        "Problem:\u000bConfidently wrong"
       ]
     },
     {
@@ -21,7 +21,7 @@
       "layout": "Title Only",
       "text": [
         "High-confidence errors",
-        "Model probability does not separate wrong answers from right ones.",
+        "A wrong answer can carry near-certain probability.",
         "Four BioASQ answers from the 7B model. Each is incorrect against the reference, and each was assigned a probability above 0.98 by the model itself. The text of an answer gives no indication of which to verify."
       ]
     },
@@ -38,7 +38,7 @@
       "slide": 5,
       "layout": "Earth_Custom Layout",
       "text": [
-        "Methods: Where the uncertainty is"
+        "Methods: Where\u000bthe uncertainty is"
       ]
     },
     {
@@ -47,7 +47,7 @@
       "text": [
         "Where the signal comes from",
         "Two properties locate every estimator: the model access it needs and the number of answers it draws.",
-        "Position further right indicates greater access required: a hosted API exposes text only, an open model also exposes token probabilities and hidden states. The lower row samples the same question several times. The next slide places every estimator in these families, and the four after it take each family in turn."
+        "Position further right indicates greater access required: a hosted API exposes text only, an open model also exposes token probabilities and hidden states. The lower row samples the same question several times. The next slide places every estimator in these families, and the four after it take the families in turn, the two sampling families together."
       ]
     },
     {
@@ -56,7 +56,7 @@
       "text": [
         "Every estimator, by type and tier",
         "Type denotes the signal an estimator reads; tier, what it requires to run.",
-        "The twenty estimators compared in this talk, placed by signal type and tier. Tiers are cumulative: T1 needs only the forward pass that produced the answer, T2 adds a second prompt, T3 adds sampling, and T4 adds a DeBERTa NLI model over the samples. Consistency and sampling methods divide between T3 and T4 according to whether they require the NLI model. The later slides use these tiers to group the results."
+        "The twenty estimators compared in this talk, placed by signal type and tier. Tiers are cumulative: T1 needs no sampling (the answering pass, plus a question-free pass for the two PMIs), T2 adds a second prompt, T3 adds sampling, and T4 adds a DeBERTa NLI model over the samples. Consistency and sampling methods divide between T3 and T4 according to whether they require the NLI model. The later slides use these tiers to group the results."
       ]
     },
     {
@@ -64,7 +64,7 @@
       "layout": "Title Only",
       "text": [
         "Information-based estimators",
-        "These estimators need only the forward pass that produced the answer.",
+        "These estimators need no sampling: the answering pass, plus a question-free pass for PMI.",
         "All three are computed from the generation pass itself, so they add no further computation. They require token probabilities, which many hosted APIs do not return."
       ]
     },
@@ -74,16 +74,16 @@
       "text": [
         "Self-report estimators",
         "A second prompt asks the model to assess its own answer.",
-        "p(True) takes the probability the model assigns to “True”; the empirical variant samples the verdict ten times and counts. Both require one additional prompt per answer, which defines tier 2."
+        "p(True) takes the probability the model assigns to “True”; the empirical variant samples the verdict ten times and counts. Both require a second prompt per answer, which defines tier 2."
       ]
     },
     {
       "slide": 10,
       "layout": "Title Only",
       "text": [
-        "Consistency estimators",
-        "Disagreement among resampled answers indicates uncertainty.",
-        "Several answers are sampled for the same question and their agreement measured, either by shared words or by meaning, with an NLI model testing whether two answers entail each other. Sampling defines tier 3; the NLI model on top defines tier 4. White-box variants additionally weight each sample by its probability."
+        "Sampling-based estimators",
+        "Disagreement among resampled answers indicates uncertainty; some methods also weigh each sample by its probability.",
+        "Two families share the samples. Consistency methods measure agreement by shared words or by meaning, with an NLI model testing whether two answers entail each other; sampling + likelihood methods also weight each sample by its probability. Sampling defines tier 3; the NLI model on top defines tier 4."
       ]
     },
     {
@@ -107,7 +107,7 @@
       "layout": "Title Only",
       "text": [
         "LM-Polygraph",
-        "A single library implements these estimators behind one interface.",
+        "One library implements most of these estimators behind one interface.",
         "Open source and pip-installable. An estimator returns one uncertainty score per answer, higher indicating less certainty; grading the answers and scoring the estimators against those grades are separate steps."
       ]
     },
@@ -124,7 +124,7 @@
       "slide": 15,
       "layout": "Earth_Custom Layout",
       "text": [
-        "Tooling: Your model, your data"
+        "Tooling:\u000bYour model, your data"
       ]
     },
     {
@@ -132,7 +132,7 @@
       "layout": "Title Only",
       "text": [
         "Wrapping a model",
-        "One wrapper exposes any model to any estimator.",
+        "One wrapper, for a local model or an API.",
         "WhiteboxModel takes a Hugging Face model and tokenizer; BlackboxModel takes an API, which restricts the available estimators to black-box methods unless log-probabilities are returned. Eager attention is required on transformers 5.x. The left-hand block was executed as shown; its output appears beneath it."
       ]
     },
@@ -150,7 +150,7 @@
       "layout": "Title Only",
       "text": [
         "Defining a new estimator",
-        "A new method is a class with three members and integrates with the components above.",
+        "A new method is a class with three members, and it works with everything on the previous slides.",
         "This estimator scores an answer by its least likely token. It was run inside UEManager alongside the built-in estimators, sharing their statistics."
       ]
     },
@@ -158,7 +158,7 @@
       "slide": 19,
       "layout": "Earth_Custom Layout",
       "text": [
-        "Example: A small BioASQ study"
+        "Example:\u000bA small BioASQ study"
       ]
     },
     {
@@ -176,7 +176,7 @@
       "text": [
         "Every estimator, ranked",
         "Tier 1 contains both the strongest estimator and the weakest.",
-        "AUROC for separating incorrect answers from correct ones, with 95% bootstrap confidence intervals. Blue denotes tier 1: one forward pass, no sampling and no second model. Hollow markers are sign-inverted, returning a confidence rather than an uncertainty, and are read as 1−AUROC."
+        "AUROC for separating wrong answers from correct ones, with 95% bootstrap confidence intervals. Dark blue marks tier 1: no sampling and no second model. Hollow markers are sign-inverted, returning a confidence rather than an uncertainty, and are read as 1−AUROC."
       ]
     },
     {
@@ -185,7 +185,7 @@
       "text": [
         "What each tier adds",
         "Sampling and an NLI model narrow the spread without raising the maximum.",
-        "Each dot is one estimator, placed in its tier; the bar marks the tier median. Tiers are cumulative: each column adds one requirement to the preceding one — an additional prompt, then sampling, then a DeBERTa NLI model over the samples."
+        "Each dot is one estimator, placed in its tier; the bar marks the tier median. Tiers are cumulative: each column adds one requirement to the preceding one — a second prompt, then sampling, then a DeBERTa NLI model over the samples."
       ]
     },
     {
@@ -235,7 +235,7 @@
       "text": [
         "The scores behind the AUROC",
         "The tier-1 and tier-4 score distributions overlap to a similar degree.",
-        "Raw uncertainty scores for every question, separated by whether the answer was graded correct. An AUROC near 0.8 still corresponds to substantially overlapping distributions: the score supports triage, not a decision on an individual answer."
+        "Raw uncertainty scores for every question, separated by whether the answer was graded correct. An AUROC near 0.8 still corresponds to substantially overlapping distributions: the score supports triage, not a decision on an individual answer. Semantic entropy as lm-polygraph computes it can fall below zero; only the ordering of scores matters."
       ]
     },
     {

@@ -11,7 +11,8 @@ one paragraph. Titles do not flow.
   > Defining a new estimator
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > A new method is a class with three members and integrates with the components above.
+  > A new method is a class with three members, and it works with everything on the
+  > previous slides.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > This estimator scores an answer by its least likely token. It was run inside

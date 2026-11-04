@@ -11,7 +11,8 @@ one paragraph. Titles do not flow.
   > Information-based estimators
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > These estimators need only the forward pass that produced the answer.
+  > These estimators need no sampling: the answering pass, plus a question-free pass for
+  > PMI.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > All three are computed from the generation pass itself, so they add no further
