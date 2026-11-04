@@ -127,13 +127,22 @@
     },
     {
       "slide": 16,
+      "layout": "Title Only",
+      "text": [
+        "The benchmark: BioASQ factoids",
+        "1,000 short biomedical questions, each with a short reference answer.",
+        "Questions from the BioASQ challenges, kept only where a reference answer is at most five words, so right and wrong can be told apart. Answers are graded by exact match, then by token rules, then by manual labels for what no rule can settle. Those labels were proposed with LLM help and checked, not set by domain experts."
+      ]
+    },
+    {
+      "slide": 17,
       "layout": "Earth_Custom Layout",
       "text": [
         "Results: What works"
       ]
     },
     {
-      "slide": 17,
+      "slide": 18,
       "layout": "Title Only",
       "text": [
         "Every estimator, ranked",
@@ -142,7 +151,7 @@
       ]
     },
     {
-      "slide": 18,
+      "slide": 19,
       "layout": "Title Only",
       "text": [
         "What each tier adds",
@@ -151,7 +160,7 @@
       ]
     },
     {
-      "slide": 19,
+      "slide": 20,
       "layout": "Title Only",
       "text": [
         "The scores behind the AUROC",
@@ -160,7 +169,7 @@
       ]
     },
     {
-      "slide": 20,
+      "slide": 21,
       "layout": "Title Only",
       "text": [
         "The same methods on a bigger model",
@@ -169,14 +178,23 @@
       ]
     },
     {
-      "slide": 21,
+      "slide": 22,
       "layout": "Earth_Custom Layout",
       "text": [
         "Conclusions and outlook"
       ]
     },
     {
-      "slide": 22,
+      "slide": 23,
+      "layout": "Title Only",
+      "text": [
+        "What this is, and what it is not",
+        "An introduction, not a benchmark: your mileage may vary.",
+        "Treat the ranking as a starting point. Before relying on an estimator, re-run the comparison on your own task, model and grading; LM-Polygraph makes that a short script."
+      ]
+    },
+    {
+      "slide": 24,
       "layout": "Earth_Custom Layout",
       "text": [
         "Backup"

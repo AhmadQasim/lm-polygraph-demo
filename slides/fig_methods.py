@@ -12,6 +12,8 @@ These are the slides that come *before* the results in `plot_bioasq.py`:
   07 trained_probes        - supervised detectors on hidden states (not run)
   08 lm_polygraph          - the library, and how it shares statistics
   09 types_by_tier         - every estimator run, by signal type and tier
+  09b dataset              - the benchmark: one real question, the sample, the grading
+  14 limitations           - one dataset, two small models: an introduction, not a benchmark
 
 Run:  .venv/bin/python slides/fig_methods.py
 
@@ -57,6 +59,7 @@ from plot_bioasq import PRETTY, TIER_GLOSS, load, wrap_measured  # noqa: E402
 FIGDIR = SLIDES / "figures"
 MDDIR = SLIDES / "markdowns"
 CACHE_7B = ROOT / "outputs" / "bioasq_Qwen2.5-7B-Instruct_n1000_seed0_t4.json"
+CACHE_3B = ROOT / "outputs" / "bioasq_Qwen2.5-3B-Instruct_n1000_seed0_t4.json"
 MANUAL = ROOT / "manual_labels.json"
 
 CW, CH = GEOM["canvas"]   # 124 x 44.5 u
@@ -630,7 +633,8 @@ def fig_types_by_tier():
         h = 2.0 + n_lines * 2.1
         put(ax, 0, y - 2.9, typ.upper(), hermann(S["category"]), DARK)
         if typ == "Trained probe":
-            slab(ax, col_x[0], y - h, CW - col_x[0], h, "white", z=0)
+            # No fill: this row spans every tier column, so under click layering
+            # an opaque ground is redrawn in every layer and hides its own note.
             ax.add_patch(plt.Rectangle((col_x[0], y - h), CW - col_x[0], h, fc="none",
                                        ec=GRAY45, lw=WEIGHT["grid"], ls=(0, (4, 3))))
             put(ax, col_x[0] + 1.2, y - 2.9, "not run: needs labelled answers to "
@@ -639,8 +643,8 @@ def fig_types_by_tier():
             if typ == "Trained probe":
                 break
             filled = t in wrapped
-            slab(ax, col_x[k], y - h, col_w, h, HIGHLIGHT if filled and t == 1 else
-                 (PALE if filled else "white"), z=0)
+            if filled:  # an empty cell stays transparent, not white
+                slab(ax, col_x[k], y - h, col_w, h, HIGHLIGHT if t == 1 else PALE, z=0)
             for j, ln in enumerate(wrapped.get(t, [])):
                 put(ax, col_x[k] + 1.2, y - 2.9 - j * 2.1, ln, font, DARK)
         y -= h + gap
@@ -650,10 +654,182 @@ def fig_types_by_tier():
 
 
 # =====================================================================================
+# 09b. the benchmark: one real question, the sample, and how it was graded
+# =====================================================================================
+# A question where the grading matters: 3B is wrong, and 7B is right in a form no
+# string rule matches ("JAK1" for "Janus kinase 1"), so a manual label decides it.
+DATASET_EXAMPLE = "Which molecule is targeted by upadacitinib?"
+
+
+def dataset_stats(d7, y7, d3, y3):
+    """Every number the dataset slide shows, measured rather than typed."""
+    import os
+    os.environ.setdefault("HF_HUB_OFFLINE", "1")   # the cached copy is the one we ran on
+    from datasets import load_dataset
+
+    split = load_dataset(bioasq.HF_DATASET, split="factoid")
+    pool = bioasq.load_factoid(n=None, seed=0)
+    assert d7["questions"] == d3["questions"], "the two runs must share their questions"
+    qs, golds = d7["questions"], d7["golds"]
+    challenges = sorted({r["asq_challenge"] for r in split if r["question"] in set(qs)})
+
+    def grading(d, y):
+        graded = [bioasq.grade(p, g) for p, g in zip(d["generations"], d["golds"])]
+        exact = sum(g["em"] for g in graded)
+        rules = sum(g["correct"] and not g["em"] for g in graded)
+        right = int((y == 0).sum())
+        # Net, not the count of changed verdicts: labels move answers both ways, and
+        # only the net keeps the three rows summing to the final number of right answers.
+        return {"exact": exact, "rules": rules, "manual": right - exact - rules,
+                "right": right, "n": len(y)}
+
+    return {
+        "factoid": len(split),
+        "pool": len(pool),
+        "n": len(qs),
+        "q_words": int(np.median([len(q.split()) for q in qs])),
+        "gold_words": int(np.median([min(len(g.split()) for g in gs) for gs in golds])),
+        "synonyms": np.mean([len(gs) > 1 for gs in golds]),
+        "challenges": (min(challenges), max(challenges)),
+        "3B": grading(d3, y3),
+        "7B": grading(d7, y7),
+    }
+
+
+def fig_dataset(d7, y7, d3, y3, st):
+    i = d7["questions"].index(DATASET_EXAMPLE)
+    gold = d7["golds"][i][0]
+    answers = [("Qwen2.5-3B", bioasq.answer_text(d3["generations"][i]), y3[i] == 0),
+               ("Qwen2.5-7B", bioasq.answer_text(d7["generations"][i]), y7[i] == 0)]
+    assert [ok for *_, ok in answers] == [False, True], "the example no longer grades 3B wrong, 7B right"
+
+    fig, ax = board()
+    # --- left: one question, as the models see it --------------------------------
+    slab(ax, 0, 0, LEFT_W, CH, PALE, z=0)
+    x = 2.0
+    header(ax, x, 41.0, "one question, as the models see it", DARK)
+    put(ax, x, 35.6, "QUESTION", hermann(S["category"]), GRAY85)
+    put(ax, x, 32.4, DATASET_EXAMPLE, halvar(S["value"], bold=True), DARK)
+    put(ax, x, 27.6, "REFERENCE", hermann(S["category"]), GRAY85)
+    put(ax, x, 24.4, gold, halvar(S["value"]), DARK)
+    for k, (model, ans, ok) in enumerate(answers):
+        yy = 19.0 - k * 4.4
+        put(ax, x, yy, model, halvar(S["tick"]), GRAY85)
+        put(ax, x + 17, yy, ans, halvar(S["value"], bold=True), DARK if ok else WRONG_TEXT)
+        put(ax, x + 27, yy, "right" if ok else "wrong", halvar(S["tick"], italic=True),
+            DARK if ok else WRONG_TEXT)
+    lines(fig, ax, x, 8.4,
+          "Closed-book: each model sees the question after three hand-written "
+          "examples, never BioASQ's snippets. “JAK1” is right, but no string "
+          "rule can know that — a manual label decides it.",
+          halvar(S["tick"]), LEFT_W - 4, DARK, pitch=2.1, max_lines=3)
+
+    # --- right: the sample ----------------------------------------------------------
+    x0 = TABLE_X0
+    header(ax, x0, 41.0, "the sample")
+    steps = [(f"{st['factoid']:,}", "factoid questions"),
+             (f"{st['pool']:,}", "reference ≤ 5 words"),
+             (f"{st['n']:,}", "sampled, seed 0")]
+    col = (CW - x0) / 3
+    for k, (num, what) in enumerate(steps):
+        cx = x0 + k * col
+        put(ax, cx, 34.6, num, hermann(S["claim"]), BLUE if k == 2 else DARK)
+        put(ax, cx, 31.6, what, halvar(S["tick"]), GRAY85)
+        if k < 2:
+            arrow(ax, cx + 9.6, 35.5, cx + col - 1.2, 35.5)
+    lo, hi = st["challenges"]
+    put(ax, x0, 27.4,
+        f"median question {st['q_words']} words  ·  median reference "
+        f"{st['gold_words']} words  ·  {st['synonyms']:.0%} list synonyms",
+        halvar(S["tick"]), DARK)
+    put(ax, x0, 25.2, f"BioASQ challenges {lo}–{hi}  ·  the same 1,000 for both models",
+        halvar(S["tick"]), DARK)
+
+    # --- right: how each answer was graded ------------------------------------------
+    header(ax, x0, 19.6, "graded in three passes")
+    cx3, cx7 = CW - 12.0, CW
+    put(ax, cx3, 19.6, "3B", hermann(S["category"]), GRAY85, ha="right")
+    put(ax, cx7, 19.6, "7B", hermann(S["category"]), GRAY85, ha="right")
+    rule(ax, x0, CW, 18.0, GRAY45)
+    rows = [("exact match", "exact", False),
+            ("+ token rules: case, punctuation, synonyms", "rules", False),
+            ("+ manual labels, net", "manual", False)]
+    for k, (label, key, _) in enumerate(rows):
+        yy = 15.4 - k * 3.2
+        put(ax, x0, yy, label, halvar(S["tick"]), DARK)
+        sign = "+" if key != "exact" else ""
+        put(ax, cx3, yy, f"{sign}{st['3B'][key]}", halvar(S["tick"]), DARK, ha="right")
+        put(ax, cx7, yy, f"{sign}{st['7B'][key]}", halvar(S["tick"]), DARK, ha="right")
+    rule(ax, x0, CW, 7.3)
+    put(ax, x0, 4.6, "right in the end", halvar(S["tick"], bold=True), DARK)
+    for cx, m in ((cx3, "3B"), (cx7, "7B")):
+        g = st[m]
+        assert g["exact"] + g["rules"] + g["manual"] == g["right"]
+        put(ax, cx, 4.6, f"{g['right']}", halvar(S["value"], bold=True), BLUE, ha="right")
+    put(ax, x0, 1.6, "out of 1,000; 3B and 7B answer the same questions",
+        halvar(S["gloss"]), GRAY85)
+    out = save(fig, FIGDIR / "dataset", formats=("png", "svg"))
+    plt.close(fig)
+    return out[0]
+
+
+# =====================================================================================
+# 14. limitations: what this is, and what it is not
+# =====================================================================================
+def limitations(n_judgement):
+    return [
+        ("One dataset",
+         "BioASQ factoids: short, English, biomedical answers. Long answers or "
+         "extraction may well rank the methods differently."),
+        ("Two small models",
+         "Qwen2.5 3B and 7B, one family, open weights. Larger and hosted models "
+         "were not tested."),
+        ("One setting",
+         "Greedy answers, one few-shot prompt, 10 samples per question, one seed."),
+        ("Imperfect labels",
+         f"Right or wrong comes from string rules plus LLM-assisted review, not "
+         f"domain experts; {n_judgement} labels are judgement calls."),
+        ("A subset of methods",
+         "20 of LM-Polygraph's estimators. Attention-based methods and trained "
+         "probes were not run."),
+        ("One metric",
+         "AUROC ranks right against wrong. It does not say where to set a threshold, "
+         "or whether a score is calibrated."),
+    ]
+
+
+def count_judgement_calls():
+    import json
+    labels = json.loads(MANUAL.read_text())["labels"]
+    flat = [l for v in labels.values() for l in (v if isinstance(v, list) else [v])]
+    return sum(l.get("note", "").startswith("JUDGEMENT CALL") for l in flat)
+
+
+def fig_limitations():
+    cards = limitations(count_judgement_calls())
+    fig, ax = board()
+    cols, gap = 3, 2.4
+    w = (CW - (cols - 1) * gap) / cols
+    h = (CH - gap) / 2
+    pad = 1.6
+    for k, (head, body) in enumerate(cards):
+        r, c = divmod(k, cols)
+        x = c * (w + gap)
+        y = CH - (r + 1) * h - r * gap
+        slab(ax, x, y, w, h, PALE, z=0)
+        put(ax, x + pad, y + h - 4.2, head.upper(), hermann(S["panel_header"]), DARK)
+        lines(fig, ax, x + pad, y + h - 9.0, body, halvar(S["value"]), w - 2 * pad, DARK,
+              pitch=2.7, max_lines=5)
+    out = save(fig, FIGDIR / "limitations", formats=("png", "svg"))
+    plt.close(fig)
+    return out[0]
+
+
+# =====================================================================================
 # the words that belong on the slide, not in the figure
 # =====================================================================================
-def slide_copy(acc, half):
-    return {
+def slide_copy(acc, half, st=None):
+    copy = {
         "confidently_wrong": (
             "01",
             "Confidently wrong",
@@ -734,6 +910,26 @@ def slide_copy(acc, half):
             "model.",
         ),
     }
+    if st is not None:
+        copy["dataset"] = (
+            "09b",
+            "The benchmark: BioASQ factoids",
+            f"{st['n']:,} short biomedical questions, each with a short reference answer.",
+            "Questions from the BioASQ challenges, kept only where a reference answer is "
+            "at most five words, so right and wrong can be told apart. Answers are graded "
+            "by exact match, then by token rules, then by manual labels for what no rule "
+            "can settle. Those labels were proposed with LLM help and checked, not set by "
+            "domain experts.",
+        )
+    copy["limitations"] = (
+        "14",
+        "What this is, and what it is not",
+        "An introduction, not a benchmark: your mileage may vary.",
+        "Treat the ranking as a starting point. Before relying on an estimator, re-run "
+        "the comparison on your own task, model and grading; LM-Polygraph makes that "
+        "a short script.",
+    )
+    return copy
 
 
 def write_markdown(stem, number, title, lead, caption, force=False):
@@ -778,8 +974,11 @@ def main() -> None:
     outs += [sel, fig_uq_types(), fig_information(), fig_self_report(),
              fig_consistency(), fig_trained_probes(), fig_lm_polygraph(),
              fig_types_by_tier()]
+    d3, y3 = load(str(CACHE_3B), str(MANUAL))
+    st = dataset_stats(d, y, d3, y3)
+    outs += [fig_dataset(d, y, d3, y3, st), fig_limitations()]
 
-    copy = slide_copy(acc, half)
+    copy = slide_copy(acc, half, st)
     for out in outs:
         md, wrote = write_markdown(out.stem, *copy[out.stem], force=args.rewrite_copy)
         print(f"wrote {out.relative_to(ROOT)}  +  {md.relative_to(ROOT)}"

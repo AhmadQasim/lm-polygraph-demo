@@ -1,4 +1,4 @@
-# CLAUDE.md — journal club: LM-Polygraph and what uncertainty estimators cost
+# CLAUDE.md — journal club: LM-Polygraph and which uncertainty estimators work
 
 Working notes for this repo. Read this first in a fresh session. Numbers here were
 current on 2026-11-04; the code and `outputs/` are the source of truth if they differ.
@@ -8,24 +8,31 @@ current on 2026-11-04; the code and `outputs/` are the source of truth if they d
 A journal club talk for the Helmholtz AI consultants group (Munich), who build LLM
 agentic workflows for labs (genomics, imaging, EHR). Working title (in
 `slides/chapters.json`): *"Knowing when an LLM is wrong: an introduction to
-LM-Polygraph, and what uncertainty estimators cost"*. Speaker: Ahmad Bin Qasim. The
+LM-Polygraph, and which uncertainty estimators work"*. Speaker: Ahmad Bin Qasim. The
 talk date is not recorded anywhere; the title slide's date line is deliberately blank.
 
 **Focus.** The talk was originally about semantic entropy (Farquhar et al., Nature
 2024). It changed on 2026-11-02 to **an introduction to LM-Polygraph plus a survey of
-uncertainty quantification (UQ) methods: which ones work, and what they cost**. Semantic
+uncertainty quantification (UQ) methods and which ones work**. Semantic
 entropy is one entry in the survey, not the subject. Farquhar et al. and Kuhn et al.
 (ICLR 2023) stay as background.
 
+**No cost angle** (decided 2026-11-04). Measuring what each method costs would need
+many more runs, and the tiers already say what each method needs. So the talk
+presents tiers as *requirements* (one pass, + a prompt, + sampling, + an NLI model),
+never as prices: no wall-clock comparisons, and no "cheap", "expensive" or "paying more"
+in slide text.
+
 **The experiment.** 20 LM-Polygraph estimators on 1,000 BioASQ factoid questions,
 answered by Qwen2.5-3B-Instruct and Qwen2.5-7B-Instruct. Each estimator is scored by
-AUROC at separating wrong answers from right ones, and grouped into four cost tiers.
+AUROC at separating wrong answers from right ones, and grouped into four tiers by what
+it needs to run.
 
 ## 2. Repo layout
 
 ```text
 scripts/            the experiment: data, grading, running, scoring
-  bioasq.py           dataset loading, prompt, cost TIERS, the grader, manual-label lookup
+  bioasq.py           dataset loading, prompt, TIERS, the grader, manual-label lookup
   run_bioasq.py       runs the estimators through LM-Polygraph, caches to outputs/
   analyze_bioasq.py   AUROC + bootstrap CIs, paired deltas vs semantic entropy, sensitivity
   time_model.py       per-estimator timing on MPS (feasibility probe)
@@ -33,7 +40,7 @@ scripts/            the experiment: data, grading, running, scoring
   sync_gpu.sh         push source to / pull outputs from the GPU box
 slides/             everything that makes the deck (see slides/README.md)
   build_deck.py       template + figures + markdowns -> slides/build/journal_club_deck.pptx
-  fig_methods.py      figures for slides 01-09 (problem, method types, LM-Polygraph)
+  fig_methods.py      figures for slides 01-09, 09b (dataset) and 14 (limitations)
   plot_bioasq.py      figures for slides 10-13 (results), from outputs/
   markdowns/          NN_slide_<name>.md: each slide's title, lead and caption
   chapters.json       chapter divider titles + nav pills; set_chapters.py writes them
@@ -43,10 +50,9 @@ slides/             everything that makes the deck (see slides/README.md)
   deck_outline.json   text of every built slide, for review in git
 manual_labels.json  human adjudications of the grader (section 5)
 outputs/            cached runs (gitignored)
-mock_data*/         unused German clinical data (gitignored; section 10)
 ```
 
-Not in git: `outputs/`, `slides/figures/`, `slides/build/`, `.venv/`, the mock data and
+Not in git: `outputs/`, `slides/figures/`, `slides/build/`, `.venv/` and
 `slides/journal_club_template.pptx` (187 MB).
 
 ## 3. Environment and hard-won constraints
@@ -81,11 +87,11 @@ phrase...") plus three hand-written few-shot pairs (statins, cystic fibrosis, in
 deliberately not from the eval set), then `Question: ...\nAnswer:`. Greedy generation,
 stop at newline, up to 24 new tokens.
 
-**Estimators and cost tiers** (`bioasq.TIERS`). Tiers are cumulative: running tier 4
-also runs 1–3, so the wall-clock difference between `--max-tier` runs is the marginal
-cost of a tier.
+**Estimators and tiers** (`bioasq.TIERS`). Tiers group the estimators by what they need
+to run. They are cumulative: each adds one requirement to the one before, and running
+tier 4 also runs 1–3.
 
-| tier | what it pays for | estimators |
+| tier | what it needs | estimators |
 |---|---|---|
 | T1 | one greedy forward pass, logits only | MaximumSequenceProbability, Perplexity, MeanTokenEntropy, FisherRao, RenyiNeg, SelfCertainty, BoostedProbSequence, MeanPointwiseMutualInformation, MeanConditionalPointwiseMutualInformation (the two PMIs need a second context-free pass, ~2× T1) |
 | T2 | asking the model about its answer | PTrue, PTrueEmpirical |
@@ -156,7 +162,7 @@ makes "PD-1" = "programmed death receptor-1" or "Onpattro" = "patisiran" safe).
   question/answer pairs) was reviewed by five Claude subagents against a shared rubric.
   They proposed 204 changes. Claude reviewed all 48 marked debatable and overruled 6,
   where a true but less specific answer misses the detail the question asks for. One
-  inconsistency was fixed. Result: 199 labels plus the 8 earlier ones. Only verdicts that
+  inconsistency was fixed. Result: 199 labels, which replaced or joined the 8 earlier ones. Only verdicts that
   **differ** from `grade()` are stored.
 - **The rubric.** Correct if it names the same entity as any gold: synonym, abbreviation,
   brand/generic, renamed organism, a gene for its protein, or a typo in the gold. A *less*
@@ -165,12 +171,18 @@ makes "PD-1" = "programmed death receptor-1" or "Onpattro" = "patisiran" safe).
   "Tick" for *Ixodes ricinus* and "Fusarium oxysporum" for f. sp. *cubense* are wrong. A
   number must match or fall inside a gold range. A hedged answer with a wrong alternative
   is wrong. Factor X ≠ Factor Xa.
-- Entries whose note starts with **DEBATABLE** need a domain check. Several are cases
-  where the gold itself looks wrong or outdated: palbociclib → CDK4/6 (gold says EGFR),
-  Flaviviridae has four genera (gold says three), H2AX is phosphorylated. Those were
-  marked correct.
+- **Judgement calls.** 44 labels have a note starting `JUDGEMENT CALL, re-checked
+  2026-11-04`. These are not simple synonym matches. Either the answer is less specific
+  than the gold, or it is phrased indirectly, or it is right where the gold is wrong or
+  outdated: palbociclib → CDK4/6 (gold says EGFR), Flaviviridae has four genera (gold
+  says three), H2AX is phosphorylated, lorlatinib also inhibits ROS1, bimekizumab is also
+  approved for psoriatic arthritis. All 44 were re-checked against the rubric. Three were
+  flipped to wrong on that pass: PRDX2 "Thermostable peroxidase" (adds a false property),
+  MLL1 "K4" (no histone named), and Askin tumour "Ewing sarcoma translocation" (names the
+  family, not the translocation). The other 41 stand. They were not checked by a
+  biomedical expert; one could still disagree with individual calls.
 
-Effect on accuracy: 3B 23.3% → 31.7%, 7B 31.0% → 44.8%.
+Effect on accuracy: 3B 23.3% → 31.5%, 7B 31.0% → 44.7%.
 
 ## 6. Results (post-fix labels, n=1000, seed 0)
 
@@ -178,21 +190,21 @@ AUROC for detecting a wrong answer, 95% bootstrap CIs (`analyze_bioasq.py`).
 
 | | Qwen2.5-3B | Qwen2.5-7B |
 |---|---|---|
-| accuracy | 31.7% | 44.8% |
-| best | **Mean token entropy 0.805** | **Mean token entropy 0.785** |
-| next | DegMat 0.797, Lexical sim. 0.796, Perplexity 0.793 | Boosted prob. 0.782, EigVal 0.774, KLE 0.772 |
-| Semantic entropy | 0.769 | 0.763 |
-| p(True) | 0.667 | 0.503 (chance) |
-| p(True) empirical | 0.736 | 0.707 |
+| accuracy | 31.5% | 44.7% |
+| best | **Mean token entropy 0.808** | **Mean token entropy 0.786** |
+| next | DegMat 0.799, Lexical sim. 0.799, Perplexity 0.796 | Boosted prob. 0.783, EigVal 0.776, KLE 0.774 |
+| Semantic entropy | 0.769 | 0.765 |
+| p(True) | 0.669 | 0.504 (chance) |
+| p(True) empirical | 0.738 | 0.708 |
 
 Headline findings, all of which survived the grader fix:
-- **The cheapest method wins on both models.** Mean token entropy (T1: one forward pass,
-  no sampling, no NLI) beats semantic entropy significantly on both: 3B +0.037 [+0.013,
-  +0.062], 7B +0.021 [+0.005, +0.038] (paired bootstrap).
-- **Paying more buys consistency, not a higher ceiling**: the T3/T4 methods cluster just
-  under the best T1 methods.
-- **The ranking transfers across scale.** Spearman ρ = 0.898 over all 20 methods (p ≈
-  8e-8).
+- **A tier-1 method wins on both models.** Mean token entropy (one forward pass, no
+  sampling, no NLI) beats semantic entropy significantly on both: 3B +0.039 [+0.016,
+  +0.064], 7B +0.020 [+0.004, +0.037] (paired bootstrap).
+- **Sampling and an NLI model add consistency, not a higher ceiling**: the T3/T4 methods
+  cluster just under the best T1 methods, while T1 also holds the worst ones.
+- **The ranking transfers across scale.** Spearman ρ = 0.902 over all 20 methods (p ≈
+  5e-8; the value the slide-13 figure computes).
 - **Detection gets somewhat harder on the bigger model**: mean AUROC change −0.021 over
   the 17 methods above chance, with 15 of 20 below the diagonal. Before the grader fix
   this looked twice as large; part of it was label noise.
@@ -251,20 +263,20 @@ layout):
 | 2 | Problem: Confidently wrong | Problem | 01 confidently_wrong, 02 selective_generation |
 | 3 | Background: Where the uncertainty is | Background | 03 uq_types, 04 information_based, 05 self_report, 06 consistency, 07 trained_probes |
 | 4 | Tooling: LM-Polygraph | Polygraph | 08 lm_polygraph |
-| 5 | Methods: The four cost tiers | Cost tiers | 09 types_by_tier |
-| 6 | Methods: BioASQ, and grading it | Benchmark | *none yet* |
-| 7 | Results: What works, and what it costs | Results | 10 auroc_by_method, 11 auroc_by_tier, 12 uncertainty_by_correctness, 13 model_size_comparison |
-| 8 | Conclusions and outlook | Conclusions | *none yet* |
+| 5 | Methods: Four tiers of estimators | Tiers | 09 types_by_tier |
+| 6 | Methods: BioASQ, and grading it | Benchmark | 09b dataset |
+| 7 | Results: What works | Results | 10 auroc_by_method, 11 auroc_by_tier, 12 uncertainty_by_correctness, 13 model_size_comparison |
+| 8 | Conclusions and outlook | Conclusions | 14 limitations |
 | 9 | Backup | Backup | *none yet* |
 
-The built deck has 22 slides. Retitle chapters in `chapters.json`, then run
+The built deck has 24 slides and 25 clicks. Retitle chapters in `chapters.json`, then run
 `set_chapters.py`. `build_deck.SLIDES` assigns slides to chapters by title prefix.
 
 **What each content slide is.** One figure plus three pieces of text placed by
 `deck_common.figure_slide` on the "Title Only" layout:
 - the **title**;
-- a blue **lead**: one sentence, a claim rather than a topic ("Paying more buys
-  consistency, not a higher ceiling.");
+- a blue **lead**: one sentence, a claim rather than a topic ("Sampling and an NLI
+  model add consistency, not a higher ceiling.");
 - a grey **caption** under the figure, which says how to read it.
 
 The text lives in `slides/markdowns/NN_slide_<name>.md`. Edit there and rebuild. The
@@ -278,16 +290,52 @@ field, and stamps the chapter nav bar and the side marker.
 the text from their `slide_copy` / `SLIDE_COPY`. That is also the only way a caption
 picks up a changed number: slide 02 quotes 45% → 67%, slide 01 says "above 0.98".
 
-**Which data each figure uses.** Slides 01–02 come from the 7B run. Slides 10–12 come
+**Which data each figure uses.** Slides 01–02 come from the 7B run, and 09b from both. Slides 10–12 come
 from the 3B run. Slide 13 compares 3B and 7B, and needs
 `--labels "Qwen2.5-3B,Qwen2.5-7B"` or its axes say "small/big". `build_deck.FIGURES`
 passes all of this. Running `plot_bioasq.py` on 7B alone **overwrites** the 3B results
 figures.
 
+**Slide 09b (dataset)** is all measured. The funnel comes from the cached `jmhb/BioASQ`
+factoid split (it loads with `HF_HUB_OFFLINE=1`): 1,609 questions → 1,365 whose
+reference is at most 5 words → 1,000 sampled with seed 0, the same for both models.
+Questions have a median of 9 words, references a median of 2, and 19% list synonyms;
+they come from BioASQ challenges 5–13. The setup is closed-book: no BioASQ snippets are
+given. The grading table shows exact matches, then the net gain from token rules, then
+the net gain from manual labels. It is net so the rows sum to the final count (3B
+156+87+72 = 315, 7B 240+90+117 = 447), and the script asserts that. The example question
+(`DATASET_EXAMPLE`, upadacitinib) has 3B answering "JAK2" (wrong) and 7B "JAK1" (right,
+decided by a manual label); the script asserts both verdicts.
+
+**Slide 14 (limitations)** is in the Conclusions chapter. Its lead is "An introduction,
+not a benchmark: your mileage may vary." Six cards: one dataset, two small models, one
+setting, imperfect labels (the judgement-call count is read from `manual_labels.json`),
+a subset of methods, and one metric (AUROC says nothing about thresholds or
+calibration).
+
 **Slide 01 examples** (`fig_methods.WRONG_EXAMPLES`) were picked by hand from the 7B
 run. Each is wrong on any reading and carries model probability exp(−MSP) > 0.98: PDQ39
 → "Cancer", kallikrein genes 13 vs 15, Molgramostim → "Neutropenia", Bulevirtide →
 "Hepatitis B". The script asserts each is still graded wrong.
+
+**Click-by-click builds** (see `slides/README.md`). `slides/clicks.json` declares bands
+in figure units. `hgf_layers.py` writes one transparent PNG per click, and the slide
+stacks them with an Appear effect per layer. Rules that keep the stack honest:
+- **Layer 0 stays on screen** and carries the furniture (anything spanning several bands,
+  or outside all of them). Later layers carry only their own band. Furniture repeated in
+  a later layer was painted over earlier clicks: gridlines across the tier-1 dots, and an
+  opaque row ground hiding the "not run" note on slide 14.
+- **A wide artist belongs to a band only if** at least 60% of it lies inside that band
+  and it spills out by no more than 25% of the band's width. Otherwise full-width
+  gridlines join the wider band.
+- **Extents are clipped to the axes**, so a dot strip with outliers above the view is not
+  measured as reaching off the canvas, which made it furniture and showed it before its
+  click.
+- **Avoid opaque fills that span bands.** Leave empty cells transparent rather than
+  white.
+- `hgf_layers.py --verify`, which `build_deck.py --figures` runs, fails a figure if any
+  ink is missing from the stack, or if the stack flattened onto white differs from the
+  whole figure ("PAINTED OVER").
 
 ## 9. Figure styling (house style)
 
@@ -307,7 +355,7 @@ copy; only `FONT_DIR` differs. The full spec is `~/projects/slides/STYLE.md`.
 
   | meaning | colour |
   |---|---|
-  | tier 1, the cheap tier and the story | blue `#005AA0` |
+  | tier 1, the story | blue `#005AA0` |
   | tiers 2–4, context | blue 60 `#669CC6` |
   | answer correct | dark blue `#002864` |
   | answer wrong, what we detect | orange `#ED7D31` (text in ORANGE_DARK `#A34A12`; orange is 2.49:1 on white) |
@@ -330,16 +378,9 @@ copy; only `FONT_DIR` differs. The full spec is `~/projects/slides/STYLE.md`.
 
 ## 10. Decisions, gotchas and open items
 
-- **Unused data**: `mock_data/`, `mock_data_challenging/` and the other mock folders hold
-  synthetic German gynaecology cases for IQTIG quality-form extraction, with ground
-  truth. That is long-context structured extraction, not short-form QA, so it is not
-  used. `mock_data_challenging/README.md` labels which trap each case targets.
-- **Cost axis is still qualitative**: the tiers order cost, but there are no per-tier
-  wall clocks. That needs four `--max-tier` runs per model on the GPU box (~45 min on a
-  3090).
-- **Slides not written yet**: the Benchmark chapter (BioASQ and how grading works,
-  which section 5 can feed), Conclusions, Backup. The demo notebook is not built.
-- **DEBATABLE labels** in `manual_labels.json` want a domain expert's pass.
+- **Slides not written yet**: the take-home conclusions (only the limitations slide
+  exists in that chapter) and Backup. The demo notebook is not built.
+- **Judgement-call labels** (section 5) are re-checked, but not by a biomedical expert.
 - **Verify a slide's claim against the data before keeping it.** The model-size caption
   once said "all" methods sit below the diagonal; it was 17/20, and is now 15/20.
 - When regenerating results figures, always run `plot_bioasq.py` on the 3B cache with

@@ -126,7 +126,7 @@ def _extent(artist, renderer):
     except Exception:
         return None
     if _finite(bb):
-        return bb
+        return _clipped(artist, bb)
     datalim = getattr(artist, "get_datalim", None)
     if datalim is not None and getattr(artist, "axes", None) is not None:
         try:
@@ -134,8 +134,26 @@ def _extent(artist, renderer):
         except Exception:
             return None
         if _finite(db):
-            return Bbox(artist.axes.transData.transform(db.get_points()))
+            return _clipped(artist, Bbox(artist.axes.transData.transform(db.get_points())))
     return None
+
+
+def _clipped(artist, bb):
+    """The part of `bb` the artist can actually draw in.
+
+    A clipped artist whose data runs past its axes limits - a strip of dots with a
+    few outliers above the view - measures far beyond the canvas, so its centre lands
+    outside every band and it became furniture, on screen before its own click.
+    """
+    if not artist.get_clip_on():
+        return bb
+    clip = artist.get_clip_box()
+    if clip is None and getattr(artist, "axes", None) is not None:
+        clip = artist.axes.bbox
+    if clip is None:
+        return bb
+    inter = Bbox.intersection(bb, clip)
+    return inter if inter is not None else bb
 
 
 def content(fig):
@@ -173,6 +191,10 @@ SMALL = 0.5
 #: A wide artist needs this much of itself inside one band to belong to it. Below
 #: that it spans bands and is furniture - a chance line ruled across every column.
 CLAIM = 0.6
+#: ...and may run out of that band by at most this much of the band's own width.
+#: CLAIM alone let a gridline ruled across a two-band figure join the wider band,
+#: and the click that revealed it then drew the line over the other band's dots.
+SPILL = 0.25
 
 
 def _overlap(a0, a1, b0, b1):
@@ -215,7 +237,9 @@ def assign(fig, bands, renderer):
         # is not that column's.
         fracs = [_overlap(a0, a1, *span(b)) / max(a1 - a0, 1e-9) for b in bands]
         best = max(range(len(bands)), key=lambda i: fracs[i])
-        if fracs[best] >= CLAIM and best in inside:
+        width = span(bands[best])[1] - span(bands[best])[0]
+        spill = (a1 - a0) - _overlap(a0, a1, *span(bands[best]))
+        if fracs[best] >= CLAIM and best in inside and spill <= SPILL * width:
             groups[best].append(artist)
         else:
             furniture.append(artist)
@@ -250,16 +274,21 @@ def render_layers(fig, stem: Path, spec: dict | None = None, box: Bbox | None = 
 
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()
-    groups, _furniture = assign(fig, bands, renderer)
+    groups, furniture = assign(fig, bands, renderer)
     layers = groups_for(stem.name, len(bands), spec)
     box = frame(fig) if box is None else box
 
     paths = []
     for i, wanted in enumerate(layers):
         hidden = []
-        for j, group in enumerate(groups):
-            if j in wanted:
-                continue
+        # Furniture goes in the first layer only. The layers are stacked and the first
+        # stays on screen, so furniture repeated in a later layer is painted on top of
+        # the panels revealed before it: a gridline across the tier-1 dots, an opaque
+        # ground spanning every column hiding text an earlier click put there.
+        hide = [g for j, g in enumerate(groups) if j not in wanted]
+        if i > 0:
+            hide.append(furniture)
+        for group in hide:
             for artist in group:
                 if artist.get_visible():
                     artist.set_visible(False)
@@ -334,29 +363,31 @@ def verify(figdir: Path, spec: dict) -> int:
     then in no layer either, and the slide quietly loses it. Compositing catches
     that, where counting layers does not.
 
-    An exact match is not expected and would be wrong to require: furniture is drawn
-    into every layer, so its antialiased edge pixels composite over themselves and
-    come out a shade darker. What must hold is coverage - every pixel the whole
-    figure inks, the stack inks too.
+    The second failure is occlusion: a later layer painting over what an earlier
+    click revealed - a gridline across dots, an opaque ground hiding a note. The
+    stack is therefore also flattened onto white, the way the slide shows it after
+    the last click, and compared colour for colour with the whole figure. Furniture
+    sits in the first layer only, so nothing is drawn twice and the two match exactly
+    up to rounding.
     """
     from PIL import Image
     import numpy as np
 
     bad = 0
-    print(f"{'figure':<30}{'layers':>8}{'missing px':>12}   size")
+    print(f"{'figure':<30}{'layers':>8}{'missing px':>12}{'covered px':>12}   size")
     for stem in spec:
         base = figdir / f"{stem}.png"
         layers = sorted(figdir.glob(f"{stem}_l*.png"),
                         key=lambda q: int(q.stem.rsplit("_l", 1)[1]))
         if not base.exists() or not layers:
-            print(f"  {stem:<28}{'-':>8}{'no figures':>12}   "
+            print(f"  {stem:<28}{'-':>8}{'no figures':>12}{'':>12}   "
                   f"run build_deck.py --figures")
             bad += 1
             continue
         whole = Image.open(base).convert("RGBA")
         sizes = {Image.open(q).size for q in layers}
         if sizes != {whole.size}:
-            print(f"  {stem:<28}{len(layers):>8}{'MISMATCH':>12}   "
+            print(f"  {stem:<28}{len(layers):>8}{'MISMATCH':>12}{'':>12}   "
                   f"whole {whole.size}, layers {sorted(sizes)}")
             bad += 1
             continue
@@ -367,9 +398,15 @@ def verify(figdir: Path, spec: dict) -> int:
         wa = np.asarray(whole)[..., 3].astype(int)
         sa = np.asarray(stack)[..., 3].astype(int)
         missing = int(((wa > 40) & (sa <= 8)).sum())
-        flag = "" if missing == 0 else "   <-- CONTENT LOST"
-        print(f"  {stem:<28}{len(layers):>8}{missing:>12}   {whole.size}{flag}")
-        bad += missing > 0
+        # flattened onto white: ink the whole figure shows that the stack paints over
+        white = Image.new("RGBA", whole.size, (255, 255, 255, 255))
+        wf = np.asarray(Image.alpha_composite(white, whole))[..., :3].astype(int)
+        sf = np.asarray(Image.alpha_composite(white, stack))[..., :3].astype(int)
+        covered = int((np.abs(wf - sf).max(-1) > 40).sum())
+        flag = ("" if missing == 0 else "   <-- CONTENT LOST") + \
+               ("" if covered == 0 else "   <-- PAINTED OVER")
+        print(f"  {stem:<28}{len(layers):>8}{missing:>12}{covered:>12}   {whole.size}{flag}")
+        bad += missing > 0 or covered > 0
     print(f"\n  {len(spec)} figures, {bad} with a problem")
     return 1 if bad else 0
 

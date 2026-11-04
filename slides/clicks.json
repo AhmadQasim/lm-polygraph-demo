@@ -9,6 +9,16 @@
               [0, 15.1, 124, 23.7], [0, 5.8, 124, 15.1]]
   },
 
+  "dataset": {
+    "_": "The example question first, then the sample, then the grading table. The left panel's ground is inside its own band, so it arrives with its words.",
+    "rects": [[0, 0, 58, 44.5], [59, 22.5, 124, 44.5], [59, 0, 124, 22.5]]
+  },
+
+  "limitations": {
+    "_": "The top row of three cards, then the bottom row.",
+    "rects": [[0, 22.3, 124, 44.5], [0, 0, 124, 22.1]]
+  },
+
   "uq_types": {
     "_": "Five signal-type columns, 22.88 u wide on a 2.4 u gap. Cut at the gap midpoints.",
     "split_x": [24.08, 49.36, 74.64, 99.92]

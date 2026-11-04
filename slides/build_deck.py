@@ -66,10 +66,12 @@ SLIDES: list[tuple[str, str]] = [
     ("trained_probes", "Background"),
     ("lm_polygraph", "Tooling"),
     ("types_by_tier", "Methods: Four tiers of estimators"),
+    ("dataset", "Methods: BioASQ"),
     ("auroc_by_method", "Results"),
     ("auroc_by_tier", "Results"),
     ("uncertainty_by_correctness", "Results"),
     ("model_size_comparison", "Results"),
+    ("limitations", "Conclusions"),
 ]
 
 # The runs the results figures are drawn from. The figures say which model they show;
