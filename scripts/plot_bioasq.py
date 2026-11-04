@@ -606,7 +606,7 @@ def fig_model_compare(caches, manual, labels_for=None):
 # =====================================================================================
 SLIDE_COPY = {
     "auroc_by_method": (
-        "01",
+        "10",
         "Every estimator, ranked",
         "The cheapest tier holds both the winner and the traps.",
         "AUROC for separating wrong answers from right ones, with 95% bootstrap "
@@ -615,7 +615,7 @@ SLIDE_COPY = {
         "confidence rather than an uncertainty, and read as 1−AUROC.",
     ),
     "auroc_by_tier": (
-        "02",
+        "11",
         "What each cost tier buys",
         "Paying more buys consistency, not a higher ceiling.",
         "Each dot is one estimator, placed in its cost tier; the bar is the tier "
@@ -624,7 +624,7 @@ SLIDE_COPY = {
         "then a DeBERTa NLI model over the sample set.",
     ),
     "uncertainty_by_correctness": (
-        "03",
+        "12",
         "The scores behind the AUROC",
         "Cheapest against dearest — the overlap looks much the same.",
         "Raw uncertainty scores for every question, split by whether the answer was "
@@ -632,7 +632,7 @@ SLIDE_COPY = {
         "overlapping distributions: this is a triage signal, not a verdict.",
     ),
     "model_size_comparison": (
-        "04",
+        "13",
         "The same methods on a bigger model",
         "The ranking survives scale; the task gets harder.",
         "Every method's AUROC on the smaller model against the larger one. Points "
