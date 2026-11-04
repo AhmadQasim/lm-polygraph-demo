@@ -12,7 +12,9 @@ These are the slides that come *before* the results in `plot_bioasq.py`:
   07 trained_probes        - supervised detectors on hidden states (not run)
   08 lm_polygraph          - the library, and how it shares statistics
   09 types_by_tier         - every estimator run, by signal type and tier
+  02b uq_map               - two questions place every family: access, and answers drawn
   09b dataset              - the benchmark: one real question, the sample, the grading
+  15 takeaways            - five things to take home
   14 limitations           - one dataset, two small models: an introduction, not a benchmark
 
 Run:  .venv/bin/python slides/fig_methods.py
@@ -50,8 +52,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import bioasq  # noqa: E402
 from hgf_style import (  # noqa: E402
     BLUE, DARK, GRAY22, GRAY45, GRAY85, BLUE60, ORANGE, ORANGE_DARK, PALE,
-    HIGHLIGHT, TYPE, WEIGHT, GEOM, REFERENCE_DASH,
-    halvar, hermann, mono, slab, use_hgf,
+    HIGHLIGHT, TYPE, WEIGHT, GEOM, REFERENCE_DASH, HGF, PURPLE,
+    halvar, hermann, mono, shade, slab, use_hgf,
 )
 from hgf_layers import layered_save as save  # noqa: E402  # writes the click layers too
 from plot_bioasq import PRETTY, TIER_GLOSS, load, wrap_measured  # noqa: E402
@@ -65,6 +67,52 @@ MANUAL = ROOT / "manual_labels.json"
 CW, CH = GEOM["canvas"]   # 124 x 44.5 u
 TIER1, TIER_REST = BLUE, BLUE60
 WRONG, WRONG_TEXT = ORANGE, ORANGE_DARK
+
+
+# --- colour roles: one theme colour per idea, the same on every slide -------------
+def deepen(hex_color, f):
+    """`f` of the colour, the rest black: a text-safe ink for a light theme colour."""
+    h = hex_color.lstrip("#")
+    return "#%02X%02X%02X" % tuple(round(int(h[i:i + 2], 16) * f) for i in (0, 2, 4))
+
+
+#: The five method families. `fill` marks and grounds, `ink` sets type (>= 4.5:1 on
+#: white), `ground` is the pale panel colour. Used by the map, the cards, the family
+#: slides, the type-by-tier grid and the library catalogue.
+FAMILY = {
+    "Information": BLUE,
+    "Self-report": PURPLE,
+    "Consistency": HGF["aerospace"],
+    "Sampling + likelihood": HGF["information"],
+    "Trained probe": HGF["green"],
+}
+_FAMILY_INK = {"Consistency": deepen(HGF["aerospace"], 0.6),
+               "Trained probe": deepen(HGF["green"], 0.62)}
+
+
+def fam_fill(name):
+    return FAMILY[name]
+
+
+def fam_ink(name):
+    return _FAMILY_INK.get(name, FAMILY[name])
+
+
+def fam_ground(name):
+    return shade(FAMILY[name], 12)
+
+
+#: The parts of LM-Polygraph, on the pipeline slide and in the code highlighting.
+LIB = {
+    "model": (HGF["earth"], HGF["earth"]),
+    "stats": (HGF["mint"], deepen(HGF["mint"], 0.55)),
+    "estimator": (BLUE, BLUE),
+    "manager": (DARK, DARK),
+    "metric": (HGF["energy"], deepen(HGF["energy"], 0.55)),
+}
+CAUTION, CAUTION_INK = HGF["energy"], deepen(HGF["energy"], 0.55)   # limitations
+TAKEAWAY_INK = _FAMILY_INK["Trained probe"]                           # take-home
+PERFECT_INK = deepen(HGF["green"], 0.62)                              # an oracle line
 
 S = TYPE  # sizes, by role
 
@@ -129,7 +177,7 @@ def tier_hue(t):
     return TIER1 if t == 1 else TIER_REST
 
 
-def method_table(fig, ax, x0, x1, top, rows, pitch=3.7, name_w=21.0):
+def method_table(fig, ax, x0, x1, top, rows, pitch=3.7, name_w=21.0, accent=GRAY45):
     """Right-hand method list: name | what it reads | tier pill (or 'not run').
 
     rows: (name, gloss, tier) with tier an int, a string such as "T3 · T4",
@@ -139,7 +187,7 @@ def method_table(fig, ax, x0, x1, top, rows, pitch=3.7, name_w=21.0):
     header(ax, x0 + name_w, top, "reads")
     header(ax, x1, top, "tier", ha="right")
     y = top - 1.6
-    rule(ax, x0, x1, y, GRAY45)
+    rule(ax, x0, x1, y, accent, lw=WEIGHT["context"])
     gloss_w = x1 - x0 - name_w - 9.5
     for name, gloss, tier in rows:
         n_lines = len(wrap_measured(fig, gloss, halvar(S["tick"]), gloss_w))
@@ -257,7 +305,7 @@ def fig_selective_generation(d, y):
                 ha="center", va="top")
     ax.plot([0, 0.9], [0.2, 0.2], color=GRAY85, lw=WEIGHT["baseline"])
 
-    ax.plot(r, oracle, color=GRAY45, lw=WEIGHT["reference"], dashes=REFERENCE_DASH)
+    ax.plot(r, oracle, color=PERFECT_INK, lw=WEIGHT["reference"], dashes=REFERENCE_DASH)
     ax.plot([0, 0.9], [acc, acc], color=GRAY85, lw=WEIGHT["reference"],
             dashes=REFERENCE_DASH)
     ax.plot(r, curve, color=TIER1, lw=WEIGHT["focus"])
@@ -267,7 +315,7 @@ def fig_selective_generation(d, y):
 
     lab = halvar(S["tick"])
     ax_b.text(101.5, 8 + (oracle[-1] - 0.2) / 0.8 * 32, "perfect ranking",
-              fontproperties=lab, color=GRAY85, va="center")
+              fontproperties=lab, color=PERFECT_INK, va="center")
     ax_b.text(101.5, 8 + (curve[-1] - 0.2) / 0.8 * 32, "mean token entropy",
               fontproperties=halvar(S["tick"], bold=True), color=TIER1, va="center")
     ax_b.text(101.5, 8 + (acc - 0.2) / 0.8 * 32, "random flags",
@@ -287,6 +335,60 @@ def fig_selective_generation(d, y):
     out = save(fig, FIGDIR / "selective_generation", formats=("png", "svg"))
     plt.close(fig)
     return out[0], acc, half
+
+
+# =====================================================================================
+# 02b. the map: two questions place every family
+# =====================================================================================
+#: (row, column) -> [(family, examples)]. Rows: one answer / several answers.
+#: Columns: what the method can see of the model.
+UQ_MAP = {
+    (0, 0): [("Self-report", "verbalized confidence")],
+    (0, 1): [("Information", "MSP, perplexity, token entropy"),
+             ("Self-report", "p(True)")],
+    (0, 2): [("Trained probe", "SAPLMA, SATRMD, Lookback Lens; needs labels")],
+    (1, 0): [("Consistency", "lexical similarity, DegMat, KLE")],
+    (1, 1): [("Sampling + likelihood", "MC sequence entropy, semantic entropy")],
+}
+MAP_COLS = [("text only", "any API, black-box"),
+            ("token probabilities", "an open model, white-box"),
+            ("hidden states", "white-box, inside the model")]
+MAP_ROWS = [("one answer", "the answer it gave"),
+            ("several answers", "the question sampled again")]
+
+
+def fig_uq_map():
+    fig, ax = board()
+    left, gap = 24.0, 1.6
+    cw = (CW - left - 2 * gap) / 3
+    top_hdr, row_h = 36.5, 15.6
+    for c, (head, sub) in enumerate(MAP_COLS):
+        x = left + c * (cw + gap)
+        put(ax, x, 41.6, head.upper(), hermann(S["category"]), DARK)
+        put(ax, x, 39.2, sub, halvar(S["tick"]), GRAY85)
+    arrow(ax, left, 44.0, CW - 2, 44.0)
+    put(ax, 0, 43.4, "more access", halvar(S["tick"], italic=True), GRAY85)
+    for r, (head, sub) in enumerate(MAP_ROWS):
+        y = top_hdr - r * (row_h + gap)
+        put(ax, 0, y - 3.4, head.upper(), hermann(S["category"]), DARK)
+        put(ax, 0, y - 5.8, sub, halvar(S["tick"]), GRAY85)
+        for c in range(3):
+            x = left + c * (cw + gap)
+            cell = UQ_MAP.get((r, c))
+            if not cell:
+                continue
+            slab(ax, x, y - row_h, cw, row_h,
+                 fam_ground(cell[0][0]) if len(cell) == 1 else PALE, z=0)
+            yy = y - 3.6
+            for fam, ex in cell:
+                # a family-coloured bar beside each family, so a shared cell reads as two
+                slab(ax, x + 1.0, yy - 3.4, 0.7, 5.2, fam_fill(fam), z=1, radius=0.3)
+                put(ax, x + 2.6, yy, fam.upper(), hermann(S["panel_header"]), fam_ink(fam))
+                yy = lines(fig, ax, x + 2.6, yy - 2.6, ex, halvar(S["tick"]),
+                           cw - 4.0, DARK, pitch=2.05) - 1.8
+    out = save(fig, FIGDIR / "uq_map", formats=("png", "svg"))
+    plt.close(fig)
+    return out[0]
 
 
 # =====================================================================================
@@ -332,15 +434,16 @@ def fig_uq_types():
     pad = 1.4
     for k, (name, reads, access, methods, tier) in enumerate(UQ_TYPES):
         x = k * (w + gap)
-        slab(ax, x, 3.2, w, CH - 3.2, PALE, z=0)
+        slab(ax, x, 3.2, w, CH - 3.2, fam_ground(name), z=0)
+        slab(ax, x, CH - 1.2, w, 1.2, fam_fill(name), z=1, radius=0.5)
         tw = w - 2 * pad
-        yy = lines(fig, ax, x + pad, CH - 3.6, name, hermann(S["panel_header"]), tw,
-                   DARK, pitch=2.7)
+        yy = lines(fig, ax, x + pad, CH - 4.4, name, hermann(S["panel_header"]), tw,
+                   fam_ink(name), pitch=2.7)
         yy = lines(fig, ax, x + pad, yy - 0.6, reads, halvar(S["tick"]), tw, DARK,
                    pitch=2.05)
-        put(ax, x + pad, yy - 0.8, access, halvar(S["tick"], italic=True), BLUE)
+        put(ax, x + pad, yy - 0.8, access, halvar(S["tick"], italic=True), fam_ink(name))
         yy -= 3.6
-        rule(ax, x + pad, x + w - pad, yy + 1.2, GRAY45)
+        rule(ax, x + pad, x + w - pad, yy + 1.2, fam_fill(name), lw=WEIGHT["context"])
         for m in methods:
             yy -= 2.05
             put(ax, x + pad, yy + 0.4, m, halvar(S["tick"]), GRAY85)
@@ -361,25 +464,27 @@ LEFT_W = 56.0
 TABLE_X0 = 61.0
 
 
-def formula_block(ax, x, y, name, tex, gloss):
-    put(ax, x, y, name.upper(), hermann(S["category"]), DARK)
+def formula_block(ax, x, y, name, tex, gloss, ink=DARK):
+    put(ax, x, y, name.upper(), hermann(S["category"]), ink)
     put(ax, x, y - 4.4, tex, halvar(S["value"] + 1.5), DARK)
     put(ax, x, y - 8.9, gloss, halvar(S["tick"]), GRAY85)
 
 
 def fig_information():
+    fam = "Information"
     fig, ax = board()
-    slab(ax, 0, 0, LEFT_W, CH, PALE, z=0)
+    slab(ax, 0, 0, LEFT_W, CH, fam_ground(fam), z=0)
+    slab(ax, 0, CH - 1.2, LEFT_W, 1.2, fam_fill(fam), z=1, radius=0.5)
     x = 2.0
     formula_block(ax, x, 40.5, "Max sequence probability",
                   r"$u = -\sum_{l}\ \log p(y_l \mid y_{<l}, x)$",
-                  "the whole answer's log-probability")
+                  "the whole answer's log-probability", ink=fam_ink(fam))
     formula_block(ax, x, 27.5, "Perplexity",
                   r"$u = -\frac{1}{L}\sum_{l}\ \log p(y_l \mid y_{<l}, x)$",
-                  "the same, per token, so length does not count")
+                  "the same, per token, so length does not count", ink=fam_ink(fam))
     formula_block(ax, x, 14.5, "Mean token entropy",
                   r"$u = \frac{1}{L}\sum_{l}\ \mathcal{H}\left[p(\cdot \mid y_{<l}, x)\right]$",
-                  "how spread every next-token choice was")
+                  "how spread every next-token choice was", ink=fam_ink(fam))
     put(ax, x, 1.6, "x question  ·  y answer, L tokens  ·  higher u = less sure",
         halvar(S["gloss"]), GRAY85)
 
@@ -393,17 +498,19 @@ def fig_information():
         ("Mean PMI · cond. PMI", "what the question adds; a 2nd pass without it", 1),
         ("CCP", "probability pooled over same-meaning tokens", None),
         ("Attention score · RAUQ", "attention maps of the same pass", None),
-    ], pitch=3.55)
+    ], pitch=3.55, accent=fam_fill(fam))
     out = save(fig, FIGDIR / "information_based", formats=("png", "svg"))
     plt.close(fig)
     return out[0]
 
 
 def fig_self_report():
+    fam = "Self-report"
     fig, ax = board()
-    slab(ax, 0, 0, LEFT_W, CH, PALE, z=0)
+    slab(ax, 0, 0, LEFT_W, CH, fam_ground(fam), z=0)
+    slab(ax, 0, CH - 1.2, LEFT_W, 1.2, fam_fill(fam), z=1, radius=0.5)
     x = 2.0
-    header(ax, x, 41.0, "a second prompt, after the answer", DARK)
+    header(ax, x, 41.0, "a second prompt, after the answer", fam_ink(fam))
     slab(ax, x, 21.0, LEFT_W - 4, 17.0, "white", z=1)
     m = mono(S["tick"])
     for k, ln in enumerate([
@@ -415,9 +522,9 @@ def fig_self_report():
     ]):
         put(ax, x + 1.5, 35.2 - k * 2.9, ln, m, DARK, zorder=2)
 
-    put(ax, x, 16.2, "P(TRUE)", hermann(S["category"]), DARK)
+    put(ax, x, 16.2, "P(TRUE)", hermann(S["category"]), fam_ink(fam))
     put(ax, x, 12.0, r'$u = -\log\, p(\mathrm{“True”})$', halvar(S["value"] + 1.5), DARK)
-    put(ax, x + 27, 16.2, "P(TRUE) EMPIRICAL", hermann(S["category"]), DARK)
+    put(ax, x + 27, 16.2, "P(TRUE) EMPIRICAL", hermann(S["category"]), fam_ink(fam))
     put(ax, x + 27, 12.0, "sample the verdict 10×,", halvar(S["tick"]), DARK)
     put(ax, x + 27, 9.9, "count how often “True”", halvar(S["tick"]), DARK)
     put(ax, x, 1.6, "prompt as lm-polygraph 0.7.0 builds it; the answer is the "
@@ -427,7 +534,7 @@ def fig_self_report():
         ("p(True)", "log-probability the model puts on “True”", 2),
         ("p(True) empirical", "share of 10 sampled verdicts that say “True”", 2),
         ("Verbalized 1S", "a confidence the model states as a number", None),
-    ], pitch=4.2)
+    ], pitch=4.2, accent=fam_fill(fam))
     lines(fig, ax, TABLE_X0, 20.0,
           "Verbalized 1S was dropped: Qwen2.5 never stated a confidence that "
           "lm-polygraph could parse, so it has no score to rank by.",
@@ -438,15 +545,17 @@ def fig_self_report():
 
 
 def fig_consistency():
+    fam = "Consistency"
     fig, ax = board()
-    slab(ax, 0, 0, LEFT_W, CH, PALE, z=0)
+    slab(ax, 0, 0, LEFT_W, CH, fam_ground(fam), z=0)
+    slab(ax, 0, CH - 1.2, LEFT_W, 1.2, fam_fill(fam), z=1, radius=0.5)
     x = 2.0
-    header(ax, x, 41.0, "the same question, sampled again", DARK)
+    header(ax, x, 41.0, "the same question, sampled again", fam_ink(fam))
     # five sampled answers, as letters: A' is A in other words
     chips = ["A", "A", "A′", "B", "A"]
     cx = [x + 1 + k * 10.4 for k in range(5)]
     for c, lab in zip(cx, chips):
-        hue = WRONG if lab == "B" else BLUE60
+        hue = WRONG if lab == "B" else fam_fill(fam)
         slab(ax, c, 32.0, 8.4, 5.0, hue, z=1, radius=0.8)
         put(ax, c + 4.2, 34.5, lab, halvar(S["panel_header"], bold=True), "white", ha="center",
             va="center", zorder=2)
@@ -457,9 +566,9 @@ def fig_consistency():
         ("+ LIKELIHOOD", "weight each sample by its probability", "white-box", 12.5),
     ]
     for head, what, how, yy in rows:
-        put(ax, x, yy, head, hermann(S["category"]), DARK)
+        put(ax, x, yy, head, hermann(S["category"]), fam_ink(fam))
         put(ax, x, yy - 2.6, what, halvar(S["tick"]), DARK)
-        put(ax, LEFT_W - 2, yy, how, halvar(S["tick"], italic=True), BLUE, ha="right")
+        put(ax, LEFT_W - 2, yy, how, halvar(S["tick"], italic=True), fam_ink(fam), ha="right")
     put(ax, x, 6.0, r"$SE = -\sum_{c}\ p(c \mid x)\,\log p(c \mid x)$",
         halvar(S["value"] + 1.0), DARK)
     put(ax, x, 0.9, "c: a cluster of samples with one meaning", halvar(S["gloss"]),
@@ -473,26 +582,28 @@ def fig_consistency():
         ("DegMat · Ecc. · EigVal", "graph of pairwise entailment", 4),
         ("Kernel lang. entropy", "entropy of a semantic kernel", 4),
         ("SAR · Sem. density · CoCoA", "likelihood and meaning combined", None),
-    ], pitch=3.7, name_w=23.0)
+    ], pitch=3.7, name_w=23.0, accent=fam_fill(fam))
     out = save(fig, FIGDIR / "consistency", formats=("png", "svg"))
     plt.close(fig)
     return out[0]
 
 
 def fig_trained_probes():
+    fam = "Trained probe"
     fig, ax = board()
-    slab(ax, 0, 0, LEFT_W, CH, PALE, z=0)
+    slab(ax, 0, 0, LEFT_W, CH, fam_ground(fam), z=0)
+    slab(ax, 0, CH - 1.2, LEFT_W, 1.2, fam_fill(fam), z=1, radius=0.5)
     x = 2.0
-    header(ax, x, 41.0, "read the model's insides, learn the pattern", DARK)
+    header(ax, x, 41.0, "read the model's insides, learn the pattern", fam_ink(fam))
     # the LLM as a stack of layers
     for k in range(6):
-        hue = BLUE if k == 3 else BLUE60
+        hue = fam_fill(fam) if k == 3 else shade(fam_fill(fam), 40)
         slab(ax, x + 1, 9.5 + k * 4.6, 14, 3.4, hue, z=1, radius=0.5)
     put(ax, x + 8, 6.2, "the LLM", halvar(S["tick"]), GRAY85, ha="center")
     put(ax, x + 17.5, 28.6, "hidden state", halvar(S["tick"]), DARK)
     put(ax, x + 17.5, 26.5, "of one layer", halvar(S["tick"]), DARK)
     arrow(ax, x + 15.6, 25.0, x + 28.5, 22.6)
-    slab(ax, x + 29, 18.0, 12.5, 8.4, DARK, z=1)
+    slab(ax, x + 29, 18.0, 12.5, 8.4, fam_ink(fam), z=1)
     put(ax, x + 35.25, 23.3, "classifier", halvar(S["tick"], bold=True), "white",
         ha="center", zorder=2)
     put(ax, x + 35.25, 20.4, "trained", halvar(S["tick"]), "white", ha="center",
@@ -510,7 +621,7 @@ def fig_trained_probes():
         ("SATRMD", "token states' distance from those of right answers", None),
         ("Lookback Lens", "attention on the context against its own words", None),
         ("TAD", "attention features, with a trained head", None),
-    ], pitch=4.2)
+    ], pitch=4.2, accent=fam_fill(fam))
     lines(fig, ax, TABLE_X0, 17.5,
           "Left out on purpose: this comparison is between methods that need no "
           "labels. Lookback Lens and TAD also need attention weights, which force "
@@ -526,7 +637,7 @@ def fig_trained_probes():
 # =====================================================================================
 def fig_lm_polygraph():
     fig, ax = board()
-    stages = [
+    stages = [  # (name, lines); colours from LIB, as in the code highlighting
         ("Model", ["WhiteboxModel: any", "Hugging Face LM", "BlackboxModel: an API"]),
         ("Stat calculators", ["greedy probabilities,", "samples, NLI matrix —",
                               "each computed once"]),
@@ -537,17 +648,19 @@ def fig_lm_polygraph():
     gap = 5.0
     w = (CW - (n - 1) * gap) / n
     top, bot = 41.0, 20.0
+    roles = ["model", "stats", "estimator", "manager"]
     for k, (name, body) in enumerate(stages):
         x = k * (w + gap)
-        focus = name == "Stat calculators"
-        slab(ax, x, bot, w, top - bot, HIGHLIGHT if focus else PALE, z=0)
-        put(ax, x + 1.6, top - 4.0, name.upper(), hermann(S["panel_header"]), DARK)
+        fill, ink = LIB[roles[k]]
+        slab(ax, x, bot, w, top - bot, shade(fill, 14), z=0)
+        slab(ax, x, top - 1.2, w, 1.2, fill, z=1, radius=0.5)
+        put(ax, x + 1.6, top - 4.6, name.upper(), hermann(S["panel_header"]), ink)
         for j, ln in enumerate(body):
-            put(ax, x + 1.6, top - 9.0 - j * 2.4, ln, halvar(S["tick"]), DARK)
+            put(ax, x + 1.6, top - 9.4 - j * 2.4, ln, halvar(S["tick"]), DARK)
         if k < n - 1:
             arrow(ax, x + w + 0.6, (top + bot) / 2, x + w + gap - 0.6, (top + bot) / 2)
 
-    put(ax, 0, 14.0, "SHARED STATISTICS", hermann(S["category"]), BLUE)
+    put(ax, 0, 14.0, "SHARED STATISTICS", hermann(S["category"]), LIB["stats"][1])
     lines(fig, ax, 0, 10.8,
           "An estimator declares the statistics it needs, and each is computed "
           "once per answer. Every sampling estimator reads the same samples, and "
@@ -631,12 +744,13 @@ def fig_types_by_tier():
                    for t, v in cells.items() if v}
         n_lines = max([len(v) for v in wrapped.values()] + [1])
         h = 2.0 + n_lines * 2.1
-        put(ax, 0, y - 2.9, typ.upper(), hermann(S["category"]), DARK)
+        slab(ax, 0, y - h + 0.3, 0.7, h - 0.6, fam_fill(typ), z=1, radius=0.3)
+        put(ax, 1.6, y - 2.9, typ.upper(), hermann(S["category"]), fam_ink(typ))
         if typ == "Trained probe":
             # No fill: this row spans every tier column, so under click layering
             # an opaque ground is redrawn in every layer and hides its own note.
             ax.add_patch(plt.Rectangle((col_x[0], y - h), CW - col_x[0], h, fc="none",
-                                       ec=GRAY45, lw=WEIGHT["grid"], ls=(0, (4, 3))))
+                                       ec=fam_fill(typ), lw=WEIGHT["grid"], ls=(0, (4, 3))))
             put(ax, col_x[0] + 1.2, y - 2.9, "not run: needs labelled answers to "
                 "train on", halvar(S["tick"], italic=True), GRAY85)
         for k, t in enumerate((1, 2, 3, 4)):
@@ -644,7 +758,7 @@ def fig_types_by_tier():
                 break
             filled = t in wrapped
             if filled:  # an empty cell stays transparent, not white
-                slab(ax, col_x[k], y - h, col_w, h, HIGHLIGHT if t == 1 else PALE, z=0)
+                slab(ax, col_x[k], y - h, col_w, h, fam_ground(typ), z=0)
             for j, ln in enumerate(wrapped.get(t, [])):
                 put(ax, col_x[k] + 1.2, y - 2.9 - j * 2.1, ln, font, DARK)
         y -= h + gap
@@ -816,11 +930,125 @@ def fig_limitations():
         r, c = divmod(k, cols)
         x = c * (w + gap)
         y = CH - (r + 1) * h - r * gap
-        slab(ax, x, y, w, h, PALE, z=0)
-        put(ax, x + pad, y + h - 4.2, head.upper(), hermann(S["panel_header"]), DARK)
+        slab(ax, x, y, w, h, shade(CAUTION, 14), z=0)
+        slab(ax, x, y + h - 1.2, w, 1.2, CAUTION, z=1, radius=0.5)
+        put(ax, x + pad, y + h - 4.6, head.upper(), hermann(S["panel_header"]), CAUTION_INK)
         lines(fig, ax, x + pad, y + h - 9.0, body, halvar(S["value"]), w - 2 * pad, DARK,
               pitch=2.7, max_lines=5)
     out = save(fig, FIGDIR / "limitations", formats=("png", "svg"))
+    plt.close(fig)
+    return out[0]
+
+
+# =====================================================================================
+# 15. take-home: what to do on Monday
+# =====================================================================================
+TAKEAWAYS = [
+    ("Fluent is not reliable",
+     "A model can be wrong with a probability above 0.98. Score every answer, separately "
+     "from the answer itself."),
+    ("Let your access choose the family",
+     "An API gives text, so consistency or self-report. An open model adds token "
+     "probabilities. A trained probe needs labels."),
+    ("Try one forward pass first",
+     "In the BioASQ example, mean token entropy did as well as methods that sample and "
+     "run an NLI model. Add sampling only if it helps on your data."),
+    ("Use scores to triage, not to judge",
+     "Flag the least certain answers for a human. Choose the threshold on your own "
+     "data; AUROC does not choose it for you."),
+    ("Compare on your task with LM-Polygraph",
+     "Wrap the model once, and UEManager runs any set of estimators over your data. "
+     "A method of your own is a short class."),
+]
+
+
+def fig_takeaways():
+    fig, ax = board()
+    n = len(TAKEAWAYS)
+    row = CH / n
+    for k, (head, body) in enumerate(TAKEAWAYS):
+        top = CH - k * row
+        put(ax, 0, top - 5.6, f"{k + 1}", hermann(S["hero"]), TAKEAWAY_INK)
+        put(ax, 7.5, top - 3.0, head.upper(), hermann(S["panel_header"]), DARK)
+        lines(fig, ax, 7.5, top - 5.8, body, halvar(S["tick"]), CW - 7.5, DARK,
+              pitch=2.1, max_lines=2)
+        if k < n - 1:
+            rule(ax, 7.5, CW, top - row + 0.4, shade(HGF["green"], 45))
+    out = save(fig, FIGDIR / "takeaways", formats=("png", "svg"))
+    plt.close(fig)
+    return out[0]
+
+
+# =====================================================================================
+# 16. references
+# =====================================================================================
+# (what it is cited for, its colour, the citation). Sections are separated by None.
+# The key carries the concept colour of the idea it backs, so a family's paper reads
+# in that family's colour. Venues for the library papers come from the citation block
+# in lm_polygraph-0.7.0.dist-info/METADATA; the method credits follow its README table.
+REFERENCES = [
+    ("Semantic entropy", fam_ink("Sampling + likelihood"),
+     "Kuhn, Gal, Farquhar. Semantic uncertainty: linguistic invariances for uncertainty "
+     "estimation in natural language generation. ICLR 2023."),
+    ("Semantic entropy", fam_ink("Sampling + likelihood"),
+     "Farquhar, Kossen, Kuhn, Gal. Detecting hallucinations in large language models "
+     "using semantic entropy. Nature 630, 625–630 (2024)."),
+    None,
+    ("LM-Polygraph", DARK,
+     "Fadeeva et al. LM-Polygraph: uncertainty estimation for language models. "
+     "EMNLP 2023, System Demonstrations."),
+    ("LM-Polygraph", DARK,
+     "Vashurin et al. Benchmarking uncertainty quantification methods for large "
+     "language models with LM-Polygraph. TACL 13, 220–248 (2025)."),
+    ("Method families", DARK,
+     "Vazhentsev, Smirnov, Li, Panov, Baldwin, Shelmanov. Uncertainty quantification "
+     "for large language diffusion models. arXiv:2605.14570 (2026)."),
+    None,
+    ("p(True)", fam_ink("Self-report"),
+     "Kadavath et al. Language models (mostly) know what they know. "
+     "arXiv:2207.05221 (2022)."),
+    ("Lexical similarity", fam_ink("Consistency"),
+     "Fomicheva et al. Unsupervised quality estimation for neural machine translation. "
+     "TACL 8 (2020)."),
+    ("DegMat · Ecc. · EigVal", fam_ink("Consistency"),
+     "Lin, Trivedi, Sun. Generating with confidence: uncertainty quantification for "
+     "black-box large language models. TMLR 2024."),
+    ("KLE", fam_ink("Consistency"),
+     "Nikitin, Kossen, Gal, Marttinen. Kernel language entropy: fine-grained "
+     "uncertainty quantification for LLMs from semantic similarities. NeurIPS 2024."),
+    ("SAPLMA", fam_ink("Trained probe"),
+     "Azaria, Mitchell. The internal state of an LLM knows when it's lying. "
+     "Findings of EMNLP 2023."),
+    None,
+    ("BioASQ", GRAY85,
+     "Tsatsaronis et al. An overview of the BIOASQ large-scale biomedical semantic "
+     "indexing and question answering competition. BMC Bioinformatics 16, 138 (2015)."),
+    ("Qwen2.5", GRAY85,
+     "Qwen Team. Qwen2.5 technical report. arXiv:2412.15115 (2024)."),
+    ("NLI model", GRAY85,
+     "He, Liu, Gao, Chen. DeBERTa: decoding-enhanced BERT with disentangled attention. "
+     "ICLR 2021."),
+]
+
+
+def fig_references():
+    fig, ax = board()
+    key_w = 19.0
+    text_w = CW - key_w
+    font = halvar(S["tick"])
+    pitch, row_gap, section_gap = 2.05, 0.6, 1.3
+    y = CH - 1.6
+    for ref in REFERENCES:
+        if ref is None:
+            rule(ax, 0, CW, y + 0.55)
+            y -= section_gap
+            continue
+        key, colour, text = ref
+        put(ax, 0, y, key, halvar(S["tick"], bold=True), colour)
+        y = lines(fig, ax, key_w, y, text, font, text_w, DARK, pitch=pitch) - row_gap
+    if y < 0.5:
+        raise ValueError(f"references overflow the canvas by {0.5 - y:.1f} u")
+    out = save(fig, FIGDIR / "references", formats=("png", "svg"))
     plt.close(fig)
     return out[0]
 
@@ -921,6 +1149,31 @@ def slide_copy(acc, half, st=None):
             "can settle. Those labels were proposed with LLM help and checked, not set by "
             "domain experts.",
         )
+    copy["uq_map"] = (
+        "02b",
+        "Where a method looks for doubt",
+        "Two questions place every method: what you can see of the model, and how "
+        "many answers you draw.",
+        "Further right needs more access: a hosted API gives only text, an open model "
+        "also gives token probabilities and hidden states. Lower down, the same "
+        "question is sampled several times. The next slides take each family in turn.",
+    )
+    copy["takeaways"] = (
+        "15",
+        "Take-home",
+        "Wrap your model once, score every answer, and check the scores on your own "
+        "task.",
+        "Point three is the one result carried over from the BioASQ example, and the "
+        "previous slide says how far it travels. The rest holds whatever the task.",
+    )
+    copy["references"] = (
+        "16",
+        "References",
+        "Where the methods, the library and the data come from.",
+        "The key on the left says what each paper backs, in the colour it has on the "
+        "method slides. The LM-Polygraph README credits a paper for each of its 38 "
+        "methods.",
+    )
     copy["limitations"] = (
         "14",
         "What this is, and what it is not",
@@ -971,12 +1224,13 @@ def main() -> None:
 
     outs = [fig_confidently_wrong(d, y)]
     sel, acc, half = fig_selective_generation(d, y)
-    outs += [sel, fig_uq_types(), fig_information(), fig_self_report(),
+    outs += [sel, fig_uq_map(), fig_uq_types(), fig_information(), fig_self_report(),
              fig_consistency(), fig_trained_probes(), fig_lm_polygraph(),
              fig_types_by_tier()]
     d3, y3 = load(str(CACHE_3B), str(MANUAL))
     st = dataset_stats(d, y, d3, y3)
-    outs += [fig_dataset(d, y, d3, y3, st), fig_limitations()]
+    outs += [fig_dataset(d, y, d3, y3, st), fig_limitations(), fig_takeaways(),
+             fig_references()]
 
     copy = slide_copy(acc, half, st)
     for out in outs:

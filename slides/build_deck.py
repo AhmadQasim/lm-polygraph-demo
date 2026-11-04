@@ -57,21 +57,33 @@ OUTLINE = HERE / "deck_outline.json"
 #
 # (figure / markdown stem, chapter)  - in running order
 SLIDES: list[tuple[str, str]] = [
+    # why it matters
     ("confidently_wrong", "Problem"),
     ("selective_generation", "Problem"),
-    ("uq_types", "Background"),
-    ("information_based", "Background"),
-    ("self_report", "Background"),
-    ("consistency", "Background"),
-    ("trained_probes", "Background"),
-    ("lm_polygraph", "Tooling"),
-    ("types_by_tier", "Methods: Four tiers of estimators"),
-    ("dataset", "Methods: BioASQ"),
-    ("auroc_by_method", "Results"),
-    ("auroc_by_tier", "Results"),
-    ("uncertainty_by_correctness", "Results"),
-    ("model_size_comparison", "Results"),
+    # the method families
+    ("uq_map", "Methods"),
+    ("uq_types", "Methods"),
+    ("information_based", "Methods"),
+    ("self_report", "Methods"),
+    ("consistency", "Methods"),
+    ("trained_probes", "Methods"),
+    # the library
+    ("lm_polygraph", "Tooling: LM-Polygraph"),
+    ("polygraph_catalogue", "Tooling: LM-Polygraph"),
+    ("wrap_model", "Tooling: Your model"),
+    ("ue_manager", "Tooling: Your model"),
+    ("custom_estimator", "Tooling: Your model"),
+    # a worked example, kept short
+    ("dataset", "Example: A small"),
+    ("types_by_tier", "Example: A small"),
+    ("auroc_by_method", "Example: What it showed"),
+    ("auroc_by_tier", "Example: What it showed"),
     ("limitations", "Conclusions"),
+    ("takeaways", "Conclusions"),
+    ("references", "Conclusions"),
+    # detail for questions
+    ("uncertainty_by_correctness", "Backup"),
+    ("model_size_comparison", "Backup"),
 ]
 
 # The runs the results figures are drawn from. The figures say which model they show;
@@ -83,6 +95,7 @@ CACHE_BIG = ROOT / "outputs" / "bioasq_Qwen2.5-7B-Instruct_n1000_seed0_t4.json"
 # figures/ and leaves an already-edited markdown alone.
 FIGURES: list[tuple[str, list[str]]] = [
     ("opening and method slides", [str(HERE / "fig_methods.py")]),
+    ("library slides", [str(HERE / "fig_polygraph.py")]),
     ("results slides", [str(HERE / "plot_bioasq.py"), str(CACHE_SMALL),
                         "--compare", str(CACHE_BIG),
                         "--labels", "Qwen2.5-3B,Qwen2.5-7B"]),

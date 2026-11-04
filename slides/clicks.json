@@ -19,6 +19,37 @@
     "rects": [[0, 22.3, 124, 44.5], [0, 0, 124, 22.1]]
   },
 
+  "uq_map": {
+    "_": "The one-answer row, then the several-answers row. Column headers and row labels sit outside both bands, so the axes are on screen first.",
+    "rects": [[23, 20.5, 124, 37], [23, 2.5, 124, 20.2]]
+  },
+
+  "polygraph_catalogue": {
+    "_": "The method catalogue first, then what comes around it.",
+    "rects": [[0, 0, 84, 44.5], [84.3, 0, 124, 44.5]]
+  },
+
+  "wrap_model": {
+    "_": "The Hugging Face block with its real output, then the API alternative.",
+    "rects": [[0, 0, 61, 44.5], [61.5, 0, 124, 44.5]]
+  },
+
+  "ue_manager": {
+    "_": "The code, then what each argument does.",
+    "rects": [[0, 0, 78, 44.5], [78.5, 0, 124, 44.5]]
+  },
+
+  "custom_estimator": {
+    "_": "The class, then the three things it has to provide.",
+    "rects": [[0, 0, 71, 44.5], [71.5, 0, 124, 44.5]]
+  },
+
+  "takeaways": {
+    "_": "One point per click. Each divider rule sits at the top of the next point's band, so it arrives with that point.",
+    "rects": [[0, 35.6, 124, 44.5], [0, 26.7, 124, 35.6], [0, 17.8, 124, 26.7],
+              [0, 8.9, 124, 17.8], [0, 0, 124, 8.9]]
+  },
+
   "uq_types": {
     "_": "Five signal-type columns, 22.88 u wide on a 2.4 u gap. Cut at the gap midpoints.",
     "split_x": [24.08, 49.36, 74.64, 99.92]

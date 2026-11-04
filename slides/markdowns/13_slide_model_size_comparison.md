@@ -8,12 +8,14 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > The same methods on a bigger model
+  > The same methods on other models
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > The ranking survives scale; the task gets harder.
+  > The ranking mostly holds; one cheap method collapses.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Every method's AUROC on the smaller model against the larger one. Points cluster
-  > along the diagonal — the ranking transfers — but most sit below it, so the stronger
-  > model's residual errors are harder to catch even though it is right more often.
+  > Each line is one estimator's AUROC across models — flat means robust, a dive means
+  > model-dependent. Most run roughly parallel, so the ranking transfers across a change
+  > of size and of family. The exception carries the lesson: max sequence probability
+  > collapses on Mistral while mean token entropy, which costs exactly the same single
+  > forward pass, barely moves. The panel gives the figures.

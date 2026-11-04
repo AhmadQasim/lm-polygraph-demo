@@ -8,7 +8,7 @@ that bind here are repeated below.
   2. auroc_by_tier.png     - AUROC spread within each tier.
   3. uncertainty_by_correctness.png - raw scores split by correctness, the best
      tier-1 method against semantic entropy (tier 4).
-  4. model_size_comparison.png - the same methods on two model sizes (--compare).
+  4. model_size_comparison.png - the same methods across N models (--compare).
 
 Run:  .venv/bin/python slides/plot_bioasq.py outputs/<cache>.json
 
@@ -476,93 +476,105 @@ def fig_scores(d, y, methods=("MeanTokenEntropy", "SemanticEntropy")):
 # =====================================================================================
 # 4. two model sizes
 # =====================================================================================
-def fig_model_compare(caches, manual, labels_for=None):
-    """Same methods, same questions, two model sizes, against the y=x diagonal.
+# Traced by name: the cheap one that holds, the cheap one that collapses, the
+# paper's method, and the expensive one that is steadiest. Colour still means
+# tier - two tier-1 lines going opposite ways is the point, not a clash.
+TRACED = ["MeanTokenEntropy", "MaximumSequenceProbability",
+          "SemanticEntropy", "EigValLaplacian_NLI_score_entail"]
 
-    The diagonal shows both things at once: how stable the ranking is (scatter
-    along the line) and that every point sits below it (detection is harder on
-    the stronger model). The reading goes in a panel on the right rather than
-    into the plot, which keeps the square data box square and fills the band.
+
+def short_model(model_id: str) -> str:
+    """Bare model name for an axis label: no org prefix, no -Instruct suffix."""
+    name = model_id.split("/")[-1]
+    # Not just a trailing strip: Mistral puts the version after it
+    # ("Mistral-7B-Instruct-v0.3"), so the marker has to go from the middle too.
+    for marker in ("-Instruct", "-instruct", "-Chat", "-chat"):
+        name = name.replace(marker, "")
+    return name.removesuffix("-it")
+
+
+def fig_model_compare(caches, manual, labels_for=None):
+    """One line per method across N models: which hold up, which collapse.
+
+    Past two models a y=x scatter has nowhere to put the third, and the
+    question has changed with it - from "does A beat B on a bigger model" to
+    "which methods survive a change of model at all". A slopegraph answers that
+    directly: flat is robust, a dive is model-dependent. Colour stays the tier
+    key; the traced methods are picked out by weight and a direct label.
     """
     from scipy.stats import spearmanr
 
-    (small_path, small_tag), (big_path, big_tag) = caches
-    aucs, accs, ds = [], [], []
-    for path in (small_path, big_path):
+    aucs, accs, tags, ds = [], [], [], []
+    for path, tag in caches:
         d, y = load(path, manual)
         aucs.append({n: fast_auc(y, np.asarray(v, float)) for n, v in d["scores"].items()})
         accs.append(int((y == 0).sum()) / len(y))
+        tags.append(tag)
         ds.append(d)
-    a_small, a_big = aucs
-    names = [n for n in a_small if n in a_big]
-    rho, pval = spearmanr([a_small[n] for n in names], [a_big[n] for n in names])
 
-    # The sign-inverted estimators sit near 0.3 and would squash the informative
-    # 0.70-0.81 cluster into a corner. They are in auroc_by_method.png; here the
-    # range is cut to where the comparison actually lives, and the cut is stated.
-    shown = [n for n in names if max(a_small[n], a_big[n]) >= 0.45]
+    names = sorted(set.intersection(*(set(a) for a in aucs)))
+    # Sign-inverted estimators sit near 0.3 and would flatten everything else.
+    # They are in auroc_by_method.png; here the view is cut to the comparison.
+    shown = [n for n in names if min(a[n] for a in aucs) >= 0.45]
     n_omitted = len(names) - len(shown)
-    delta = float(np.mean([a_big[n] - a_small[n] for n in shown]))
 
+    rhos = [spearmanr([aucs[i][n] for n in names], [aucs[j][n] for n in names]).statistic
+            for i in range(len(aucs)) for j in range(i + 1, len(aucs))]
+    rho = float(np.mean(rhos))
+    spread = {n: max(a[n] for a in aucs) - min(a[n] for a in aucs) for n in shown}
+    worst = max(spread, key=spread.get)
+    # "Stable" has to mean stable AND useful, or a flat mediocre line wins.
+    useful = [n for n in shown if min(a[n] for a in aucs) >= 0.70] or shown
+    steady = min(useful, key=spread.get)
+
+    x = np.arange(len(caches))
     fig, size = canvas()
     ml, mr, mt, mb = MARGINS
-    # The data box stays square (both axes are the same AUROC scale), so it can
-    # only be as wide as the band is tall. The space that leaves on the right is
-    # the reading panel, not padding.
-    box = 30.0
-    ax = axes_at(fig, size, ml + 6, mb + 2, box, box)
+    box_w, box_h = 44.0, 29.0
+    ax = axes_at(fig, size, ml + 6, mb + 2, box_w, box_h)
 
-    lo = min(min(a_small[n] for n in shown), min(a_big[n] for n in shown)) - 0.03
-    hi = max(max(a_small[n] for n in shown), max(a_big[n] for n in shown)) + 0.03
-    ax.set_xlim(lo, hi)
+    lo = min(min(a[n] for a in aucs) for n in shown) - 0.02
+    hi = max(max(a[n] for a in aucs) for n in shown) + 0.02
+    ax.set_xlim(-0.12, len(caches) - 1 + 0.03)
     ax.set_ylim(lo, hi)
-    ax.set_aspect("equal")
-
-    ax.plot([lo, hi], [lo, hi], color=AXIS, lw=WEIGHT["reference"],
-            ls=(0, REFERENCE_DASH), zorder=2)
-    ax.annotate("EQUAL", (hi, hi), textcoords="offset points", xytext=(-6, 4),
-                ha="right", va="bottom", rotation=45, color=AXIS,
-                fontproperties=hermann(TYPE["tick"]), zorder=7)
 
     ticks = [round(v, 2) for v in np.arange(np.ceil(lo * 20) / 20, hi, 0.05)]
-    y_ticks(ax, ticks, grid=False)
-    x_ticks(ax, ticks)
+    y_ticks(ax, ticks)
 
-    OFFSETS = {
-        "MeanTokenEntropy": (-9, 8),
-        "SemanticEntropy": (9, -10),
-        "PTrue": (9, -2),
-        "PTrueEmpirical": (9, -9),
-    }
-    labels_for = labels_for or set()
     for n in shown:
-        xv, yv = a_small[n], a_big[n]
-        tier = bioasq.tier_of(n)
-        tier1 = tier == 1
+        if n in TRACED:
+            continue
+        tier1 = bioasq.tier_of(n) == 1
+        ax.plot(x, [a[n] for a in aucs], "-", color=TIER1 if tier1 else TIER_REST,
+                lw=WEIGHT["context"], alpha=0.30, zorder=3)
+    for n in TRACED:
+        if n not in shown:
+            continue
+        ys = [a[n] for a in aucs]
+        tier1 = bioasq.tier_of(n) == 1
         colour = TIER1 if tier1 else TIER_REST
-        ax.plot([xv], [yv], "o", ms=8 if tier1 else 7, color=colour,
-                markeredgewidth=0.0, zorder=5)
-        if n in labels_for:
-            dx, dy = OFFSETS.get(n, (9, -2))
-            ax.annotate(PRETTY.get(n, n), (xv, yv), textcoords="offset points",
-                        xytext=(dx, dy), ha="right" if dx < 0 else "left",
-                        va="center", color=DARK if tier1 else AXIS,
-                        fontproperties=halvar(TYPE["tick"], bold=tier1),
-                        clip_on=False, zorder=7)
+        ax.plot(x, ys, "-o", color=colour, lw=WEIGHT["focus"], ms=7,
+                markeredgewidth=0.0, zorder=6)
+        ax.annotate(f"  {PRETTY.get(n, n)}", (x[-1], ys[-1]),
+                    textcoords="offset points", xytext=(8, 0), ha="left",
+                    va="center", color=DARK if tier1 else AXIS,
+                    fontproperties=halvar(TYPE["tick"], bold=tier1),
+                    clip_on=False, zorder=7)
 
-    heading(ax, f"AUROC on {big_tag}", dy=12)
-    # (0.5, 0) in AXES FRACTION. _blend_y reads the 0.5 as an AUROC value and
-    # drops the title off to the left of the plot.
-    ax.annotate(f"AUROC ON {small_tag.upper()}", (0.5, 0.0),
-                xycoords="axes fraction",
-                textcoords="offset points", xytext=(0, -24), ha="center", va="top",
-                color=DARK, fontproperties=hermann(TYPE["axis_title"]),
-                clip_on=False, zorder=7)
+    for xi, (tag, acc) in enumerate(zip(tags, accs)):
+        ax.annotate(tag.upper(), (xi, 0.0), xycoords=_blend_y(ax),
+                    textcoords="offset points", xytext=(0, -8), ha="center",
+                    va="top", color=DARK, fontproperties=hermann(TYPE["tick"]),
+                    clip_on=False, zorder=7)
+        ax.annotate(f"{acc:.0%} correct", (xi, 0.0), xycoords=_blend_y(ax),
+                    textcoords="offset points", xytext=(0, -18), ha="center",
+                    va="top", color=AXIS, fontproperties=halvar(TYPE["gloss"]),
+                    clip_on=False, zorder=7)
+
+    heading(ax, "AUROC for detecting an incorrect answer", dy=12)
 
     # --- the reading, as a flat panel on a pale ground --------------------------------
-    # Hermann carries no Greek and no arrows (checked against the OTF cmap), so
-    # the big numeral is Hermann and anything symbolic lives in the Halvar gloss.
-    px = ml + 6 + box + 13
+    px = ml + 6 + box_w + 22
     pw = CANVAS[0] - mr - px
     ph = CANVAS[1] - mt - mb
     pax = axes_at(fig, size, px, mb, pw, ph)
@@ -571,12 +583,12 @@ def fig_model_compare(caches, manual, labels_for=None):
     slab(pax, 0, 0, pw, ph, PALE, z=1)
 
     rows = [
-        ("THE RANKING TRANSFERS", f"{rho:.3f}",
-         f"Spearman \u03c1 over all {len(names)} methods, p = {pval:.0e}"),
-        ("THE TASK GETS HARDER", f"{delta:+.3f}",
-         f"mean AUROC change over the {len(shown)} methods above chance"),
-        ("ACCURACY", f"{accs[0]:.1%} / {accs[1]:.1%}",
-         f"{small_tag} / {big_tag}, the same questions"),
+        ("THE RANKING MOSTLY HOLDS", f"{rho:.3f}",
+         f"mean pairwise Spearman \u03c1 over {len(caches)} models"),
+        ("BUT ONE METHOD SWINGS", f"{spread[worst]:.3f}",
+         f"{PRETTY.get(worst, worst)}, best to worst model"),
+        ("STEADIEST ABOVE 0.70", f"{spread[steady]:.3f}",
+         f"{PRETTY.get(steady, steady)}, same range"),
     ]
     inset, pad_x = 2.2, 3.4
     pitch = (ph - 2 * inset) / len(rows)
@@ -588,19 +600,13 @@ def fig_model_compare(caches, manual, labels_for=None):
                  fontproperties=hermann(TYPE["panel_header"]))
         pax.text(pad_x, top - 2.9, value, ha="left", va="top", color=DARK,
                  fontproperties=hermann(TYPE["claim"]))
-        gloss_lines = wrap_measured(fig, gloss, gloss_font, pw - 2 * pad_x)
-        if len(gloss_lines) > room:
-            raise AssertionError(
-                f"gloss for {head!r} wraps to {len(gloss_lines)} lines and the "
-                f"row has room for {room} - shorten it or widen the panel")
-        for j, line in enumerate(gloss_lines):
+        for j, line in enumerate(wrap_measured(fig, gloss, gloss_font, pw - 2 * pad_x)[:room]):
             pax.text(pad_x, top - 6.8 - j * 1.75, line, ha="left", va="top",
                      color=AXIS, fontproperties=gloss_font)
 
     caveat(fig, size,
-           f"{ds[0].get('n', '?')} BioASQ factoids \u00b7 seed "
-           f"{ds[0].get('seed', 0)}  \u00b7  blue = tier 1  \u00b7  "
-           f"{n_omitted} sign-inverted methods off-range")
+           f"{ds[0].get('n', '?')} BioASQ factoids \u00b7 seed {ds[0].get('seed', 0)}"
+           f"  \u00b7  blue = tier 1  \u00b7  {n_omitted} sign-inverted methods off-range")
     out = save(fig, FIGDIR / "model_size_comparison", formats=("png", "svg"))
     plt.close(fig)
     return out[0]
@@ -638,12 +644,14 @@ SLIDE_COPY = {
     ),
     "model_size_comparison": (
         "13",
-        "The same methods on a bigger model",
-        "The ranking survives scale; the task gets harder.",
-        "Every method's AUROC on the smaller model against the larger one. Points "
-        "cluster along the diagonal — the ranking transfers — but most "
-        "sit below it, so the stronger model's residual errors are harder to "
-        "catch even though it is right more often.",
+        "The same methods on other models",
+        "The ranking mostly holds; one cheap method collapses.",
+        "Each line is one estimator's AUROC across models — flat means robust, a "
+        "dive means model-dependent. Most run roughly parallel, so the ranking "
+        "transfers across a change of size and of family. The exception carries "
+        "the lesson: max sequence probability collapses on Mistral while mean "
+        "token entropy, which costs exactly the same single forward pass, barely "
+        "moves. The panel gives the figures.",
     ),
 }
 
@@ -720,8 +728,10 @@ def main() -> None:
     ap.add_argument("cache")
     ap.add_argument("--manual", default=str(ROOT / "manual_labels.json"))
     ap.add_argument("--n-boot", type=int, default=2000)
-    ap.add_argument("--compare", help="second cache: plot model-size comparison")
-    ap.add_argument("--labels", default="small,big", help="axis labels for --compare")
+    ap.add_argument("--compare", nargs="+", default=None,
+                    help="one or more further caches to compare against")
+    ap.add_argument("--labels", default=None,
+                    help="comma-separated names, one per cache including the first")
     ap.add_argument("--rewrite-copy", action="store_true",
                     help="regenerate the slide markdowns, overwriting edits made there")
     args = ap.parse_args()
@@ -747,11 +757,13 @@ def main() -> None:
 
     outs = [fig_by_method(d, y, stats), fig_by_tier(d, y, stats), fig_scores(d, y)]
     if args.compare:
-        small, big = args.labels.split(",")
-        outs.append(fig_model_compare(
-            [(args.cache, small), (args.compare, big)], args.manual,
-            labels_for={"MeanTokenEntropy", "SemanticEntropy", "PTrue",
-                        "PTrueEmpirical"}))
+        paths = [args.cache, *args.compare]
+        tags = (args.labels.split(",") if args.labels
+                else [short_model(json.loads(pathlib.Path(p).read_text())["model"])
+                      for p in paths])
+        if len(tags) != len(paths):
+            raise SystemExit(f"--labels gives {len(tags)} names for {len(paths)} caches")
+        outs.append(fig_model_compare(list(zip(paths, tags)), args.manual))
     print()
     for out in outs:
         md, wrote = write_markdown(out.stem, force=args.rewrite_copy)

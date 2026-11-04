@@ -1,10 +1,10 @@
 {
   "_comment": "The chapter dividers in journal_club_template.pptx, and the short pill each gets in the navigation bar. Edit here and re-run scripts/set_chapters.py; nothing else holds these strings. 'slide' is the absolute slide number in the template as PowerPoint shows it.",
   "_casing": "Sentence case with a 'Category:' prefix, which is the template's own convention - five of the eight titles it arrived with used it. The three that were SHOUTING had been retitled by the slides repo's rename_chapter.py, which is an accident of that history and not a design. Earth_Custom Layout sets no cap='all', so what is written here is what shows on the slide.",
-  "_pills": "Roughly 12 characters of room. Without a pill, nav_bar.py falls back to whatever prefix of the title fits, which for 'Methods: Four tiers of estimators' would have been 'Methods' - the same word as the next chapter.",
+  "_pills": "Roughly 12 characters of room. Without a pill, nav_bar.py falls back to whatever prefix of the title fits, which for 'Example: What it showed' would have been 'Methods' - the same word as the chapter before it.",
   "title_slide": {
     "slide": 1,
-    "title": "Knowing when an LLM is wrong: an introduction to LM-Polygraph, and which uncertainty estimators work",
+    "title": "Knowing when an LLM is wrong: uncertainty estimation methods, and the LM-Polygraph library",
     "subtitle": [
       "Ahmad Bin Qasim",
       ""
@@ -18,8 +18,8 @@
     },
     {
       "slide": 3,
-      "title": "Background: Where the uncertainty is",
-      "pill": "Background"
+      "title": "Methods: Where the uncertainty is",
+      "pill": "Methods"
     },
     {
       "slide": 4,
@@ -28,18 +28,18 @@
     },
     {
       "slide": 5,
-      "title": "Methods: Four tiers of estimators",
-      "pill": "Tiers"
+      "title": "Tooling: Your model, your data",
+      "pill": "Your model"
     },
     {
       "slide": 6,
-      "title": "Methods: BioASQ, and grading it",
-      "pill": "Benchmark"
+      "title": "Example: A small BioASQ study",
+      "pill": "Example"
     },
     {
       "slide": 7,
-      "title": "Results: What works",
-      "pill": "Results"
+      "title": "Example: What it showed",
+      "pill": "Findings"
     },
     {
       "slide": 8,

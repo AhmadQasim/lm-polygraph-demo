@@ -5,7 +5,7 @@
       "slide": 1,
       "layout": "Title Slide",
       "text": [
-        "Knowing when an LLM is wrong: an introduction to LM-Polygraph, and which uncertainty estimators work",
+        "Knowing when an LLM is wrong: uncertainty estimation methods, and the LM-Polygraph library",
         "Ahmad Bin Qasim"
       ]
     },
@@ -38,11 +38,20 @@
       "slide": 5,
       "layout": "Earth_Custom Layout",
       "text": [
-        "Background: Where the uncertainty is"
+        "Methods: Where the uncertainty is"
       ]
     },
     {
       "slide": 6,
+      "layout": "Title Only",
+      "text": [
+        "Where a method looks for doubt",
+        "Two questions place every method: what you can see of the model, and how many answers you draw.",
+        "Further right needs more access: a hosted API gives only text, an open model also gives token probabilities and hidden states. Lower down, the same question is sampled several times. The next slides take each family in turn."
+      ]
+    },
+    {
+      "slide": 7,
       "layout": "Title Only",
       "text": [
         "Five places to look for doubt",
@@ -51,7 +60,7 @@
       ]
     },
     {
-      "slide": 7,
+      "slide": 8,
       "layout": "Title Only",
       "text": [
         "Reading the probabilities",
@@ -60,7 +69,7 @@
       ]
     },
     {
-      "slide": 8,
+      "slide": 9,
       "layout": "Title Only",
       "text": [
         "Asking the model",
@@ -69,7 +78,7 @@
       ]
     },
     {
-      "slide": 9,
+      "slide": 10,
       "layout": "Title Only",
       "text": [
         "Asking again",
@@ -78,7 +87,7 @@
       ]
     },
     {
-      "slide": 10,
+      "slide": 11,
       "layout": "Title Only",
       "text": [
         "Training a detector",
@@ -87,14 +96,14 @@
       ]
     },
     {
-      "slide": 11,
+      "slide": 12,
       "layout": "Earth_Custom Layout",
       "text": [
         "Tooling: LM-Polygraph"
       ]
     },
     {
-      "slide": 12,
+      "slide": 13,
       "layout": "Title Only",
       "text": [
         "LM-Polygraph",
@@ -103,30 +112,57 @@
       ]
     },
     {
-      "slide": 13,
-      "layout": "Earth_Custom Layout",
-      "text": [
-        "Methods: Four tiers of estimators"
-      ]
-    },
-    {
       "slide": 14,
       "layout": "Title Only",
       "text": [
-        "Every estimator, by type and tier",
-        "Types say what signal a method reads; tiers, what it needs to run.",
-        "Every estimator in the results, placed by signal type and tier. Tiers are cumulative: each adds one requirement to the one before. Sampling methods split across tiers 3 and 4 by whether they also need the NLI model."
+        "What is in the library",
+        "Thirty-eight methods, filed under five categories, with the plumbing to compare them.",
+        "Categories and counts are LM-Polygraph's own, from its README; the grey note on each bar is the closest family on the methods slides. Density-based and ensembling methods need training data or several models, which is why the talk does not run them."
       ]
     },
     {
       "slide": 15,
       "layout": "Earth_Custom Layout",
       "text": [
-        "Methods: BioASQ, and grading it"
+        "Tooling: Your model, your data"
       ]
     },
     {
       "slide": 16,
+      "layout": "Title Only",
+      "text": [
+        "Wrapping a model",
+        "Wrap the model once, then score any answer with any estimator.",
+        "WhiteboxModel takes a Hugging Face model and tokenizer; BlackboxModel takes an API, which limits you to black-box estimators unless it returns log-probabilities. Eager attention is required on transformers 5.x. The left block was run as shown; its output is underneath."
+      ]
+    },
+    {
+      "slide": 17,
+      "layout": "Title Only",
+      "text": [
+        "UEManager: a whole dataset at once",
+        "One object runs every estimator over a dataset and scores how well each ranks the answers.",
+        "Each answer gets a quality from the generation metric and a score from every estimator; the UE metric then asks how well each estimator's ranking follows the quality. The BioASQ study in this talk is this call with 20 estimators and its own grader."
+      ]
+    },
+    {
+      "slide": 18,
+      "layout": "Title Only",
+      "text": [
+        "Adding your own estimator",
+        "A new method is a class with three parts, and it plugs into everything above.",
+        "This one scores an answer by its least likely token. It ran inside UEManager alongside the built-in estimators, sharing their statistics."
+      ]
+    },
+    {
+      "slide": 19,
+      "layout": "Earth_Custom Layout",
+      "text": [
+        "Example: A small BioASQ study"
+      ]
+    },
+    {
+      "slide": 20,
       "layout": "Title Only",
       "text": [
         "The benchmark: BioASQ factoids",
@@ -135,14 +171,23 @@
       ]
     },
     {
-      "slide": 17,
-      "layout": "Earth_Custom Layout",
+      "slide": 21,
+      "layout": "Title Only",
       "text": [
-        "Results: What works"
+        "Every estimator, by type and tier",
+        "Types say what signal a method reads; tiers, what it needs to run.",
+        "Every estimator in the results, placed by signal type and tier. Tiers are cumulative: each adds one requirement to the one before. Sampling methods split across tiers 3 and 4 by whether they also need the NLI model."
       ]
     },
     {
-      "slide": 18,
+      "slide": 22,
+      "layout": "Earth_Custom Layout",
+      "text": [
+        "Example: What it showed"
+      ]
+    },
+    {
+      "slide": 23,
       "layout": "Title Only",
       "text": [
         "Every estimator, ranked",
@@ -151,7 +196,7 @@
       ]
     },
     {
-      "slide": 19,
+      "slide": 24,
       "layout": "Title Only",
       "text": [
         "What each tier adds",
@@ -160,32 +205,14 @@
       ]
     },
     {
-      "slide": 20,
-      "layout": "Title Only",
-      "text": [
-        "The scores behind the AUROC",
-        "Tier 1 against tier 4 — the overlap looks much the same.",
-        "Raw uncertainty scores for every question, split by whether the answer was graded correct. An AUROC in the high 0.7s still means two heavily overlapping distributions: this is a triage signal, not a verdict."
-      ]
-    },
-    {
-      "slide": 21,
-      "layout": "Title Only",
-      "text": [
-        "The same methods on a bigger model",
-        "The ranking survives scale; the task gets harder.",
-        "Every method's AUROC on the smaller model against the larger one. Points cluster along the diagonal — the ranking transfers — but most sit below it, so the stronger model's residual errors are harder to catch even though it is right more often."
-      ]
-    },
-    {
-      "slide": 22,
+      "slide": 25,
       "layout": "Earth_Custom Layout",
       "text": [
         "Conclusions and outlook"
       ]
     },
     {
-      "slide": 23,
+      "slide": 26,
       "layout": "Title Only",
       "text": [
         "What this is, and what it is not",
@@ -194,10 +221,46 @@
       ]
     },
     {
-      "slide": 24,
+      "slide": 27,
+      "layout": "Title Only",
+      "text": [
+        "Take-home",
+        "Wrap your model once, score every answer, and check the scores on your own task.",
+        "Point three is the one result carried over from the BioASQ example, and the previous slide says how far it travels. The rest holds whatever the task."
+      ]
+    },
+    {
+      "slide": 28,
+      "layout": "Title Only",
+      "text": [
+        "References",
+        "Where the methods, the library and the data come from.",
+        "The key on the left says what each paper backs, in the colour it has on the method slides. The LM-Polygraph README credits a paper for each of its 38 methods."
+      ]
+    },
+    {
+      "slide": 29,
       "layout": "Earth_Custom Layout",
       "text": [
         "Backup"
+      ]
+    },
+    {
+      "slide": 30,
+      "layout": "Title Only",
+      "text": [
+        "The scores behind the AUROC",
+        "Tier 1 against tier 4 — the overlap looks much the same.",
+        "Raw uncertainty scores for every question, split by whether the answer was graded correct. An AUROC in the high 0.7s still means two heavily overlapping distributions: this is a triage signal, not a verdict."
+      ]
+    },
+    {
+      "slide": 31,
+      "layout": "Title Only",
+      "text": [
+        "The same methods on other models",
+        "The ranking mostly holds; one cheap method collapses.",
+        "Each line is one estimator's AUROC across models — flat means robust, a dive means model-dependent. Most run roughly parallel, so the ranking transfers across a change of size and of family. The exception carries the lesson: max sequence probability collapses on Mistral while mean token entropy, which costs exactly the same single forward pass, barely moves. The panel gives the figures."
       ]
     }
   ]

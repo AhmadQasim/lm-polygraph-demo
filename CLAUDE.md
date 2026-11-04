@@ -1,4 +1,4 @@
-# CLAUDE.md — journal club: LM-Polygraph and which uncertainty estimators work
+# CLAUDE.md — journal club: uncertainty estimation for LLMs, and LM-Polygraph
 
 Working notes for this repo. Read this first in a fresh session. Numbers here were
 current on 2026-11-04; the code and `outputs/` are the source of truth if they differ.
@@ -7,15 +7,18 @@ current on 2026-11-04; the code and `outputs/` are the source of truth if they d
 
 A journal club talk for the Helmholtz AI consultants group (Munich), who build LLM
 agentic workflows for labs (genomics, imaging, EHR). Working title (in
-`slides/chapters.json`): *"Knowing when an LLM is wrong: an introduction to
-LM-Polygraph, and which uncertainty estimators work"*. Speaker: Ahmad Bin Qasim. The
+`slides/chapters.json`): *"Knowing when an LLM is wrong: uncertainty estimation
+methods, and the LM-Polygraph library"*. Speaker: Ahmad Bin Qasim. The
 talk date is not recorded anywhere; the title slide's date line is deliberately blank.
 
 **Focus.** The talk was originally about semantic entropy (Farquhar et al., Nature
-2024). It changed on 2026-11-02 to **an introduction to LM-Polygraph plus a survey of
-uncertainty quantification (UQ) methods and which ones work**. Semantic
-entropy is one entry in the survey, not the subject. Farquhar et al. and Kuhn et al.
-(ICLR 2023) stay as background.
+2024). On 2026-11-02 it became an LM-Polygraph introduction plus a survey of UQ
+methods. **On 2026-11-04 it was re-centred: the talk introduces uncertainty estimation
+methods for LLMs (the families, as a whole and one by one) and the LM-Polygraph
+library (what is in it, wrapping a model, UEManager, writing your own estimator).** The
+BioASQ study is a short worked example, not the point. Two results slides stay in the
+main deck and two moved to Backup. Semantic entropy is one method among many.
+Farquhar et al. and Kuhn et al. (ICLR 2023) stay as background.
 
 **No cost angle** (decided 2026-11-04). Measuring what each method costs would need
 many more runs, and the tiers already say what each method needs. So the talk
@@ -23,7 +26,7 @@ presents tiers as *requirements* (one pass, + a prompt, + sampling, + an NLI mod
 never as prices: no wall-clock comparisons, and no "cheap", "expensive" or "paying more"
 in slide text.
 
-**The experiment.** 20 LM-Polygraph estimators on 1,000 BioASQ factoid questions,
+**The worked example.** 20 LM-Polygraph estimators on 1,000 BioASQ factoid questions,
 answered by Qwen2.5-3B-Instruct and Qwen2.5-7B-Instruct. Each estimator is scored by
 AUROC at separating wrong answers from right ones, and grouped into four tiers by what
 it needs to run.
@@ -40,8 +43,9 @@ scripts/            the experiment: data, grading, running, scoring
   sync_gpu.sh         push source to / pull outputs from the GPU box
 slides/             everything that makes the deck (see slides/README.md)
   build_deck.py       template + figures + markdowns -> slides/build/journal_club_deck.pptx
-  fig_methods.py      figures for slides 01-09, 09b (dataset) and 14 (limitations)
-  plot_bioasq.py      figures for slides 10-13 (results), from outputs/
+  fig_methods.py      figures for the problem, method, example-setup and limitations slides
+  fig_polygraph.py    the library slides; its code blocks are run by `--test`
+  plot_bioasq.py      figures for the results slides, from outputs/
   markdowns/          NN_slide_<name>.md: each slide's title, lead and caption
   chapters.json       chapter divider titles + nav pills; set_chapters.py writes them
   strip_template.py   empties the vitiligo deck into a fresh template
@@ -217,7 +221,7 @@ Headline findings, all of which survived the grader fix:
   distributions. On 7B, flagging the most uncertain half by mean token entropy lifts the
   accuracy of what is kept from 45% to 67% (slide 02).
 
-## 7. Method taxonomy (the background slides)
+## 7. Method taxonomy (the methods chapter)
 
 The five signal types on slide 03 take their **categories and method names** from
 Vazhentsev, Smirnov, Li, Panov, Baldwin, Shelmanov, *Uncertainty Quantification for Large
@@ -237,10 +241,13 @@ dropped.
 
 Probes were left out on purpose: they need graded in-domain answers, and this comparison
 is between label-free methods. `fig_methods.TYPE_OF` maps each of our 20 estimators to a
-type and asserts the mapping is complete. A possible more canonical taxonomy for
-citation is in the LM-Polygraph papers (Fadeeva et al. 2023; Vashurin et al. benchmark):
-information-based, consistency/"meaning diversity", density-based, ensembling,
-reflexive. That is unverified; check it before citing.
+type and asserts the mapping is complete. LM-Polygraph's own README files
+its 38 methods under five different categories: information-based, meaning diversity,
+reflexive, density-based and ensembling. That is now verified from the 0.7.0 package
+metadata. The polygraph_catalogue slide shows them and maps each to the nearest family
+here. Information-based maps to Information. Meaning diversity covers Consistency plus
+Sampling + likelihood. Reflexive maps to Self-report. Density-based maps to Trained
+probe. Ensembling (several models) has no counterpart.
 
 ## 8. The deck
 
@@ -260,16 +267,49 @@ layout):
 
 | template slide | chapter | nav pill | content slides |
 |---|---|---|---|
-| 2 | Problem: Confidently wrong | Problem | 01 confidently_wrong, 02 selective_generation |
-| 3 | Background: Where the uncertainty is | Background | 03 uq_types, 04 information_based, 05 self_report, 06 consistency, 07 trained_probes |
-| 4 | Tooling: LM-Polygraph | Polygraph | 08 lm_polygraph |
-| 5 | Methods: Four tiers of estimators | Tiers | 09 types_by_tier |
-| 6 | Methods: BioASQ, and grading it | Benchmark | 09b dataset |
-| 7 | Results: What works | Results | 10 auroc_by_method, 11 auroc_by_tier, 12 uncertainty_by_correctness, 13 model_size_comparison |
-| 8 | Conclusions and outlook | Conclusions | 14 limitations |
-| 9 | Backup | Backup | *none yet* |
+| 2 | Problem: Confidently wrong | Problem | confidently_wrong, selective_generation |
+| 3 | Methods: Where the uncertainty is | Methods | uq_map, uq_types, information_based, self_report, consistency, trained_probes |
+| 4 | Tooling: LM-Polygraph | Polygraph | lm_polygraph, polygraph_catalogue |
+| 5 | Tooling: Your model, your data | Your model | wrap_model, ue_manager, custom_estimator |
+| 6 | Example: A small BioASQ study | Example | dataset, types_by_tier |
+| 7 | Example: What it showed | Findings | auroc_by_method, auroc_by_tier |
+| 8 | Conclusions and outlook | Conclusions | limitations, takeaways, references |
+| 9 | Backup | Backup | uncertainty_by_correctness, model_size_comparison |
 
-The built deck has 24 slides and 25 clicks. Retitle chapters in `chapters.json`, then run
+The built deck has 31 slides and 34 clicks. Markdown numbers (`02b_`, `08c_`, ...) are
+decoration only: `build_deck.SLIDES` sets the order.
+
+**The library slides** (`slides/fig_polygraph.py`):
+- **The code on them is executed, not transcribed.** Each block (`CODE_WRAP`,
+  `CODE_API`, `CODE_MANAGER`, `CODE_CUSTOM`) is one string. The UEManager slide leaves
+  out its imports (`CODE_MANAGER_IMPORTS`, prepended by `--test`) and names the two
+  helper objects (`calcs`, `env`), so the call fits at a larger size. Its notes sit level
+  with the lines they explain (`MANAGER_NOTES` holds line indices: renumber them if
+  the block changes). The figure draws it, and
+  `fig_polygraph.py --test` runs it in slide order against the cached
+  Qwen/Qwen2.5-0.5B-Instruct (about 40 s on the Mac).
+- `--test` also writes the real one-answer result to `figures/wrap_model_result.txt`,
+  and the wrap_model slide prints that under the code (1.14, "The pancreas produces
+  insulin…"). The API block needs a key, so `--test` checks only its imports and the
+  `BlackboxModel.from_openai` signature. Re-run `--test` after changing any block.
+- The code draws in TeX Gyre Cursor, with API names in bold blue and comments in grey.
+  `code_block` raises if a line is wider than its panel.
+- **API facts verified on lm-polygraph 0.7.0 + transformers 5.20.2:**
+  - `estimate_uncertainty(model, estimator, input_text)` needs
+    `attn_implementation="eager"`; with sdpa it raises `IndexError`.
+  - Load the tokenizer with `padding_side="left"` for batched runs.
+  - `ROCAUC` needs a binary quality metric, so on ROUGE use `PredictionRejectionArea`.
+  - `UEManager(...)()` returns `{(level, estimator, quality, ue_metric): value}`;
+    per-answer scores live in `man.estimations[(level, name)]`.
+  - A custom estimator is an `Estimator` subclass: `super().__init__([stat names],
+    level)`, plus `__str__` and `__call__(stats) -> np.ndarray`, higher = less sure.
+- **Catalogue numbers** come from the README method table in
+  `lm_polygraph-0.7.0.dist-info/METADATA`: 38 methods. Information-based 13,
+  meaning diversity 16 (9 white-box, 7 black-box), reflexive 3, density-based 4 and
+  ensembling 2 (both need training data). 11 of the 38 also work at claim level.
+- The **uq_map** slide opens the methods chapter. It places the five families on two
+  axes: what the method sees (text, token probabilities, hidden states) and how many
+  answers it draws (one, several). Retitle chapters in `chapters.json`, then run
 `set_chapters.py`. `build_deck.SLIDES` assigns slides to chapters by title prefix.
 
 **What each content slide is.** One figure plus three pieces of text placed by
@@ -364,6 +404,33 @@ copy; only `FONT_DIR` differs. The full spec is `~/projects/slides/STYLE.md`.
   **Tier is not a hue.** It is shown by position and a T1–T4 pill. Four categorical hues
   fail the colour-vision-deficiency contrast floors, so don't "improve" it. Red and green
   are reserved and unused. The accent palette is settled; stop revisiting it.
+- **Concept colours** (2026-11-04), defined once in `fig_methods.py` (`FAMILY`, `LIB`
+  and the accent constants) and used on the explanatory slides. Each idea gets one
+  theme colour everywhere it appears. A light colour that sets type uses a darkened
+  "ink" version.
+
+  | idea | colour | where |
+  |---|---|---|
+  | Information family | blue `#005AA0` | map, cards, family slide, type-by-tier rows, catalogue bar |
+  | Self-report family | purple `#7030A0` | same |
+  | Consistency family | aerospace `#50C8AA`, ink `#307866` | same |
+  | Sampling + likelihood family | information wine `#A0235A` | same |
+  | Trained probe family | green `#8CB423`, ink `#57701A` | same |
+  | the wrapped model | earth `#326469` | pipeline stage, code highlighting, wrap-model panels |
+  | stat calculators | mint `#05E5BA`, ink `#037E66` | pipeline, code |
+  | estimators | blue `#005AA0` | pipeline, code, custom-estimator slide |
+  | UEManager, Dataset | dark blue `#002864` | pipeline, code |
+  | quality and UE metrics | energy `#FFD228`, ink `#8C7416` | code, catalogue side panel |
+  | caution | energy | limitations cards |
+  | take-home | green ink | take-home numbers |
+  | a perfect-ranking line | green ink | selective-generation chart |
+
+  The pattern: a coloured top bar on a panel, the panel ground at about 12–14% of the
+  colour, and the heading in the ink. Code is highlighted by kind, not by syntax: a
+  library name is bold in the colour of the part it belongs to, and comments are grey.
+  **The data-chart key above still holds on the result charts** (`plot_bioasq.py`):
+  tier 1 blue, tiers 2–4 blue 60, wrong answers orange. The tier pills keep that key
+  everywhere.
 - **Marks.** No spines and no gridlines by default: values are labelled directly. One
   1 pt gray-22 line per tick is allowed only where a chart can't be direct-labelled.
   Rounded slabs (`RADIUS` 1.1), flat fills, panel grounds in PALE/HIGHLIGHT. Stroke
@@ -378,8 +445,14 @@ copy; only `FONT_DIR` differs. The full spec is `~/projects/slides/STYLE.md`.
 
 ## 10. Decisions, gotchas and open items
 
-- **Slides not written yet**: the take-home conclusions (only the limitations slide
-  exists in that chapter) and Backup. The demo notebook is not built.
+- **Take-home slide** (`fig_methods.TAKEAWAYS`) closes the talk with five points:
+  fluent is not reliable; let your access choose the family; try one forward pass first
+  (the only point resting on the BioASQ result, and the caption says so); use scores to
+  triage, not to judge; compare on your own task with LM-Polygraph.
+- **Not built yet**: the demo notebook. Possible extra library material:
+  `polygraph_eval` benchmarking, claim-level UE for long answers, and the
+  `CausalLMWithUncertainty` / `APIWithUncertainty` wrappers (exported in 0.7.0, not yet
+  tested here).
 - **Judgement-call labels** (section 5) are re-checked, but not by a biomedical expert.
 - **Verify a slide's claim against the data before keeping it.** The model-size caption
   once said "all" methods sit below the diagonal; it was 17/20, and is now 15/20.

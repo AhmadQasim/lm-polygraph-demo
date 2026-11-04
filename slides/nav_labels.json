@@ -1,10 +1,10 @@
 {
   "Problem: Confidently wrong": "Problem",
-  "Background: Where the uncertainty is": "Background",
+  "Methods: Where the uncertainty is": "Methods",
   "Tooling: LM-Polygraph": "Polygraph",
-  "Methods: Four tiers of estimators": "Tiers",
-  "Methods: BioASQ, and grading it": "Benchmark",
-  "Results: What works": "Results",
+  "Tooling: Your model, your data": "Your model",
+  "Example: A small BioASQ study": "Example",
+  "Example: What it showed": "Findings",
   "Conclusions and outlook": "Conclusions",
   "Backup": "Backup"
 }
