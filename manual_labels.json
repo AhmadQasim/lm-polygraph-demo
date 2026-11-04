@@ -1,37 +1,45 @@
 {
-  "_comment": "Human adjudication of gradings the automated matcher could not settle. Keyed by question text. 'correct' overrides bioasq.grade(). Proposed by Claude; needs a domain check on the entries marked debatable.",
+  "_comment": "Human adjudication of gradings the automated matcher could not settle. Keyed by question text; 'pred' records the model output the judgment was made against. A label is only applied when the current run produces the same prediction - a different model answers differently, and reusing the label would silently mislabel it. Proposed by Claude; entries marked DEBATABLE need a domain check.",
   "labels": {
     "Which is the most prevalent form of arrhythmia worldwide?": {
       "correct": true,
-      "note": "Prediction 'Atrial fibrillation' is right; the GOLD is misspelled ('atrial fibrilation'), which is why token matching failed."
+      "note": "Prediction 'Atrial fibrillation' is right; the GOLD is misspelled ('atrial fibrilation'), which is why token matching failed.",
+      "pred": "Atrial fibrillation"
     },
     "Which human disease is experimental autoimmune encephalomyelitis (EAE) model for?": {
       "correct": true,
-      "note": "'Multiple sclerosis' is exactly what EAE models; gold phrases it as 'Model of MS (Multiple Sclerosis)'."
+      "note": "'Multiple sclerosis' is exactly what EAE models; gold phrases it as 'Model of MS (Multiple Sclerosis)'.",
+      "pred": "Multiple sclerosis"
     },
     "Which is the causative agent of malaria?": {
       "correct": true,
-      "note": "'Plasmodium parasite' and gold 'Plasmodium species' are the same answer."
+      "note": "'Plasmodium parasite' and gold 'Plasmodium species' are the same answer.",
+      "pred": "Plasmodium parasite"
     },
     "What is the function of the protein SERT?": {
       "correct": true,
-      "note": "'Transports serotonin' is the verb form of gold 'Serotonin transporter'."
+      "note": "'Transports serotonin' is the verb form of gold 'Serotonin transporter'.",
+      "pred": "Transports serotonin"
     },
     "Sclerostin regulates what process?": {
       "correct": true,
-      "note": "DEBATABLE. 'Bone formation' vs gold 'bone metabolism' - sclerostin inhibits bone formation, so arguably more precise than the gold."
+      "note": "DEBATABLE. 'Bone formation' vs gold 'bone metabolism' - sclerostin inhibits bone formation, so arguably more precise than the gold.",
+      "pred": "Bone formation"
     },
     "Which ligament is most commonly injured in dashboard injury?": {
       "correct": false,
-      "note": "GRADER FALSE POSITIVE. Model said 'anterior cruciate ligament'; dashboard injury damages the POSTERIOR cruciate. Token overlap on 'cruciate ligament' made the matcher accept it."
+      "note": "GRADER FALSE POSITIVE. Model said 'anterior cruciate ligament'; dashboard injury damages the POSTERIOR cruciate. Token overlap on 'cruciate ligament' made the matcher accept it.",
+      "pred": "The anterior cruciate ligament"
     },
     "What does gepotidacin do to bacteria?": {
       "correct": false,
-      "note": "DEBATABLE. 'Inhibits bacterial growth' is true but misses the mechanism in gold ('inhibits bacterial DNA replication'); kept wrong as too vague for a factoid."
+      "note": "DEBATABLE. 'Inhibits bacterial growth' is true but misses the mechanism in gold ('inhibits bacterial DNA replication'); kept wrong as too vague for a factoid.",
+      "pred": "Inhibits bacterial growth"
     },
     "What is the drug target for Eliquis (Apixaban)?": {
       "correct": false,
-      "note": "Factor X and Factor Xa are different molecules (zymogen vs active enzyme). Matcher was right to reject."
+      "note": "Factor X and Factor Xa are different molecules (zymogen vs active enzyme). Matcher was right to reject.",
+      "pred": "Factor X"
     }
   }
 }

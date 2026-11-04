@@ -11,10 +11,27 @@ import pathlib
 import sys
 
 import numpy as np
+from scipy.stats import rankdata
 from sklearn.metrics import roc_auc_score
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import bioasq  # noqa: E402
+
+
+def fast_auc(y, s):
+    """AUROC via the Mann-Whitney U identity, tie-corrected.
+
+    Identical to sklearn.metrics.roc_auc_score but without its per-call
+    validation, which dominates when bootstrapping hundreds of thousands of
+    times. At n=1000 x 5000 resamples x 20 estimators the sklearn version is
+    slow enough to get the process killed.
+    """
+    n1 = int(y.sum())
+    n0 = len(y) - n1
+    if n0 == 0 or n1 == 0:
+        return np.nan
+    r = rankdata(s)
+    return (r[y == 1].sum() - n1 * (n1 + 1) / 2) / (n0 * n1)
 
 
 def bootstrap_auc(y, s, n_boot=5000, seed=0):
@@ -26,7 +43,7 @@ def bootstrap_auc(y, s, n_boot=5000, seed=0):
         b = rng.choice(idx, len(idx), replace=True)
         if len(np.unique(y[b])) < 2:
             continue
-        out.append(roc_auc_score(y[b], s[b]))
+        out.append(fast_auc(y[b], s[b]))
     return np.percentile(out, [2.5, 97.5])
 
 
@@ -40,7 +57,7 @@ def paired_delta(y, a, b, n_boot=5000, seed=0):
         s = rng.choice(idx, len(idx), replace=True)
         if len(np.unique(y[s])) < 2:
             continue
-        deltas.append(roc_auc_score(y[s], a[s]) - roc_auc_score(y[s], b[s]))
+        deltas.append(fast_auc(y[s], a[s]) - fast_auc(y[s], b[s]))
     deltas = np.array(deltas)
     return deltas.mean(), np.percentile(deltas, [2.5, 97.5]), (deltas > 0).mean()
 
@@ -50,26 +67,21 @@ def main() -> None:
     ap.add_argument("cache")
     ap.add_argument("--show-borderline", action="store_true")
     ap.add_argument("--manual", help="path to manual_labels.json")
+    ap.add_argument("--n-boot", type=int, default=2000)
     args = ap.parse_args()
 
     d = json.loads(pathlib.Path(args.cache).read_text())
     graded = [bioasq.grade(g, gg) for g, gg in zip(d["generations"], d["golds"])]
 
-    # Human adjudication of cases string matching cannot settle. Without this
-    # the grader is biased AGAINST the semantic methods, which score a
-    # correctly-paraphrased answer as low-uncertainty while the matcher calls
-    # it wrong.
-    n_over = 0
-    if args.manual:
-        manual = json.loads(pathlib.Path(args.manual).read_text())["labels"]
-        for i, q in enumerate(d["questions"]):
-            if q in manual and graded[i]["correct"] != manual[q]["correct"]:
-                graded[i]["correct"] = manual[q]["correct"]
-                n_over += 1
+    applied, stale = bioasq.apply_manual_labels(
+        graded, d["questions"], d["generations"], args.manual) if args.manual else (0, 0)
+    n_over = applied
 
     y = np.array([0 if g["correct"] else 1 for g in graded])
     print(f"n={len(y)}  correct={int((y==0).sum())}  wrong={int((y==1).sum())}"
-          + (f"  (manual overrides applied: {n_over})" if n_over else ""))
+          + (f"  (manual overrides: {n_over}" if n_over else "")
+          + (f", {stale} skipped as stale" if stale else "")
+          + (")" if n_over else ""))
 
     names = list(d["scores"].keys())
     aucs = {n: roc_auc_score(y, d["scores"][n]) for n in names}
@@ -77,16 +89,30 @@ def main() -> None:
 
     print(f"\n{'estimator':<34}{'AUROC':>7}{'95% CI':>18}")
     print("-" * 59)
+    inverted = []
     for n in order:
-        lo, hi = bootstrap_auc(y, d["scores"][n])
-        print(f"{n:<34}{aucs[n]:>7.3f}   [{lo:.3f}, {hi:.3f}]")
+        lo, hi = bootstrap_auc(y, d["scores"][n], n_boot=args.n_boot)
+        # An AUROC whose whole interval sits below 0.5 does not mean the method
+        # is useless - it means the score is ordered as CONFIDENCE rather than
+        # uncertainty, so it ranks correct answers high. Flag it; do not quietly
+        # flip it, because which convention a given estimator uses is a real
+        # property of the library that a user has to know about.
+        if hi < 0.5:
+            inverted.append((n, aucs[n]))
+        mark = "   <- sign-inverted" if hi < 0.5 else ""
+        print(f"{n:<34}{aucs[n]:>7.3f}   [{lo:.3f}, {hi:.3f}]{mark}")
+    if inverted:
+        print("\n  Sign-inverted: the entire CI lies below chance, i.e. the estimator")
+        print("  returns a confidence, not an uncertainty. Read as 1-AUROC:")
+        for n, a in inverted:
+            print(f"    {n:<40} {a:.3f}  ->  {1 - a:.3f}")
 
     best = order[0]
     print(f"\n--- paired bootstrap vs SemanticEntropy ---")
     for n in order:
         if n == "SemanticEntropy":
             continue
-        m, (lo, hi), p = paired_delta(y, d["scores"][n], d["scores"]["SemanticEntropy"])
+        m, (lo, hi), p = paired_delta(y, d["scores"][n], d["scores"]["SemanticEntropy"], n_boot=args.n_boot)
         sig = "" if lo < 0 < hi else "  *"
         print(f"  {n:<34} delta={m:+.3f}  [{lo:+.3f}, {hi:+.3f}]  P(>SE)={p:.2f}{sig}")
     print("  (* = 95% interval excludes zero)")

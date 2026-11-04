@@ -1,11 +1,15 @@
-"""Figures for the semantic-entropy journal club demo.
+"""Figures for the LM-Polygraph cost-vs-performance journal club demo.
 
-Three figures, in order of what they are for:
-  1. auroc_ci.png   - AUROC per method with 95% bootstrap CIs. The headline:
-                      the intervals overlap, so the methods are not separated.
-  2. roc_curves.png - the same result as ROC curves.
-  3. uncertainty_by_correctness.png - raw score distributions split by whether
-                      the answer was right, for semantic entropy vs token entropy.
+  1. auroc_by_method.png - all estimators ranked, with 95% bootstrap CIs and a
+     tier tag. The point: the cheapest tier holds both the winner and the traps.
+  2. auroc_by_tier.png   - AUROC spread within each cost tier. The point:
+     paying more buys consistency, not a higher ceiling.
+  3. uncertainty_by_correctness.png - raw scores split by correctness, for the
+     cheapest good method against the expensive one.
+
+Tier is encoded by POSITION and LABEL, never by colour: a four-hue categorical
+set cannot clear the all-pairs CVD floors (checked with the palette validator),
+and every mark in these charts is visible simultaneously.
 
 Run:  .venv/bin/python scripts/plot_bioasq.py outputs/<cache>.json
 """
@@ -20,49 +24,54 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
-from sklearn.metrics import roc_auc_score, roc_curve  # noqa: E402
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import bioasq  # noqa: E402
-from analyze_bioasq import bootstrap_auc  # noqa: E402
+from analyze_bioasq import bootstrap_auc, fast_auc  # noqa: E402
 
 ROOT = pathlib.Path(__file__).parent.parent
 FIGDIR = ROOT / "figures"
 
-# Validated categorical palette, fixed order (see dataviz skill palette.md).
-SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300"]
+ACCENT = "#2a78d6"     # the cheap tier - the story
+MUTED = "#9a9992"
 SURFACE = "#fcfcfb"
 INK = "#0b0b0b"
 INK_SOFT = "#52514e"
 GRID = "#d8d7d2"
-MUTED = "#9a9992"
-
-METHOD_COLOR = {
-    "SemanticEntropy": SERIES[0],
-    "MeanTokenEntropy": SERIES[1],
-    "MaximumSequenceProbability": SERIES[2],
-    "PTrue": SERIES[3],
-    "EigValLaplacian_NLI_score_entail": SERIES[4],
-    "NumSemSets": SERIES[5],
-}
-
-# Correctness is a different axis from method identity, so it gets colours
-# outside the method palette: neutral for correct, one accent for the class
-# we are trying to detect.
 CORRECT_C, INCORRECT_C = "#6f6e68", "#e34948"
 
-SHORT = {
-    "SemanticEntropy": "Semantic entropy",
-    "MeanTokenEntropy": "Mean token entropy",
+TIER_LABEL = {
+    1: "T1  one forward pass",
+    2: "T2  + self-query",
+    3: "T3  + sampling",
+    4: "T4  + NLI model",
+}
+
+PRETTY = {
     "MaximumSequenceProbability": "Max sequence prob.",
-    "EigValLaplacian_NLI_score_entail": "EigValLaplacian (BB)",
-    "NumSemSets": "NumSemSets (BB)",
+    "MeanTokenEntropy": "Mean token entropy",
+    "MeanPointwiseMutualInformation": "Mean PMI",
+    "MeanConditionalPointwiseMutualInformation": "Mean conditional PMI",
+    "MonteCarloSequenceEntropy": "MC sequence entropy",
+    "MonteCarloNormalizedSequenceEntropy": "MC norm. seq. entropy",
+    "LexicalSimilarity_rougeL": "Lexical similarity (RougeL)",
+    "DegMat_NLI_score_entail": "DegMat",
+    "Eccentricity_NLI_score_entail": "Eccentricity",
+    "EigValLaplacian_NLI_score_entail": "EigValLaplacian",
+    "SemanticEntropy": "Semantic entropy",
     "PTrue": "p(True)",
+    "PTrueEmpirical": "p(True) empirical",
+    "BoostedProbSequence": "Boosted prob.",
+    "SelfCertainty": "Self-certainty",
+    "KernelLanguageEntropy": "Kernel language entropy",
+    "NumSemSets": "NumSemSets",
+    "Perplexity": "Perplexity",
+    "FisherRao": "Fisher-Rao",
+    "RenyiNeg": "Renyi-Neg",
 }
 
 
 def style(ax):
-    """Recessive axes and grid; data should be the only assertive thing."""
     ax.set_facecolor(SURFACE)
     for side in ("top", "right"):
         ax.spines[side].set_visible(False)
@@ -77,76 +86,96 @@ def style(ax):
 def load(cache_path, manual_path):
     d = json.loads(pathlib.Path(cache_path).read_text())
     graded = [bioasq.grade(g, gg) for g, gg in zip(d["generations"], d["golds"])]
-    if manual_path and pathlib.Path(manual_path).exists():
-        manual = json.loads(pathlib.Path(manual_path).read_text())["labels"]
-        for i, q in enumerate(d["questions"]):
-            if q in manual:
-                graded[i]["correct"] = manual[q]["correct"]
-    y = np.array([0 if g["correct"] else 1 for g in graded])  # 1 = model was wrong
+    if manual_path:
+        applied, stale = bioasq.apply_manual_labels(
+            graded, d["questions"], d["generations"], manual_path)
+        if stale:
+            print(f"note: {stale} manual labels skipped (prediction changed)")
+    y = np.array([0 if g["correct"] else 1 for g in graded])
     return d, y
 
 
-def fig_auroc_ci(d, y, order, aucs):
-    fig, ax = plt.subplots(figsize=(7.2, 3.6), facecolor=SURFACE)
+def fig_by_method(d, y, stats):
+    order = sorted(stats, key=lambda n: -stats[n][0])
+    fig, ax = plt.subplots(figsize=(8.6, 7.2), facecolor=SURFACE)
     style(ax)
     ypos = np.arange(len(order))[::-1]
     for yi, name in zip(ypos, order):
-        lo, hi = bootstrap_auc(y, d["scores"][name])
-        focus = name == "SemanticEntropy"
-        color = SERIES[0] if focus else MUTED
+        auc, lo, hi = stats[name]
+        tier = bioasq.tier_of(name)
+        cheap = tier == 1
+        color = ACCENT if cheap else MUTED
         ax.plot([lo, hi], [yi, yi], color=color, lw=2, solid_capstyle="round",
-                alpha=1.0 if focus else 0.75)
-        ax.plot([aucs[name]], [yi], "o", color=color, ms=9,
-                markeredgecolor=SURFACE, markeredgewidth=2, zorder=3)
-        ax.text(hi + 0.012, yi, f"{aucs[name]:.3f}", va="center", ha="left",
-                fontsize=9, color=INK if focus else INK_SOFT,
-                fontweight="bold" if focus else "normal")
+                alpha=1.0 if cheap else 0.8)
+        ax.plot([auc], [yi], "o", color=color, ms=8,
+                markeredgecolor=SURFACE, markeredgewidth=1.8, zorder=3)
+        label = f"{auc:.3f}" + ("  inverted" if hi < 0.5 else "")
+        ax.text(hi + 0.012, yi, label, va="center", fontsize=8.5,
+                color=INK if cheap else INK_SOFT)
     ax.axvline(0.5, color=GRID, lw=1.2, ls="--", zorder=0)
     ax.text(0.506, (len(order) - 1) / 2, "chance", fontsize=8, color=MUTED,
             rotation=90, ha="left", va="center")
-    ax.set_yticks(ypos, [SHORT.get(n, n) for n in order], fontsize=9.5, color=INK)
+    ax.set_yticks(ypos,
+                  [f"{PRETTY.get(n, n)}   T{bioasq.tier_of(n)}" for n in order],
+                  fontsize=9, color=INK)
     ax.set_xlabel("AUROC for detecting an incorrect answer  (95% bootstrap CI)",
                   fontsize=9.5, color=INK_SOFT)
-    ax.set_xlim(0.45, 1.0)
+    ax.set_xlim(0.22, 1.0)
     ax.grid(axis="y", visible=False)
-    fig.suptitle("No method is cleanly separated from the others",
-                 x=0.015, ha="left", fontsize=12.5, color=INK, fontweight="bold")
-    fig.tight_layout(rect=(0, 0, 1, 0.94))
-    out = FIGDIR / "auroc_ci.png"
+    fig.suptitle("The cheapest tier holds both the winner and the traps",
+                 x=0.012, ha="left", fontsize=13, color=INK, fontweight="bold")
+    ax.set_title("blue = one forward pass, no sampling, no extra model",
+                 loc="left", fontsize=9.5, color=INK_SOFT, pad=10)
+    fig.tight_layout(rect=(0, 0, 1, 0.955))
+    out = FIGDIR / "auroc_by_method.png"
     fig.savefig(out, dpi=200, facecolor=SURFACE)
     plt.close(fig)
     return out
 
 
-def fig_roc(d, y, order, aucs):
-    fig, ax = plt.subplots(figsize=(5.6, 5.0), facecolor=SURFACE)
+def fig_by_tier(d, y, stats):
+    rng = np.random.default_rng(0)
+    fig, ax = plt.subplots(figsize=(7.4, 4.4), facecolor=SURFACE)
     style(ax)
-    ax.plot([0, 1], [0, 1], color=GRID, lw=1.2, ls="--", zorder=0)
-    for name in order:
-        fpr, tpr, _ = roc_curve(y, d["scores"][name])
-        focus = name == "SemanticEntropy"
-        ax.plot(fpr, tpr, color=METHOD_COLOR[name],
-                lw=2.4 if focus else 1.6, alpha=1.0 if focus else 0.8,
-                label=f"{SHORT.get(name, name)}  {aucs[name]:.3f}",
-                zorder=3 if focus else 2)
-    ax.set_xlabel("False positive rate", fontsize=9.5, color=INK_SOFT)
-    ax.set_ylabel("True positive rate", fontsize=9.5, color=INK_SOFT)
-    ax.set_xlim(-0.01, 1.01)
-    ax.set_ylim(-0.01, 1.01)
-    leg = ax.legend(loc="lower right", frameon=True, fontsize=8.5,
-                    facecolor=SURFACE, edgecolor=GRID)
-    for t in leg.get_texts():
-        t.set_color(INK)
-    fig.suptitle("Detecting incorrect answers", x=0.015, ha="left",
-                 fontsize=12.5, color=INK, fontweight="bold")
-    fig.tight_layout(rect=(0, 0, 1, 0.95))
-    out = FIGDIR / "roc_curves.png"
+    for tier in sorted(TIER_LABEL):
+        names = [n for n in stats if bioasq.tier_of(n) == tier]
+        vals = [stats[n][0] for n in names]
+        # Sign-inverted estimators get a hollow marker. Without that secondary
+        # encoding they read as failures, when in fact they return a confidence
+        # and are mid-table once flipped.
+        inv = np.array([stats[n][2] < 0.5 for n in names])
+        x = tier + rng.uniform(-0.13, 0.13, len(vals))
+        cheap = tier == 1
+        col = ACCENT if cheap else MUTED
+        v = np.asarray(vals)
+        if (~inv).any():
+            ax.plot(x[~inv], v[~inv], "o", ms=7, color=col, alpha=0.8,
+                    markeredgecolor=SURFACE, markeredgewidth=1.2)
+        if inv.any():
+            ax.plot(x[inv], v[inv], "o", ms=7, markerfacecolor="none",
+                    markeredgecolor=col, markeredgewidth=1.8, alpha=0.9)
+        ax.plot([tier - 0.26, tier + 0.26], [np.median(vals)] * 2,
+                color=col, lw=2.4, solid_capstyle="round", zorder=4)
+    ax.axhline(0.5, color=GRID, lw=1.2, ls="--", zorder=0)
+    ax.text(4.46, 0.5, "chance", fontsize=8, color=MUTED, va="bottom", ha="right")
+    ax.set_xticks(list(TIER_LABEL), [TIER_LABEL[t] for t in sorted(TIER_LABEL)],
+                  fontsize=9, color=INK)
+    ax.set_xlim(0.5, 4.5)
+    ax.set_ylabel("AUROC", fontsize=9.5, color=INK_SOFT)
+    ax.grid(axis="x", visible=False)
+    fig.suptitle("Paying more buys consistency, not a higher ceiling",
+                 x=0.012, ha="left", fontsize=13, color=INK, fontweight="bold")
+    ax.set_title("each dot is one estimator; bar = tier median; "
+                 "hollow = sign-inverted (read as 1-AUROC)",
+                 loc="left", fontsize=9.5, color=INK_SOFT, pad=10)
+    fig.tight_layout(rect=(0, 0, 1, 0.945))
+    out = FIGDIR / "auroc_by_tier.png"
     fig.savefig(out, dpi=200, facecolor=SURFACE)
     plt.close(fig)
     return out
 
 
-def fig_scores(d, y, methods=("SemanticEntropy", "MeanTokenEntropy")):
+def fig_scores(d, y, methods=("MeanTokenEntropy", "SemanticEntropy")):
     rng = np.random.default_rng(0)
     fig, axes = plt.subplots(1, len(methods), figsize=(7.6, 3.8), facecolor=SURFACE)
     for ax, name in zip(np.atleast_1d(axes), methods):
@@ -157,17 +186,29 @@ def fig_scores(d, y, methods=("SemanticEntropy", "MeanTokenEntropy")):
         ):
             vals = s[y == cls]
             x = cls + rng.uniform(-0.17, 0.17, len(vals))
-            ax.plot(x, vals, "o", ms=5, color=color, alpha=0.65,
-                    markeredgecolor=SURFACE, markeredgewidth=0.6)
+            ax.plot(x, vals, "o", ms=3, color=color, alpha=0.4,
+                    markeredgecolor="none")
             ax.plot([cls - 0.3, cls + 0.3], [np.median(vals)] * 2,
                     color=color, lw=2.4, solid_capstyle="round", zorder=4)
+        # Semantic entropy has a long right tail (values to ~300 against a
+        # median near 0), which flattens the whole distribution if plotted raw.
+        # Clip the view to a robust range and say how many points are off-scale.
+        lo, hi = np.percentile(s, [0.5, 99.0])
+        pad = 0.06 * (hi - lo) if hi > lo else 1.0
+        n_off = int((s > hi + pad).sum())
+        ax.set_ylim(lo - pad, hi + pad)
+        if n_off:
+            ax.text(0.015, 0.985, f"{n_off} points above axis", transform=ax.transAxes,
+                    ha="left", va="top", fontsize=8, color=MUTED)
         ax.set_xticks([0, 1], ["Correct", "Incorrect"], fontsize=9.5, color=INK)
         ax.set_xlim(-0.55, 1.55)
-        ax.set_title(SHORT.get(name, name), fontsize=10.5, color=INK, pad=8)
+        tier = bioasq.tier_of(name)
+        ax.set_title(f"{PRETTY.get(name, name)}  (T{tier})", fontsize=10.5,
+                     color=INK, pad=8)
         ax.set_ylabel("uncertainty score", fontsize=9, color=INK_SOFT)
         ax.grid(axis="x", visible=False)
-    fig.suptitle("Scores overlap heavily — separation is real but far from clean",
-                 x=0.015, ha="left", fontsize=12.5, color=INK, fontweight="bold")
+    fig.suptitle("Cheapest vs most expensive \u2014 the overlap looks the same",
+                 x=0.012, ha="left", fontsize=13, color=INK, fontweight="bold")
     fig.tight_layout(rect=(0, 0, 1, 0.93))
     out = FIGDIR / "uncertainty_by_correctness.png"
     fig.savefig(out, dpi=200, facecolor=SURFACE)
@@ -179,22 +220,29 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("cache")
     ap.add_argument("--manual", default=str(ROOT / "manual_labels.json"))
+    ap.add_argument("--n-boot", type=int, default=2000)
     args = ap.parse_args()
 
     FIGDIR.mkdir(exist_ok=True)
     d, y = load(args.cache, args.manual)
-    aucs = {n: roc_auc_score(y, v) for n, v in d["scores"].items()}
-    order = sorted(aucs, key=lambda n: -aucs[n])
 
-    # Table view - the contrast WARN on three palette hues obliges visible values.
+    stats = {}
+    for name, vals in d["scores"].items():
+        v = np.asarray(vals, dtype=float)
+        lo, hi = bootstrap_auc(y, v, n_boot=args.n_boot)
+        stats[name] = (fast_auc(y, v), lo, hi)
+
+    # Table view: three palette hues sit under 3:1 on this surface, so the
+    # numbers must be legible somewhere that is not colour.
     print(f"n={len(y)}  correct={(y==0).sum()}  wrong={(y==1).sum()}\n")
-    print(f"{'method':<24}{'AUROC':>8}{'95% CI':>20}")
-    for n in order:
-        lo, hi = bootstrap_auc(y, d["scores"][n])
-        print(f"{SHORT.get(n,n):<24}{aucs[n]:>8.3f}   [{lo:.3f}, {hi:.3f}]")
+    print(f"{'method':<30}{'tier':>5}{'AUROC':>8}{'95% CI':>18}")
+    for n in sorted(stats, key=lambda n: -stats[n][0]):
+        a, lo, hi = stats[n]
+        flag = "  inverted" if hi < 0.5 else ""
+        print(f"{PRETTY.get(n,n):<30}{'T'+str(bioasq.tier_of(n)):>5}{a:>8.3f}   [{lo:.3f}, {hi:.3f}]{flag}")
 
-    for out in (fig_auroc_ci(d, y, order, aucs),
-                fig_roc(d, y, order, aucs),
+    for out in (fig_by_method(d, y, stats),
+                fig_by_tier(d, y, stats),
                 fig_scores(d, y)):
         print(f"wrote {out}")
 

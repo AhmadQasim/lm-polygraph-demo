@@ -13,6 +13,39 @@ from typing import Iterable
 
 HF_DATASET = "jmhb/BioASQ"
 
+# Estimators grouped by what they cost, which is the axis the talk is about.
+# Tiers are cumulative: running "4" also runs 1-3, so the wall-clock delta
+# between tier runs is the marginal cost of that tier. Attention-based methods
+# (RAUQ, CSL, AttentionScore) are excluded - they need output_attentions=True,
+# which forces the slow eager path on transformers 5.x.
+TIERS = {
+    # One greedy forward pass. Logits only, no extra model, no sampling.
+    1: [
+        "MaximumSequenceProbability",
+        "Perplexity",
+        "MeanTokenEntropy",
+        "FisherRao",
+        "RenyiNeg",
+        "SelfCertainty",
+        "BoostedProbSequence",
+        # These two need a second, context-free LM pass (~2x tier-1 cost).
+        "MeanPointwiseMutualInformation",
+        "MeanConditionalPointwiseMutualInformation",
+    ],
+    # Ask the model about its own answer: one or two extra prompts.
+    # Verbalized1S is deliberately absent: it regex-parses a confidence out of
+    # the model's own text and raises IndexError on Qwen2.5-3B, which does not
+    # emit a parseable confidence. That is a finding, not a bug to fix here.
+    2: ["PTrue", "PTrueEmpirical"],
+    # Sample N continuations (~10x), but no entailment model.
+    3: ["MonteCarloSequenceEntropy", "MonteCarloNormalizedSequenceEntropy",
+        "LexicalSimilarity"],
+    # Sampling plus a DeBERTa NLI model over the sample set: the expensive tier.
+    4: ["SemanticEntropy", "DegMat", "Eccentricity", "EigValLaplacian",
+        "NumSemSets", "KernelLanguageEntropy"],
+}
+
+
 # Hand-written, not drawn from the eval set, so nothing leaks.
 FEWSHOT = [
     ("Which enzyme is inhibited by statins?", "HMG-CoA reductase"),
@@ -111,3 +144,46 @@ def grade(pred: str, golds: Iterable[str], f1_threshold: float = 0.6) -> dict:
     # Flag anything decided by a soft rule near the threshold for human review.
     best["borderline"] = (not best["em"]) and 0.3 <= best["f1"] < 0.8
     return best
+
+
+def tier_of(display_name: str) -> int | None:
+    """Map an LM-Polygraph display name back to its cost tier.
+
+    Display names carry suffixes the TIERS keys do not ("DegMat" ->
+    "DegMat_NLI_score_entail"), so match on the longest class-name prefix.
+    """
+    best, best_len = None, 0
+    for tier, names in TIERS.items():
+        for n in names:
+            if display_name.startswith(n) and len(n) > best_len:
+                best, best_len = tier, len(n)
+    return best
+
+
+def apply_manual_labels(graded, questions, generations, path) -> tuple[int, int]:
+    """Apply human adjudications, but only where the prediction still matches.
+
+    Labels record the model output they were judged against. A different model
+    (or decoding config) answers differently, so applying the old verdict would
+    silently mislabel. Returns (applied, skipped_stale).
+    """
+    import json as _json
+    import pathlib as _pathlib
+
+    p = _pathlib.Path(path)
+    if not p.exists():
+        return 0, 0
+    labels = _json.loads(p.read_text())["labels"]
+    applied = stale = 0
+    for i, q in enumerate(questions):
+        lab = labels.get(q)
+        if lab is None:
+            continue
+        judged_against = lab.get("pred")
+        if judged_against is not None and judged_against != generations[i].strip():
+            stale += 1
+            continue
+        if graded[i]["correct"] != lab["correct"]:
+            graded[i]["correct"] = lab["correct"]
+            applied += 1
+    return applied, stale

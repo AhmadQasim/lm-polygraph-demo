@@ -44,37 +44,9 @@ def default_device() -> str:
     return "cpu"
 
 
-# Estimators grouped by what they cost, which is the axis the talk is about.
-# Tiers are cumulative: running "4" also runs 1-3, so the wall-clock delta
-# between tier runs is the marginal cost of that tier. Attention-based methods
-# (RAUQ, CSL, AttentionScore) are excluded - they need output_attentions=True,
-# which forces the slow eager path on transformers 5.x.
-TIERS = {
-    # One greedy forward pass. Logits only, no extra model, no sampling.
-    1: [
-        "MaximumSequenceProbability",
-        "Perplexity",
-        "MeanTokenEntropy",
-        "FisherRao",
-        "RenyiNeg",
-        "SelfCertainty",
-        "BoostedProbSequence",
-        # These two need a second, context-free LM pass (~2x tier-1 cost).
-        "MeanPointwiseMutualInformation",
-        "MeanConditionalPointwiseMutualInformation",
-    ],
-    # Ask the model about its own answer: one or two extra prompts.
-    # Verbalized1S is deliberately absent: it regex-parses a confidence out of
-    # the model's own text and raises IndexError on Qwen2.5-3B, which does not
-    # emit a parseable confidence. That is a finding, not a bug to fix here.
-    2: ["PTrue", "PTrueEmpirical"],
-    # Sample N continuations (~10x), but no entailment model.
-    3: ["MonteCarloSequenceEntropy", "MonteCarloNormalizedSequenceEntropy",
-        "LexicalSimilarity"],
-    # Sampling plus a DeBERTa NLI model over the sample set: the expensive tier.
-    4: ["SemanticEntropy", "DegMat", "Eccentricity", "EigValLaplacian",
-        "NumSemSets", "KernelLanguageEntropy"],
-}
+
+
+TIERS = bioasq.TIERS
 
 
 def estimators(max_tier: int):
@@ -155,6 +127,18 @@ def run(args) -> dict:
         "n": len(items),
         "seed": args.seed,
         "elapsed_s": elapsed,
+        # Record the full run config. Without it a cached result cannot be told
+        # apart from one produced on different hardware or settings - which
+        # matters once runs happen on more than one machine.
+        "config": {
+            "device": args.device,
+            "dtype": "bfloat16",
+            "attn": args.attn,
+            "batch_size": args.batch_size,
+            "max_new_tokens": args.max_new_tokens,
+            "deberta_batch_size": args.deberta_batch_size,
+            "torch": torch.__version__,
+        },
         "questions": [it["question"] for it in items],
         "golds": [it["golds"] for it in items],
         "generations": list(manager.stats.get("greedy_texts", [])),
