@@ -259,8 +259,8 @@
       "layout": "Title Only",
       "text": [
         "The same methods on other models",
-        "Mean token entropy is the steadiest method that is also any good.",
-        "Each line is one estimator's AUROC across five models from four families: flat means it holds. The ranking mostly transfers (mean pairwise Spearman ρ 0.86). Mean token entropy stays between 0.77 and 0.83, while max sequence probability, read from the same forward pass, drops to 0.62 on Mistral. A tier-4 method beats mean token entropy significantly on Mistral only. The three non-Qwen models were graded mostly by the matcher alone: the manual labels were written against the Qwen answers."
+        "Of the one-pass methods, only mean token entropy holds everywhere.",
+        "Each line is one estimator's AUROC across six models from four families: flat means it holds. The ranking mostly transfers (mean pairwise Spearman ρ 0.87). Mean token entropy is the only tier-1 method that stays above 0.75 on all six, between 0.76 and 0.83; max sequence probability and perplexity, read from the same forward pass, fall to around 0.60 on Mistral. A tier-4 method beats mean token entropy significantly on two of the six. All six runs were graded with the full manual label set."
       ]
     }
   ]

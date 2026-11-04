@@ -92,9 +92,12 @@ CACHE_SMALL = ROOT / "outputs" / "bioasq_Qwen2.5-3B-Instruct_n1000_seed0_t4.json
 CACHE_BIG = ROOT / "outputs" / "bioasq_Qwen2.5-7B-Instruct_n1000_seed0_t4.json"
 # Other families, for the backup model comparison only. Their answers were graded by
 # bioasq.grade() alone: manual_labels.json was built from the two Qwen runs.
-CACHE_OTHERS = [ROOT / "outputs" / "bioasq_Mistral-7B-Instruct-v0.3_n1000_seed0_t4.json",
-                ROOT / "outputs" / "bioasq_OLMo-2-1124-7B-Instruct_n1000_seed0_t4.json",
-                ROOT / "outputs" / "bioasq_Llama-3.1-8B-Instruct_n1000_seed0_t4.json"]
+# Ordered so the two size ladders (Qwen 3B->7B, Llama 3B->8B) sit side by side;
+# the slopegraph's x axis is categorical, so the order is purely for reading.
+CACHE_OTHERS = [ROOT / "outputs" / "bioasq_Llama-3.2-3B-Instruct_n1000_seed0_t4.json",
+                ROOT / "outputs" / "bioasq_Llama-3.1-8B-Instruct_n1000_seed0_t4.json",
+                ROOT / "outputs" / "bioasq_Mistral-7B-Instruct-v0.3_n1000_seed0_t4.json",
+                ROOT / "outputs" / "bioasq_OLMo-2-1124-7B-Instruct_n1000_seed0_t4.json"]
 
 # Figure generators, run under --figures, in this order. Each writes its PNGs into
 # figures/ and leaves an already-edited markdown alone.
@@ -103,7 +106,8 @@ FIGURES: list[tuple[str, list[str]]] = [
     ("library slides", [str(HERE / "fig_polygraph.py")]),
     ("results slides", [str(HERE / "plot_bioasq.py"), str(CACHE_SMALL),
                         "--compare", str(CACHE_BIG), *map(str, CACHE_OTHERS),
-                        "--labels", "Qwen2.5-3B,Qwen2.5-7B,Mistral-7B,OLMo-2-7B,Llama-3.1-8B"]),
+                        "--labels", "Qwen2.5-3B,Qwen2.5-7B,Llama-3.2-3B,Llama-3.1-8B,"
+                        "Mistral-7B,OLMo-2-7B"]),
 ]
 
 

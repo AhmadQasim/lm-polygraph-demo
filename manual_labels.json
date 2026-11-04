@@ -31,34 +31,82 @@
         "3B"
       ]
     },
-    "Sclerostin regulates what process?": {
-      "correct": true,
-      "note": "Sclerostin inhibits bone formation, a correct, more specific instance of bone metabolism.",
-      "pred": "Bone formation",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
-    "Which ligament is most commonly injured in dashboard injury?": {
-      "correct": false,
-      "note": "Dashboard injury typically injures the PCL, not the ACL.",
-      "pred": "The anterior cruciate ligament",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
-    "What does gepotidacin do to bacteria?": {
-      "correct": false,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. 'Inhibits bacterial growth' is true but misses the mechanism in gold ('inhibits bacterial DNA replication'); kept wrong as too vague for a factoid.",
-      "pred": "Inhibits bacterial growth"
-    },
-    "What is the drug target for Eliquis (Apixaban)?": {
-      "correct": false,
-      "note": "Factor X and Factor Xa are different molecules (zymogen vs active enzyme). Matcher was right to reject.",
-      "pred": "Factor X"
-    },
+    "Sclerostin regulates what process?": [
+      {
+        "correct": true,
+        "note": "Sclerostin inhibits bone formation, a correct, more specific instance of bone metabolism.",
+        "pred": "Bone formation",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: sclerostin's canonical role is inhibiting bone formation via Wnt; same process as 'bone metabolism', if anything more specific.",
+        "pred": "bone formation",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Which ligament is most commonly injured in dashboard injury?": [
+      {
+        "correct": false,
+        "note": "Dashboard injury typically injures the PCL, not the ACL.",
+        "pred": "The anterior cruciate ligament",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "ACL is not the PCL; dashboard injury classically injures the posterior cruciate ligament.",
+        "pred": "The anterior cruciate ligament (ACL)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "ACL is not the PCL; dashboard injury classically injures the posterior cruciate ligament.",
+        "pred": "Anterior cruciate ligament",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "What does gepotidacin do to bacteria?": [
+      {
+        "correct": false,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. 'Inhibits bacterial growth' is true but misses the mechanism in gold ('inhibits bacterial DNA replication'); kept wrong as too vague for a factoid.",
+        "pred": "Inhibits bacterial growth"
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: inhibiting DNA synthesis is the same action as inhibiting DNA replication",
+        "pred": "Inhibits DNA synthesis",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "What is the drug target for Eliquis (Apixaban)?": [
+      {
+        "correct": false,
+        "note": "Factor X and Factor Xa are different molecules (zymogen vs active enzyme). Matcher was right to reject.",
+        "pred": "Factor X"
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: phrased as a drug class, but it names factor Xa as the target.",
+        "pred": "Xa inhibitor",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "What is the methyl donor of DNA (cytosine-5)-methyltransferases?": {
       "correct": true,
       "note": "S-adenosylmethionine is S-adenosyl-L-methionine.",
@@ -68,38 +116,110 @@
         "7B"
       ]
     },
-    "What is the cause of Krabbe disease?": {
-      "correct": true,
-      "note": "Truncated, but names galactocerebroside beta-galactosidase defect, which matches the gold.",
-      "pred": "Abnormality in galactocerebroside β-galactosid",
-      "models": [
-        "3B"
-      ]
-    },
-    "What is a mitosome?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Mitosomes are mitochondrion-derived (related) organelles, same concept as gold.",
-      "pred": "Mitochondria-derived organelle",
-      "models": [
-        "3B"
-      ]
-    },
-    "What does csDMARD stand for?": {
-      "correct": false,
-      "note": "csDMARD means conventional synthetic DMARD, not corticosteroid DMARD.",
-      "pred": "Corticosteroid Disease Modifying Antirheumatic Drugs",
-      "models": [
-        "3B"
-      ]
-    },
-    "What is the gold standard for a diagnosis of narcolepsy?": {
-      "correct": true,
-      "note": "Polysomnography is the gold's sleep study.",
-      "pred": "Polysomnography",
-      "models": [
-        "3B"
-      ]
-    },
+    "What is the cause of Krabbe disease?": [
+      {
+        "correct": true,
+        "note": "Truncated, but names galactocerebroside beta-galactosidase defect, which matches the gold.",
+        "pred": "Abnormality in galactocerebroside β-galactosid",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Galactosylceramidase (GALC) is the same enzyme as beta-galactocerebrosidase.",
+        "pred": "Galactosylceramidase deficiency",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Galactosylceramide beta-galactosidase is another name for beta-galactocerebrosidase (GALC).",
+        "pred": "Galactosylceramide beta-galactosidase deficiency",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "GALC is the abbreviation for the gold enzyme beta-galactocerebrosidase.",
+        "pred": "GALC deficiency",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "What is a mitosome?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Mitosomes are mitochondrion-derived (related) organelles, same concept as gold.",
+        "pred": "Mitochondria-derived organelle",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Mitosome is a reduced mitochondrion-derived (remnant) organelle; same entity as the gold.",
+        "pred": "Mitochondrial remnant organelle",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Mitosome is a mitochondrial remnant organelle; same entity as the gold.",
+        "pred": "Mitochondrial remnant",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: 'mitochondrial-derived organelle' identifies the mitosome as a reduced mitochondrion, as the gold does.",
+        "pred": "mitochondrial-derived organelle",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "What does csDMARD stand for?": [
+      {
+        "correct": false,
+        "note": "csDMARD means conventional synthetic DMARD, not corticosteroid DMARD.",
+        "pred": "Corticosteroid Disease Modifying Antirheumatic Drugs",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "cs stands for conventional synthetic, not corticosteroid-sparing; the expansion is wrong",
+        "pred": "Corticosteroid-sparing disease-modifying antirheumatic drug",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "What is the gold standard for a diagnosis of narcolepsy?": [
+      {
+        "correct": true,
+        "note": "Polysomnography is the gold's sleep study.",
+        "pred": "Polysomnography",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Names overnight polysomnography as in the gold; the MSLT addition is part of the standard workup, not a false claim.",
+        "pred": "Polysomnography and multiple sleep latency test (MSLT)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "How many microorganisms are present in human normal gut?": {
       "correct": true,
       "note": "Trillions matches 10-100 trillion.",
@@ -125,6 +245,38 @@
         "models": [
           "7B"
         ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: OAS1 is activated by viral dsRNA during infection; same trigger as the gold.",
+        "pred": "During viral infection",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: same as gold, phrased as the viral-infection context.",
+        "pred": "In response to viral infections",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Names interferon stimulation explicitly, as the gold does.",
+        "pred": "Viral infection (specifically, interferon stimulation)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: OAS1 is activated during viral infection; same as gold.",
+        "pred": "viral infection",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
       }
     ],
     "Which is the main target of the anti-arrhythmic activity of flecainide?": [
@@ -145,31 +297,71 @@
         ]
       }
     ],
-    "What type of enzyme is peroxiredoxin 2 (PRDX2)?": {
-      "correct": false,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. PRDX2 is a peroxidase, but 'thermostable' is a false property; an answer that adds a false claim is not accepted.",
-      "pred": "Thermostable peroxidase",
-      "models": [
-        "3B"
-      ]
-    },
-    "Which cancer is associated with increased levels of Serum alpha fetoprotein (AFP) ?": {
-      "correct": true,
-      "note": "Liver cancer equals HCC in this context.",
-      "pred": "Liver cancer",
-      "models": [
-        "3B"
-      ]
-    },
-    "When was Keytruda approved for the treatment of melanoma?": {
-      "correct": true,
-      "note": "Year 2014 matches September 4, 2014; consistent with item 5 graded correct.",
-      "pred": "2014",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
+    "What type of enzyme is peroxiredoxin 2 (PRDX2)?": [
+      {
+        "correct": false,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. PRDX2 is a peroxidase, but 'thermostable' is a false property; an answer that adds a false claim is not accepted.",
+        "pred": "Thermostable peroxidase",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: 'antioxidase enzyme' is a malformed but clear rendering of antioxidant enzyme.",
+        "pred": "Antioxidase enzyme",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      }
+    ],
+    "Which cancer is associated with increased levels of Serum alpha fetoprotein (AFP) ?": [
+      {
+        "correct": true,
+        "note": "Liver cancer equals HCC in this context.",
+        "pred": "Liver cancer",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Gold 'hepatocelluar carcinoma' is a typo for this, and HCC is its abbreviation",
+        "pred": "Hepatocellular carcinoma",
+        "models": [
+          "Llama-3.1-8B",
+          "Llama-3.2-3B",
+          "OLMo-2-1124-7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Same entity as gold HCC; parenthetical gloss is correct",
+        "pred": "Hepatocellular carcinoma (liver cancer)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "When was Keytruda approved for the treatment of melanoma?": [
+      {
+        "correct": true,
+        "note": "Year 2014 matches September 4, 2014; consistent with item 5 graded correct.",
+        "pred": "2014",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: correct year, less precise than the gold date.",
+        "pred": "2014 (year of approval)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "What is the first line treatment for sarcoidosis?": {
       "correct": true,
       "note": "Steroids is the same as corticosteroids.",
@@ -178,14 +370,40 @@
         "3B"
       ]
     },
-    "What effect does azeliragon have on RAGE?": {
-      "correct": true,
-      "note": "Inhibits is the same as inhibitory.",
-      "pred": "Inhibits",
-      "models": [
-        "3B"
-      ]
-    },
+    "What effect does azeliragon have on RAGE?": [
+      {
+        "correct": true,
+        "note": "Inhibits is the same as inhibitory.",
+        "pred": "Inhibits",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "antagonist of RAGE = inhibitory effect",
+        "pred": "RAGE antagonist",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "inhibits = inhibitory, the gold",
+        "pred": "Inhibits RAGE",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "antagonist = inhibitory effect",
+        "pred": "Antagonist",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "What is the KDEL retention signal?": {
       "correct": false,
       "note": "KDEL is an ER retention signal, not a 'lysine-edited degradation sequence'.",
@@ -194,15 +412,25 @@
         "3B"
       ]
     },
-    "What is the cause of Phenylketonuria (PKU)?": {
-      "correct": true,
-      "note": "Phenylalanine hydroxylase deficiency is the cause (PAH mutations).",
-      "pred": "Phenylalanine hydroxylase deficiency",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
+    "What is the cause of Phenylketonuria (PKU)?": [
+      {
+        "correct": true,
+        "note": "Phenylalanine hydroxylase deficiency is the cause (PAH mutations).",
+        "pred": "Phenylalanine hydroxylase deficiency",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Phenylalanine hydroxylase defect is the gold cause, spelled out.",
+        "pred": "Genetic defect in phenylalanine hydroxylase enzyme",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "What are negative cell-cycle regulators that can cause cancer when mutated called?": {
       "correct": false,
       "note": "Negative regulators are tumor suppressors, not oncogenes.",
@@ -211,14 +439,32 @@
         "3B"
       ]
     },
-    "What is the association of spermidine with α-synuclein neurotoxicity?": {
-      "correct": true,
-      "note": "'Spermidine mitigates' matches 'protects against' the neurotoxicity.",
-      "pred": "Spermidine mitigates",
-      "models": [
-        "3B"
-      ]
-    },
+    "What is the association of spermidine with α-synuclein neurotoxicity?": [
+      {
+        "correct": true,
+        "note": "'Spermidine mitigates' matches 'protects against' the neurotoxicity.",
+        "pred": "Spermidine mitigates",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "Does not state the protective association in the gold; implies a spermidine-synuclein aggregate instead.",
+        "pred": "Spermidine-α-synuclein aggregation",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: elliptical, but 'protection against' is the association stated in the gold.",
+        "pred": "Protection against",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "In which cells does TLR7 escape X-chromosome inactivation?": [
       {
         "correct": true,
@@ -234,6 +480,22 @@
         "pred": "Plasmacytoid dendritic cells",
         "models": [
           "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: more specific than gold 'immune cells', and both named cell types are correct instances.",
+        "pred": "Activated B cells, Plasmacytoid dendritic cells",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: more specific than gold 'immune cells'; pDCs are a documented site of TLR7 XCI escape.",
+        "pred": "plasmacytoid dendritic cells",
+        "models": [
+          "OLMo-2-1124-7B"
         ]
       }
     ],
@@ -253,16 +515,53 @@
         "models": [
           "7B"
         ]
+      },
+      {
+        "correct": true,
+        "note": "names sofosbuvir, the drug of the gold 'sofosbuvir based therapy'",
+        "pred": "Sofosbuvir",
+        "models": [
+          "Llama-3.2-3B",
+          "OLMo-2-1124-7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "literally the gold: sofosbuvir-based regimens",
+        "pred": "Sofosbuvir (or sofosbuvir-based regimens)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
       }
     ],
-    "Which RNA polymerase transcribes enhancer RNAs?": {
-      "correct": false,
-      "note": "eRNAs are transcribed by RNA polymerase II, not III.",
-      "pred": "RNA polymerase III",
-      "models": [
-        "3B"
-      ]
-    },
+    "Which RNA polymerase transcribes enhancer RNAs?": [
+      {
+        "correct": false,
+        "note": "eRNAs are transcribed by RNA polymerase II, not III.",
+        "pred": "RNA polymerase III",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Standard abbreviation for RNA polymerase II",
+        "pred": "Pol II",
+        "models": [
+          "Llama-3.1-8B",
+          "Llama-3.2-3B",
+          "OLMo-2-1124-7B"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "eRNAs are transcribed by Pol II, not Pol III; matcher accepted it on string overlap",
+        "pred": "RNA Polymerase III",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "To the ligand of which receptors does Denosumab (Prolia) bind?": {
       "correct": true,
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. The question asks for the receptor whose ligand denosumab binds, which is RANK; gold lists the ligand.",
@@ -289,31 +588,69 @@
         ]
       }
     ],
-    "What is the exoproteome?": {
-      "correct": true,
-      "note": "Cellular secretome matches secreted protein content.",
-      "pred": "Cellular secretome",
-      "models": [
-        "3B"
-      ]
-    },
-    "Which histone mark is recognized by HP1?": {
-      "correct": true,
-      "note": "H3K9me3 is a correct, more specific form of H3K9me.",
-      "pred": "H3K9me3",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
-    "What does Retapamulin treat?": {
-      "correct": true,
-      "note": "Skin infections (impetigo) are a correct, more specific bacterial infection.",
-      "pred": "Skin and soft tissue infections",
-      "models": [
-        "3B"
-      ]
-    },
+    "What is the exoproteome?": [
+      {
+        "correct": true,
+        "note": "Cellular secretome matches secreted protein content.",
+        "pred": "Cellular secretome",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Secretome is the standard synonym for secreted protein content.",
+        "pred": "Protein secretome",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Exact definition of secreted protein content, written out.",
+        "pred": "The set of proteins secreted by a cell or organism.",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "Which histone mark is recognized by HP1?": [
+      {
+        "correct": true,
+        "note": "H3K9me3 is a correct, more specific form of H3K9me.",
+        "pred": "H3K9me3",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Same as H3K9me",
+        "pred": "H3-K9 methylation",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "What does Retapamulin treat?": [
+      {
+        "correct": true,
+        "note": "Skin infections (impetigo) are a correct, more specific bacterial infection.",
+        "pred": "Skin and soft tissue infections",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: more specific than the gold 'bacterial infections' and correct - retapamulin treats impetigo due to S. aureus/S. pyogenes",
+        "pred": "Staphylococcal infections",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      }
+    ],
     "Which type of analysis does DeSeq2 perform?": [
       {
         "correct": true,
@@ -329,6 +666,22 @@
         "pred": "RNA-seq differential expression analysis",
         "models": [
           "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the analysis type asked for; gold adds the RNA-seq data type.",
+        "pred": "Differential gene expression",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the analysis type asked for; gold adds the RNA-seq data type.",
+        "pred": "Differential expression analysis",
+        "models": [
+          "Mistral-7B-v0.3"
         ]
       }
     ],
@@ -348,6 +701,14 @@
         "models": [
           "7B"
         ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: the question asks how GDF15 affects body weight, and 'reduced' answers it with the gold's direction.",
+        "pred": "Reduced",
+        "models": [
+          "Llama-3.2-3B"
+        ]
       }
     ],
     "When did eptinezumab get its first FDA approval?": {
@@ -358,14 +719,24 @@
         "3B"
       ]
     },
-    "What is the estimated impact of social determinants of health on health outcomes?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. 'Substantial' matches 'highly significant impact'.",
-      "pred": "Substantial",
-      "models": [
-        "3B"
-      ]
-    },
+    "What is the estimated impact of social determinants of health on health outcomes?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. 'Substantial' matches 'highly significant impact'.",
+        "pred": "Substantial",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: same claim as 'Significant impact', which was graded correct; drops only the intensifier 'highly'.",
+        "pred": "Significant",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "Which calcium channels does ethosuximide target?": {
       "correct": false,
       "note": "Ethosuximide targets T-type, not L-type, calcium channels.",
@@ -374,22 +745,43 @@
         "3B"
       ]
     },
-    "Where does Brain (or B type) Natriuretic Protein, BNP usually originate from?": {
-      "correct": true,
-      "note": "Cardiac muscle cells (cardiomyocytes) are in the heart, matching the gold.",
-      "pred": "Cardiac muscle cells",
-      "models": [
-        "3B"
-      ]
-    },
-    "What is a bacteriocin?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Bacteriocins are bacterial proteinaceous toxins, a standard definition.",
-      "pred": "A protein toxin",
-      "models": [
-        "3B"
-      ]
-    },
+    "Where does Brain (or B type) Natriuretic Protein, BNP usually originate from?": [
+      {
+        "correct": true,
+        "note": "Cardiac muscle cells (cardiomyocytes) are in the heart, matching the gold.",
+        "pred": "Cardiac muscle cells",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Cardiac ventricles matches the golds 'heart' / 'left ventricle'.",
+        "pred": "Cardiac ventricles",
+        "models": [
+          "Llama-3.2-3B",
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "What is a bacteriocin?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Bacteriocins are bacterial proteinaceous toxins, a standard definition.",
+        "pred": "A protein toxin",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "same as the gold 'antimicrobial peptide of bacteria'",
+        "pred": "Antibacterial peptide produced by bacteria",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "Which animal bite can cause Capnocytophaga canimorsus infection?": {
       "correct": true,
       "note": "Canine bite is a dog bite.",
@@ -398,14 +790,24 @@
         "3B"
       ]
     },
-    "What is the effect of grapefruit juice on CYP3A4?": {
-      "correct": true,
-      "note": "Inhibition is the same as inhibitory.",
-      "pred": "Inhibition",
-      "models": [
-        "3B"
-      ]
-    },
+    "What is the effect of grapefruit juice on CYP3A4?": [
+      {
+        "correct": true,
+        "note": "Inhibition is the same as inhibitory.",
+        "pred": "Inhibition",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "'Inhibits' is equivalent to the gold 'inhibitory'.",
+        "pred": "Inhibits",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "What is DILI-CAT used for?": [
       {
         "correct": true,
@@ -421,6 +823,14 @@
         "pred": "Drug-induced liver injury classification",
         "models": [
           "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: DILI-CAT scores/assesses drug-induced liver injury, the gold's drug-induced hepatotoxicity scoring",
+        "pred": "Drug-induced liver injury diagnosis",
+        "models": [
+          "OLMo-2-1124-7B"
         ]
       }
     ],
@@ -516,6 +926,14 @@
         "models": [
           "7B"
         ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: matches the gold 'RNA-binding proteins that function as a developmental regulator', though less specific.",
+        "pred": "RNA binding and regulation",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
       }
     ],
     "Which disease is treated with ZMapp?": {
@@ -535,49 +953,117 @@
         "3B"
       ]
     },
-    "Which translocation is the hallmark of Ewing sarcoma?": {
-      "correct": true,
-      "note": "Same translocation t(11;22)(q24;q12).",
-      "pred": "t(11;22)(q24;q12)",
-      "models": [
-        "3B"
-      ]
-    },
-    "Which is the target protein of the drug nivolumab?": {
-      "correct": true,
-      "note": "PD-1 = programmed death receptor-1.",
-      "pred": "PD-1",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
-    "Which is the target of bortezomib used in cancer therapy?": {
-      "correct": true,
-      "note": "Proteasome is the target within the ubiquitin/proteasome pathway.",
-      "pred": "Proteasome",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
-    "What does bDMARD stand for?": {
-      "correct": true,
-      "note": "Same expansion of bDMARD.",
-      "pred": "Biological Disease Modifying Anti-Rheumatic Drugs",
-      "models": [
-        "3B"
-      ]
-    },
-    "Which CYP gene polymorphism is a well-known predictor of efavirenz disposition?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. CYP2B6 is the gene whose polymorphism (516G>T) predicts efavirenz levels.",
-      "pred": "CYP2B6",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
+    "Which translocation is the hallmark of Ewing sarcoma?": [
+      {
+        "correct": true,
+        "note": "Same translocation t(11;22)(q24;q12).",
+        "pred": "t(11;22)(q24;q12)",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the gold translocation, omitting only the band detail.",
+        "pred": "t(11;22)",
+        "models": [
+          "Llama-3.1-8B",
+          "OLMo-2-1124-7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the gold translocation, omitting only the band detail.",
+        "pred": "T(11;22)",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: EWS-FLI1 fusion is the product of t(11;22)(q24;q12); same entity named by its genes.",
+        "pred": "EWS-FLI1 fusion translocation",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "Which is the target protein of the drug nivolumab?": [
+      {
+        "correct": true,
+        "note": "PD-1 = programmed death receptor-1.",
+        "pred": "PD-1",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "PD-1 is the abbreviation of the gold 'programmed death receptor-1'.",
+        "pred": "PD-1 receptor",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      }
+    ],
+    "Which is the target of bortezomib used in cancer therapy?": [
+      {
+        "correct": true,
+        "note": "Proteasome is the target within the ubiquitin/proteasome pathway.",
+        "pred": "Proteasome",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Names the proteasome, the gold target (ubiquitin/proteasome pathway).",
+        "pred": "Proteasomes",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "What does bDMARD stand for?": [
+      {
+        "correct": true,
+        "note": "Same expansion of bDMARD.",
+        "pred": "Biological Disease Modifying Anti-Rheumatic Drugs",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DMARD is the standard abbreviation of disease-modifying antirheumatic drug",
+        "pred": "Biologic DMARDs",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Which CYP gene polymorphism is a well-known predictor of efavirenz disposition?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. CYP2B6 is the gene whose polymorphism (516G>T) predicts efavirenz levels.",
+        "pred": "CYP2B6",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: the CYP2B6*6 allele is defined by 516G>T (rs3745274) plus 785A>G; standard name for the gold variant",
+        "pred": "CYP2B6*6",
+        "models": [
+          "Llama-3.1-8B",
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "What enzyme is inhibied by Opicapone?": {
       "correct": true,
       "note": "COMT = catechol-O-methyltransferase.",
@@ -587,14 +1073,24 @@
         "7B"
       ]
     },
-    "What is the most commonly used pain scale for the measurement of pain in children?": {
-      "correct": false,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Wong-Baker FACES is not among the gold scales (FLACC, FPS-R, COMFORT).",
-      "pred": "The Wong-Baker FACES Pain Scale",
-      "models": [
-        "3B"
-      ]
-    },
+    "What is the most commonly used pain scale for the measurement of pain in children?": [
+      {
+        "correct": false,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Wong-Baker FACES is not among the gold scales (FLACC, FPS-R, COMFORT).",
+        "pred": "The Wong-Baker FACES Pain Scale",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "DEBATABLE: Wong-Baker FACES is a distinct instrument from the Faces Pain Scale-Revised and from FLACC/COMFORT; token overlap only.",
+        "pred": "Wong-Baker Faces Pain Rating Scale",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "From what age is it recommended to start population screening for colorectal cancer?": [
       {
         "correct": true,
@@ -613,15 +1109,33 @@
         ]
       }
     ],
-    "Which receptor is modulated with Siponimod?": {
-      "correct": true,
-      "note": "Gold refers to the sphingosine-1-phosphate receptor.",
-      "pred": "S1P receptor",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
+    "Which receptor is modulated with Siponimod?": [
+      {
+        "correct": true,
+        "note": "Gold refers to the sphingosine-1-phosphate receptor.",
+        "pred": "S1P receptor",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "S1P1 is a sphingosine-1-phosphate receptor.",
+        "pred": "S1P1 receptor",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the S1P receptor correctly; the subtype gloss is garbled but siponimod does modulate S1P1 and S1P5.",
+        "pred": "S1P receptor (specifically subtype 1.5)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "What is the target of Selpercatinib?": {
       "correct": false,
       "note": "Selpercatinib is selective RET inhibitor; ROS1 is wrong.",
@@ -647,14 +1161,49 @@
         "7B"
       ]
     },
-    "In what part of the body would a periprosthetic infection occur?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Prosthetic joint area matches gold.",
-      "pred": "Joint or prosthetic joint",
-      "models": [
-        "3B"
-      ]
-    },
+    "In what part of the body would a periprosthetic infection occur?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Prosthetic joint area matches gold.",
+        "pred": "Joint or prosthetic joint",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Matches gold 'In the area around the prosthetic joint'.",
+        "pred": "Prosthetic joint",
+        "models": [
+          "Llama-3.2-3B",
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the joint; 'prosthetic' is already given by the question's 'periprosthetic'.",
+        "pred": "The joint",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the joint; 'prosthetic' is already given by the question's 'periprosthetic'.",
+        "pred": "Joint\n<|pad|><|pad|><|pad|>",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the joint; 'prosthetic' is already given by the question's 'periprosthetic'.",
+        "pred": "Joints",
+        "models": [
+          "Qwen2.5-7B"
+        ]
+      }
+    ],
     "Reslizumab is a humanized monoclonal antibody to treat what specific type of asthma?": {
       "correct": true,
       "note": "Severe eosinophilic asthma is a correct, more specific instance.",
@@ -663,23 +1212,59 @@
         "3B"
       ]
     },
-    "Fecal transplantation is used to treat infection with what bacteria?": {
-      "correct": true,
-      "note": "Clostridioides difficile is the renamed Clostridium difficile.",
-      "pred": "Clostridioides difficile",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
-    "What is the function of the protein PIEZO1?": {
-      "correct": true,
-      "note": "Detecting mechanical pressure is mechanotransduction.",
-      "pred": "Detecting mechanical pressure",
-      "models": [
-        "3B"
-      ]
-    },
+    "Fecal transplantation is used to treat infection with what bacteria?": [
+      {
+        "correct": true,
+        "note": "Clostridioides difficile is the renamed Clostridium difficile.",
+        "pred": "Clostridioides difficile",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Clostridioides difficile is the renamed Clostridium difficile.",
+        "pred": "Clostridioides difficile (C. difficile)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "What is the function of the protein PIEZO1?": [
+      {
+        "correct": true,
+        "note": "Detecting mechanical pressure is mechanotransduction.",
+        "pred": "Detecting mechanical pressure",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: standard description of PIEZO1; mechanosensitive channel = mediates mechanotransduction.",
+        "pred": "Mechanosensitive ion channel",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: same as mechanosensitive ion channel, i.e. mechanotransduction.",
+        "pred": "Mechanosensory ion channel",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: plain-language statement of mechanotransduction.",
+        "pred": "Stretch and pressure detection",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "Bimekizumab is used for treatment of which disease?": {
       "correct": true,
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. Bimekizumab is also approved for psoriatic arthritis.",
@@ -688,14 +1273,32 @@
         "3B"
       ]
     },
-    "What is the gene ABCG1 encoding?": {
-      "correct": true,
-      "note": "ABCG1 is an ABC cholesterol transporter.",
-      "pred": "Bioactive cholesterol transporter",
-      "models": [
-        "3B"
-      ]
-    },
+    "What is the gene ABCG1 encoding?": [
+      {
+        "correct": true,
+        "note": "ABCG1 is an ABC cholesterol transporter.",
+        "pred": "Bioactive cholesterol transporter",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Full name of the ATP binding cassette transporter in the gold.",
+        "pred": "ATP-binding cassette sub-family G member 1 (ABCG1)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Full name of the ATP binding cassette transporter in the gold.",
+        "pred": "ATP-binding cassette sub-family G member 1",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "Describe a diet that reduces the chance of kidney stones.": [
       {
         "correct": true,
@@ -712,6 +1315,14 @@
         "models": [
           "7B"
         ]
+      },
+      {
+        "correct": true,
+        "note": "Low salt = reducing sodium, the gold; the added high fluid intake is not a false claim.",
+        "pred": "Low salt, high fluid intake\n<|pad|><|pad|><|pad|><|pad|>",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
       }
     ],
     "Which disease is treated with Fexinidazole?": {
@@ -722,24 +1333,47 @@
         "3B"
       ]
     },
-    "What is the lipid droplet used for in the cell?": {
-      "correct": true,
-      "note": "Lipid storage matches gold.",
-      "pred": "Storage of lipids",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
-    "What gene test is recommended for clopidogrel?": {
-      "correct": true,
-      "note": "CYP2C19 genotype = CYP2C19 genotyping.",
-      "pred": "CYP2C19 genotype",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
+    "What is the lipid droplet used for in the cell?": [
+      {
+        "correct": true,
+        "note": "Lipid storage matches gold.",
+        "pred": "Storage of lipids",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: lipid droplets store lipid as the cell's energy reserve; phrased by purpose rather than by substrate.",
+        "pred": "Energy storage",
+        "models": [
+          "Llama-3.1-8B",
+          "Llama-3.2-3B",
+          "Mistral-7B-v0.3",
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "What gene test is recommended for clopidogrel?": [
+      {
+        "correct": true,
+        "note": "CYP2C19 genotype = CYP2C19 genotyping.",
+        "pred": "CYP2C19 genotype",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "cytochrome P450 2C19 is the expansion of CYP2C19; genotype = genotyping",
+        "pred": "Cytochrome P450 2C19 genotype",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "What was the phase of the clinical trial PEACHTREE?": {
       "correct": true,
       "note": "Phase 3 = III.",
@@ -749,15 +1383,25 @@
         "7B"
       ]
     },
-    "From which tissue was the NCI-H520 cell-line derived?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. NCI-H520 is derived from lung (squamous NSCLC); lung answers 'tissue'.",
-      "pred": "Lung",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
+    "From which tissue was the NCI-H520 cell-line derived?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. NCI-H520 is derived from lung (squamous NSCLC); lung answers 'tissue'.",
+        "pred": "Lung",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: the question asks for the tissue, and lung is the tissue NCI-H520 came from; the gold's cancer-type detail is not what is asked.",
+        "pred": "Lung tissue",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      }
+    ],
     "What happens to the expression levels of piRNAs in the case of intracranial aneurysm rupture?": [
       {
         "correct": true,
@@ -774,17 +1418,43 @@
         "models": [
           "7B"
         ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: states the decrease of the gold, with an added compartment qualifier",
+        "pred": "Decrease (in cerebrospinal fluid)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "downregulated is a synonym of decreased",
+        "pred": "downregulated",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
       }
     ],
-    "What is the indication for Alirocumab?": {
-      "correct": true,
-      "note": "Hypercholesterolemia is the same as high cholesterol.",
-      "pred": "Hypercholesterolemia",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
+    "What is the indication for Alirocumab?": [
+      {
+        "correct": true,
+        "note": "Hypercholesterolemia is the same as high cholesterol.",
+        "pred": "Hypercholesterolemia",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: indirect phrasing of the indication high cholesterol / hypercholesterolaemia.",
+        "pred": "Cholesterol reduction",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      }
+    ],
     "Which company produces Keytruda?": {
       "correct": true,
       "note": "Merck is Merck & Co., Inc.",
@@ -794,14 +1464,24 @@
         "7B"
       ]
     },
-    "What does RUNX1T1 stand for?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. RUNX1T1 = RUNX1 translocated to 1; gold names RUNX1 itself, prediction matches the actual expansion.",
-      "pred": "Runx1 translocation 1",
-      "models": [
-        "3B"
-      ]
-    },
+    "What does RUNX1T1 stand for?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. RUNX1T1 = RUNX1 translocated to 1; gold names RUNX1 itself, prediction matches the actual expansion.",
+        "pred": "Runx1 translocation 1",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: RUNX1 is the abbreviation of runt-related transcription factor 1; same answer as the accepted spelled-out variant",
+        "pred": "RUNX1 transcription factor 1 interacting protein 1",
+        "models": [
+          "Qwen2.5-7B"
+        ]
+      }
+    ],
     "Which receptor is targeted by Erenumab?": [
       {
         "correct": true,
@@ -820,24 +1500,60 @@
         ]
       }
     ],
-    "Where are integrins localized in a cell?": {
-      "correct": true,
-      "note": "Integrins are transmembrane proteins of the cell membrane; same localization.",
-      "pred": "Cell membrane",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
-    "Where is the EpCam protein mainly located?": {
-      "correct": true,
-      "note": "EpCAM is a transmembrane protein of the cell membrane; same localization.",
-      "pred": "Cell membrane",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
+    "Where are integrins localized in a cell?": [
+      {
+        "correct": true,
+        "note": "Integrins are transmembrane proteins of the cell membrane; same localization.",
+        "pred": "Cell membrane",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: cell membrane is where transmembrane integrins sit; focal adhesions are correct too.",
+        "pred": "Cell membrane and focal adhesions",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: cell membrane equals the gold's transmembrane localisation.",
+        "pred": "Cell membrane\n<|pad|><|pad|><|pad|><|pad|><|pad|><|pad|>",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Where is the EpCam protein mainly located?": [
+      {
+        "correct": true,
+        "note": "EpCAM is a transmembrane protein of the cell membrane; same localization.",
+        "pred": "Cell membrane",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: epithelial cell surface is the membrane location the gold calls transmembrane.",
+        "pred": "The epithelial cell surface",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: cell surface equals the gold's transmembrane localisation.",
+        "pred": "Cell surface",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "Inhibition of which transporter is the mechanism of action of drug Canagliflozin?": {
       "correct": true,
       "note": "SGLT2 is the abbreviation of sodium glucose co-transporter 2.",
@@ -856,14 +1572,24 @@
         "7B"
       ]
     },
-    "Where is fatty acid binding protein 2 expressed?": {
-      "correct": false,
-      "note": "FABP2 is intestinal, not lung epithelial; prediction contradicts gold.",
-      "pred": "Lung epithelial cells",
-      "models": [
-        "3B"
-      ]
-    },
+    "Where is fatty acid binding protein 2 expressed?": [
+      {
+        "correct": false,
+        "note": "FABP2 is intestinal, not lung epithelial; prediction contradicts gold.",
+        "pred": "Lung epithelial cells",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Small intestine epithelial cells is more specific than 'intestinal epithelial cells'.",
+        "pred": "Small intestine epithelial cells",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      }
+    ],
     "Which antibody is implicated in the Bickerstaff's brainstem encephalitis?": [
       {
         "correct": true,
@@ -880,25 +1606,62 @@
         "models": [
           "7B"
         ]
+      },
+      {
+        "correct": true,
+        "note": "Anti-GQ1b is the antiganglioside antibody of Bickerstaff's encephalitis; more specific than the gold",
+        "pred": "Anti-GQ1b",
+        "models": [
+          "Llama-3.1-8B",
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "IgG anti-GQ1b is the antiganglioside antibody of Bickerstaff's encephalitis",
+        "pred": "IgG anti-GQ1b",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
       }
     ],
-    "What is Contrave prescribed for?": {
-      "correct": true,
-      "note": "Contrave is indicated for weight loss/chronic weight management in obesity.",
-      "pred": "Weight loss",
-      "models": [
-        "3B"
-      ]
-    },
-    "What is the use of Atogepant?": {
-      "correct": true,
-      "note": "Migraine prevention equals preventive treatment of migraine.",
-      "pred": "Migraine prevention",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
+    "What is Contrave prescribed for?": [
+      {
+        "correct": true,
+        "note": "Contrave is indicated for weight loss/chronic weight management in obesity.",
+        "pred": "Weight loss",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: Contrave's indication is chronic weight management in obesity; equivalent phrasing of the gold",
+        "pred": "Weight management",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "What is the use of Atogepant?": [
+      {
+        "correct": true,
+        "note": "Migraine prevention equals preventive treatment of migraine.",
+        "pred": "Migraine prevention",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "States migraine prevention, the use asked for.",
+        "pred": "Calcitonin gene-related peptide (CGRP) antagonist (for migraine prevention)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "Which is the most common CFTR mutation in Caucasians?": [
       {
         "correct": true,
@@ -925,14 +1688,24 @@
         "3B"
       ]
     },
-    "What is an acceptable sequence coverage(depth) required for human whole-exome sequencing?": {
-      "correct": true,
-      "note": "30x falls inside the gold range 30x-60x.",
-      "pred": "30×",
-      "models": [
-        "3B"
-      ]
-    },
+    "What is an acceptable sequence coverage(depth) required for human whole-exome sequencing?": [
+      {
+        "correct": true,
+        "note": "30x falls inside the gold range 30x-60x.",
+        "pred": "30×",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: 30x is the lower endpoint of the gold range 30x-60x.",
+        "pred": "30x (Thirty times coverage)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "Where is the protein protamine 2 expressed?": [
       {
         "correct": true,
@@ -949,16 +1722,34 @@
         "models": [
           "7B"
         ]
+      },
+      {
+        "correct": true,
+        "note": "Protamine 2 packages DNA in sperm nuclei; more specific than gold 'sperm cells', same entity",
+        "pred": "Sperm nuclei",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
       }
     ],
-    "What is the cause of lactose intolerance?": {
-      "correct": false,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Hedged answer includes the wrong alternative 'lactose deficiency'.",
-      "pred": "Lactose deficiency or lactase deficiency",
-      "models": [
-        "3B"
-      ]
-    },
+    "What is the cause of lactose intolerance?": [
+      {
+        "correct": false,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Hedged answer includes the wrong alternative 'lactose deficiency'.",
+        "pred": "Lactose deficiency or lactase deficiency",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Lack of lactase enzyme is the same as the gold 'lactase deficiency'.",
+        "pred": "Lack of lactase enzyme\n<|pad|><|pad|>",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "What disease is treated by Callosotomy": {
       "correct": true,
       "note": "Seizures/epilepsy are the indication for callosotomy.",
@@ -967,14 +1758,32 @@
         "3B"
       ]
     },
-    "Which signaling pathway is activating the dishevelled proteins?": {
-      "correct": true,
-      "note": "Wnt pathway is Wnt signaling.",
-      "pred": "Wnt pathway",
-      "models": [
-        "3B"
-      ]
-    },
+    "Which signaling pathway is activating the dishevelled proteins?": [
+      {
+        "correct": true,
+        "note": "Wnt pathway is Wnt signaling.",
+        "pred": "Wnt pathway",
+        "models": [
+          "3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Wnt pathway = gold 'Wnt signaling'.",
+        "pred": "The Wnt pathway",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the canonical branch of Wnt signaling, which does act through Dishevelled.",
+        "pred": "Wnt/β-catenin",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      }
+    ],
     "Which enzyme is inhibited by a drug Lorlatinib?": [
       {
         "correct": true,
@@ -991,17 +1800,52 @@
         "models": [
           "7B"
         ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: phrased as drug class but names ALK = anaplastic lymphoma kinase",
+        "pred": "ALK inhibitor",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "ALK = anaplastic lymphoma kinase, a tyrosine kinase",
+        "pred": "ALK tyrosine kinase",
+        "models": [
+          "Mistral-7B-v0.3",
+          "OLMo-2-1124-7B"
+        ]
       }
     ],
-    "What disease is associated with a Malar rash?": {
-      "correct": true,
-      "note": "Lupus (SLE) is the disease associated with malar rash.",
-      "pred": "Lupus",
-      "models": [
-        "3B",
-        "7B"
-      ]
-    },
+    "What disease is associated with a Malar rash?": [
+      {
+        "correct": true,
+        "note": "Lupus (SLE) is the disease associated with malar rash.",
+        "pred": "Lupus",
+        "models": [
+          "3B",
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names lupus erythematosus, the disease of the gold's butterfly/malar rash, though not qualified as systemic",
+        "pred": "Lupus erythematosus",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "SLE is exactly the disease named in the gold",
+        "pred": "SLE (Systemic Lupus Erythematosus)",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "What percentage of patients of nasopharyngeal carcinoma (NPC) develop recurrent disease?": {
       "correct": true,
       "note": "50% falls inside the gold range 11-75%.",
@@ -1027,6 +1871,14 @@
         "models": [
           "7B"
         ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: phosphorylation to gamma-H2AX is the canonical answer; the gold states a different true fact (rapid concentration at breaks)",
+        "pred": "phosphorylation\n<|pad|><|pad|><|pad|><|pad|><|pad|><|pad|><|pad|>",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
       }
     ],
     "What does davunetide do to microtubules?": {
@@ -1037,14 +1889,40 @@
         "7B"
       ]
     },
-    "What is the protective efficacy of vaxchora against moderate to severe cholera?": {
-      "correct": true,
-      "note": "80% falls inside the gold range 80-100%.",
-      "pred": "80%",
-      "models": [
-        "7B"
-      ]
-    },
+    "What is the protective efficacy of vaxchora against moderate to severe cholera?": [
+      {
+        "correct": true,
+        "note": "80% falls inside the gold range 80-100%.",
+        "pred": "80%",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "85% falls inside the gold range 80-100%.",
+        "pred": "85%",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "90% falls inside the gold range 80-100%.",
+        "pred": "90%",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "OVERRULED by review 2026-11-04: 80 is the endpoint of the gold range 80-100%, and endpoint answers were accepted elsewhere (25 nm in 24-25 nm, 30x in 30x-60x).",
+        "pred": "80% (according to CDC data)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "What is the mode of inheritance of short QT syndrome?": {
       "correct": true,
       "note": "Autosomal dominant matches gold.",
@@ -1053,22 +1931,42 @@
         "7B"
       ]
     },
-    "What biologic process in the body is associated with Mast cells?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Anaphylaxis is a specific allergic process; instance of gold 'allergy'.",
-      "pred": "Anaphylaxis",
-      "models": [
-        "7B"
-      ]
-    },
-    "How is OCT3 associated with serotonin?": {
-      "correct": true,
-      "note": "OCT3 transports serotonin, i.e., mediates its clearance.",
-      "pred": "Serotonin transport",
-      "models": [
-        "7B"
-      ]
-    },
+    "What biologic process in the body is associated with Mast cells?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Anaphylaxis is a specific allergic process; instance of gold 'allergy'.",
+        "pred": "Anaphylaxis",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: phrased indirectly but explicitly names allergic responses, the gold 'allergy'.",
+        "pred": "Histamine release, mediator of allergic responses",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "How is OCT3 associated with serotonin?": [
+      {
+        "correct": true,
+        "note": "OCT3 transports serotonin, i.e., mediates its clearance.",
+        "pred": "Serotonin transport",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: OCT3 transports serotonin, which is the serotonin clearance (uptake-2) the gold names.",
+        "pred": "OCT3 is a serotonin transporter",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "What is amphiregulin a ligand of?": {
       "correct": true,
       "note": "EGFR is the abbreviation of epidermal growth factor receptor.",
@@ -1077,14 +1975,24 @@
         "7B"
       ]
     },
-    "What is the mechanism of action of Brigatinib?": {
-      "correct": true,
-      "note": "ALK inhibitor names the gold target anaplastic lymphoma kinase.",
-      "pred": "ALK inhibitor",
-      "models": [
-        "7B"
-      ]
-    },
+    "What is the mechanism of action of Brigatinib?": [
+      {
+        "correct": true,
+        "note": "ALK inhibitor names the gold target anaplastic lymphoma kinase.",
+        "pred": "ALK inhibitor",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "ALK is the abbreviation of anaplastic lymphoma kinase.",
+        "pred": "ALK inhibition",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      }
+    ],
     "Which enzyme is targeted by Evolocumab?": {
       "correct": true,
       "note": "PCSK9 is the abbreviation of the gold.",
@@ -1125,14 +2033,32 @@
         "7B"
       ]
     },
-    "Which diagnostic test is approved for coronavirus infection screening?": {
-      "correct": true,
-      "note": "RT-PCR is the gold real-time reverse transcription PCR.",
-      "pred": "RT-PCR",
-      "models": [
-        "7B"
-      ]
-    },
+    "Which diagnostic test is approved for coronavirus infection screening?": [
+      {
+        "correct": true,
+        "note": "RT-PCR is the gold real-time reverse transcription PCR.",
+        "pred": "RT-PCR",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names reverse-transcription PCR; drops only 'real-time', which the question does not ask for.",
+        "pred": "RT-PCR test (Reverse Transcription Polymerase Chain Reaction)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: RT-PCR is the gold test; only 'real-time' is dropped.",
+        "pred": "RT-PCR test\n<|pad|><|pad|><|pad|><|pad|>",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "Which polymerase transcribes pri-miRNAs?": {
       "correct": true,
       "note": "Pol II = RNA polymerase II.",
@@ -1141,22 +2067,67 @@
         "7B"
       ]
     },
-    "What is the mode of action of primaquine?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Malaria parasite clearance is equivalent to anti-malarial action.",
-      "pred": "Malaria parasite clearance",
-      "models": [
-        "7B"
-      ]
-    },
-    "Which molecule is targeted by upadacitinib?": {
-      "correct": true,
-      "note": "JAK1 = Janus kinase 1.",
-      "pred": "JAK1",
-      "models": [
-        "7B"
-      ]
-    },
+    "What is the mode of action of primaquine?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Malaria parasite clearance is equivalent to anti-malarial action.",
+        "pred": "Malaria parasite clearance",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: indirect phrasing of antimalarial action.",
+        "pred": "Malarial parasite destruction",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: indirect phrasing of antimalarial action.",
+        "pred": "Reduction of malaria parasite",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      }
+    ],
+    "Which molecule is targeted by upadacitinib?": [
+      {
+        "correct": true,
+        "note": "JAK1 = Janus kinase 1.",
+        "pred": "JAK1",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "DEBATABLE: names the JAK family, not the specific member JAK1 that upadacitinib selectively inhibits.",
+        "pred": "Janus kinase",
+        "models": [
+          "Llama-3.1-8B",
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "DEBATABLE: hedged with JAK2, which upadacitinib is selective against.",
+        "pred": "Janus kinase 1 (JAK1) and Janus kinase 2 (JAK2)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "DEBATABLE: hedged with JAK2, which upadacitinib is selective against.",
+        "pred": "Janus kinase 1 and 2",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "Which master regulator drives liver development?": {
       "correct": true,
       "note": "HNF4alpha = HNF4a.",
@@ -1165,14 +2136,32 @@
         "7B"
       ]
     },
-    "What is the method FASP used for?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. FASP (filter-aided sample preparation) is for proteomic sample prep including digestion.",
-      "pred": "Protein digestion",
-      "models": [
-        "7B"
-      ]
-    },
+    "What is the method FASP used for?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. FASP (filter-aided sample preparation) is for proteomic sample prep including digestion.",
+        "pred": "Protein digestion",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names sample preparation, matching the gold; phrased as an expansion of the acronym.",
+        "pred": "FASP stands for Filter Aided Sample Preparation.",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: on-filter digestion is proteomic sample preparation, and the answer names sample preparation.",
+        "pred": "Protein digestion (FASP stands for Filter-Aided Sample Preparation)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "What is the effect of nocodazole cell treatment?": {
       "correct": true,
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. Nocodazole depolymerizes microtubules, the direct cause of the gold's mitotic arrest.",
@@ -1181,22 +2170,43 @@
         "7B"
       ]
     },
-    "Phlorotannin is extracted from what plant?": {
-      "correct": true,
-      "note": "Kelp is a brown alga, a correct instance of the gold.",
-      "pred": "Kelp",
-      "models": [
-        "7B"
-      ]
-    },
-    "Which molecule is targeted by Asciminib?": {
-      "correct": true,
-      "note": "BCR-ABL protein = BCR-ABL tyrosine kinase.",
-      "pred": "BCR-ABL protein",
-      "models": [
-        "7B"
-      ]
-    },
+    "Phlorotannin is extracted from what plant?": [
+      {
+        "correct": true,
+        "note": "Kelp is a brown alga, a correct instance of the gold.",
+        "pred": "Kelp",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Exactly the gold 'Brown algea or seaweed' (gold has a typo); phlorotannins are brown-algal.",
+        "pred": "Brown algae",
+        "models": [
+          "Llama-3.1-8B",
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Which molecule is targeted by Asciminib?": [
+      {
+        "correct": true,
+        "note": "BCR-ABL protein = BCR-ABL tyrosine kinase.",
+        "pred": "BCR-ABL protein",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "BCR-ABL1 kinase is the same entity as BCR-ABL tyrosine kinase.",
+        "pred": "BCR-ABL1 kinase",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "Which is the target of belimumab in Systemic Lupus Erythematosus treatment?": {
       "correct": false,
       "note": "Belimumab targets BAFF/BLyS, not B lymphocytes themselves.",
@@ -1213,14 +2223,24 @@
         "7B"
       ]
     },
-    "Mutation of which gene is implicated in the familial isolated pituitary adenoma?": {
-      "correct": true,
-      "note": "AIP is the gene symbol for aryl hydrocarbon receptor interacting protein.",
-      "pred": "AIP",
-      "models": [
-        "7B"
-      ]
-    },
+    "Mutation of which gene is implicated in the familial isolated pituitary adenoma?": [
+      {
+        "correct": true,
+        "note": "AIP is the gene symbol for aryl hydrocarbon receptor interacting protein.",
+        "pred": "AIP",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "AIP is the abbreviation of gold 'aryl hydrocarbon receptor interacting protein'.",
+        "pred": "AIP gene",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      }
+    ],
     "What is the active ingredient of Eligard?": {
       "correct": true,
       "note": "Leuprolide = leuprorelin.",
@@ -1237,22 +2257,50 @@
         "7B"
       ]
     },
-    "What causes Katayama Fever?": {
-      "correct": true,
-      "note": "S. japonicum is a Schistosoma species, the classic cause of Katayama fever.",
-      "pred": "Schistosoma japonicum",
-      "models": [
-        "7B"
-      ]
-    },
-    "What is the target of a drug pidilizumab?": {
-      "correct": true,
-      "note": "PD-1 = programmed death-1.",
-      "pred": "PD-1",
-      "models": [
-        "7B"
-      ]
-    },
+    "What causes Katayama Fever?": [
+      {
+        "correct": true,
+        "note": "S. japonicum is a Schistosoma species, the classic cause of Katayama fever.",
+        "pred": "Schistosoma japonicum",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Schistosome = Schistosoma spp., the gold.",
+        "pred": "Schistosome infection",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Names Schistosoma, the gold entity.",
+        "pred": "Schistosoma parasite",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "What is the target of a drug pidilizumab?": [
+      {
+        "correct": true,
+        "note": "PD-1 = programmed death-1.",
+        "pred": "PD-1",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "PD-1 is the gold's programmed death-1 pathway target.",
+        "pred": "PD-1 receptor",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      }
+    ],
     "RV3-BB vaccine is used for prevention of which viral infection?": {
       "correct": true,
       "note": "Rotavirus infection = rotavirus disease.",
@@ -1269,14 +2317,24 @@
         "7B"
       ]
     },
-    "Which disease is caused by mutations in the gene CALR?": {
-      "correct": true,
-      "note": "Myelofibrosis is a CALR-mutant myeloproliferative neoplasm, a correct instance.",
-      "pred": "Myelofibrosis",
-      "models": [
-        "7B"
-      ]
-    },
+    "Which disease is caused by mutations in the gene CALR?": [
+      {
+        "correct": true,
+        "note": "Myelofibrosis is a CALR-mutant myeloproliferative neoplasm, a correct instance.",
+        "pred": "Myelofibrosis",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: ET is the archetypal CALR-mutated myeloproliferative neoplasm; more specific than the gold, not less.",
+        "pred": "Essential thrombocythemia (ET)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "In what phase of clinical trials is crenezumab? (November 2017)": {
       "correct": true,
       "note": "Phase 3 = Phase III.",
@@ -1285,46 +2343,130 @@
         "7B"
       ]
     },
-    "Can you define iatrogenic disease?": {
-      "correct": true,
-      "note": "Medically induced condition = illness caused by treatment.",
-      "pred": "Medically induced condition",
-      "models": [
-        "7B"
-      ]
-    },
-    "Which molecule is targeted by Upadacitinib?": {
-      "correct": true,
-      "note": "JAK1 = Janus kinase 1.",
-      "pred": "JAK1",
-      "models": [
-        "7B"
-      ]
-    },
-    "Where are pannexins localized?": {
-      "correct": true,
-      "note": "Cell membranes = in membranes.",
-      "pred": "Cell membranes",
-      "models": [
-        "7B"
-      ]
-    },
-    "Treprostinil is an analogue for which prostaglandin?": {
-      "correct": true,
-      "note": "PGI2 = prostaglandin I2.",
-      "pred": "PGI2",
-      "models": [
-        "7B"
-      ]
-    },
-    "Which signaling pathway does sonidegib inhibit?": {
-      "correct": true,
-      "note": "Hedgehog pathway; gold has a typo.",
-      "pred": "Hedgehog signaling pathway",
-      "models": [
-        "7B"
-      ]
-    },
+    "Can you define iatrogenic disease?": [
+      {
+        "correct": true,
+        "note": "Medically induced condition = illness caused by treatment.",
+        "pred": "Medically induced condition",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: 'doctor-induced disease' is the literal meaning of iatrogenic, i.e. illness caused by treatment.",
+        "pred": "Doctor-induced disease",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Induced inadvertently by medical treatment = illness caused by treatment.",
+        "pred": "Induced inadvertently by medical treatment",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Which molecule is targeted by Upadacitinib?": [
+      {
+        "correct": true,
+        "note": "JAK1 = Janus kinase 1.",
+        "pred": "JAK1",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "DEBATABLE: names the JAK family, not the specific member JAK1 that upadacitinib selectively inhibits.",
+        "pred": "Janus kinase",
+        "models": [
+          "Llama-3.1-8B",
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "DEBATABLE: hedged with JAK2, which upadacitinib is selective against.",
+        "pred": "Janus kinase 1 and 2",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Where are pannexins localized?": [
+      {
+        "correct": true,
+        "note": "Cell membranes = in membranes.",
+        "pred": "Cell membranes",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: plasma membranes matches the gold 'in membranes'; pannexins are indeed channels.",
+        "pred": "Ion channels in plasma membranes",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Cellular membranes is the same answer as 'in membranes'.",
+        "pred": "Cellular membranes",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Treprostinil is an analogue for which prostaglandin?": [
+      {
+        "correct": true,
+        "note": "PGI2 = prostaglandin I2.",
+        "pred": "PGI2",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Prostacyclin is prostaglandin I2 by definition.",
+        "pred": "Prostacyclin",
+        "models": [
+          "Llama-3.1-8B",
+          "Llama-3.2-3B"
+        ]
+      }
+    ],
+    "Which signaling pathway does sonidegib inhibit?": [
+      {
+        "correct": true,
+        "note": "Hedgehog pathway; gold has a typo.",
+        "pred": "Hedgehog signaling pathway",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Gold 'Hedghog signalling pathway' is a typo for Hedgehog; same pathway.",
+        "pred": "Hedgehog pathway",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: sonidegib is a SMO inhibitor; 'Smoothened pathway' is an indirect name for the Hedgehog pathway.",
+        "pred": "Smoothened pathway",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "What is the gene mutated in the Gaucher disease?": {
       "correct": true,
       "note": "GBA is the gene encoding glucocerebrosidase.",
@@ -1341,22 +2483,66 @@
         "7B"
       ]
     },
-    "When are itaconic acid levels elevated?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Itaconate rises in inflammatory/immune activation, matching gold in substance.",
-      "pred": "Inflammatory conditions",
-      "models": [
-        "7B"
-      ]
-    },
-    "Which main viral protein is targeted by the drug remdesivir?": {
-      "correct": true,
-      "note": "RNA polymerase (RdRp) = viral polymerase.",
-      "pred": "RNA polymerase",
-      "models": [
-        "7B"
-      ]
-    },
+    "When are itaconic acid levels elevated?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Itaconate rises in inflammatory/immune activation, matching gold in substance.",
+        "pred": "Inflammatory conditions",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: itaconate rises in activated macrophages during infection; same situation as 'immune defence'.",
+        "pred": "Infections",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: bacterial infection/inflammation is the immune-defence context of the gold.",
+        "pred": "during bacterial infections or inflammation",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Which main viral protein is targeted by the drug remdesivir?": [
+      {
+        "correct": true,
+        "note": "RNA polymerase (RdRp) = viral polymerase.",
+        "pred": "RNA polymerase",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "The viral RNA polymerase is the gold 'viral polymerase'.",
+        "pred": "The RNA polymerase.",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "RdRp is the viral polymerase targeted by remdesivir.",
+        "pred": "RNA-dependent RNA polymerase (RdRp)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "RdRp is the viral polymerase targeted by remdesivir.",
+        "pred": "RNA-dependent RNA polymerase",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "Which disorder has been approved for treatment with Alk inhibitors?": {
       "correct": true,
       "note": "ALK inhibitors are approved for (ALK+) NSCLC; qualifier implied by the question.",
@@ -1373,62 +2559,149 @@
         "7B"
       ]
     },
-    "What is the indication for SLCO1B1 genotyping?": {
-      "correct": true,
-      "note": "Genotyping is indicated for statin myopathy risk, i.e. statin treatment.",
-      "pred": "Statin-induced myopathy",
-      "models": [
-        "7B"
-      ]
-    },
-    "What is the route of administration of eptinezumab?": {
-      "correct": true,
-      "note": "Intravenous = intravenously.",
-      "pred": "intravenous",
-      "models": [
-        "7B"
-      ]
-    },
-    "Which cyclin- dependent kinase inhibitor is regulated by Bmi-1?": {
-      "correct": true,
-      "note": "p16Ink4a is p16INK4 (formatting).",
-      "pred": "p16 Ink4a",
-      "models": [
-        "7B"
-      ]
-    },
-    "Which gene is most commonly associated with severe congenital and cyclic neutropenia?": {
-      "correct": true,
-      "note": "ELA2 is the old symbol for ELANE.",
-      "pred": "ELA2",
-      "models": [
-        "7B"
-      ]
-    },
-    "Which is the catalytic activity of the protein encoded by the gene KMT2C? ": {
-      "correct": true,
-      "note": "KMT2C is a histone H3K4 lysine methyltransferase; same activity.",
-      "pred": "Histone methyltransferase",
-      "models": [
-        "7B"
-      ]
-    },
-    "What is the incidence of Duchenne Muscular Dystrophy?": {
-      "correct": true,
-      "note": "1 in 3500 male births falls within gold ranges.",
-      "pred": "1 in 3500 male births",
-      "models": [
-        "7B"
-      ]
-    },
-    "Which cancer is the BCG vaccine used for?": {
-      "correct": true,
-      "note": "Bladder cancer suffices; NMIBC qualifier not targeted by question.",
-      "pred": "Bladder cancer",
-      "models": [
-        "7B"
-      ]
-    },
+    "What is the indication for SLCO1B1 genotyping?": [
+      {
+        "correct": true,
+        "note": "Genotyping is indicated for statin myopathy risk, i.e. statin treatment.",
+        "pred": "Statin-induced myopathy",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: the actual clinical indication, which is statin (simvastatin) treatment and its myopathy risk.",
+        "pred": "Simvastatin-induced myopathy",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names statins, matching the gold 'statin treatment'.",
+        "pred": "Drug response (e.g., statins)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "What is the route of administration of eptinezumab?": [
+      {
+        "correct": true,
+        "note": "Intravenous = intravenously.",
+        "pred": "intravenous",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Same as gold 'Intravenously'.",
+        "pred": "Intravenous",
+        "models": [
+          "Llama-3.1-8B",
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Same as gold 'Intravenously'.",
+        "pred": "Intravenous (IV)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "Which cyclin- dependent kinase inhibitor is regulated by Bmi-1?": [
+      {
+        "correct": true,
+        "note": "p16Ink4a is p16INK4 (formatting).",
+        "pred": "p16 Ink4a",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "p16 is p16INK4a; same entity as the gold.",
+        "pred": "p16",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      }
+    ],
+    "Which gene is most commonly associated with severe congenital and cyclic neutropenia?": [
+      {
+        "correct": true,
+        "note": "ELA2 is the old symbol for ELANE.",
+        "pred": "ELA2",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "ELA2 is the former official symbol for ELANE",
+        "pred": "ELA2 gene",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      }
+    ],
+    "Which is the catalytic activity of the protein encoded by the gene KMT2C? ": [
+      {
+        "correct": true,
+        "note": "KMT2C is a histone H3K4 lysine methyltransferase; same activity.",
+        "pred": "Histone methyltransferase",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: KMT2C is an H3K4 mono/di-methyltransferase; this names the same lysine methyltransferase activity, more specifically.",
+        "pred": "H3 lysine 4 dimethylation",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "What is the incidence of Duchenne Muscular Dystrophy?": [
+      {
+        "correct": true,
+        "note": "1 in 3500 male births falls within gold ranges.",
+        "pred": "1 in 3500 male births",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Falls on an endpoint of the gold ranges 1:3500-1:5000 and 1 in 3,500 to 5,000 male births.",
+        "pred": "1 in 3,500 male births",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Which cancer is the BCG vaccine used for?": [
+      {
+        "correct": true,
+        "note": "Bladder cancer suffices; NMIBC qualifier not targeted by question.",
+        "pred": "Bladder cancer",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names bladder cancer; the gold's 'non-muscle invasive' qualifier is not what the question asks for",
+        "pred": "Bladder cancer (BCG stands for Bacillus Calmette-Guérin)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "What is Palmar Erythema?": {
       "correct": true,
       "note": "Hand (palm) redness = redness of the palms.",
@@ -1437,30 +2710,77 @@
         "7B"
       ]
     },
-    "Which is the receptor for the immunosuppressive drug cyclosporin A (CsA)?": {
-      "correct": false,
-      "note": "FKBP1a is the tacrolimus receptor, not CsA's; answer is a wrong composite.",
-      "pred": "T-cell surface protein FKBP1a-Cyclophilin complex",
-      "models": [
-        "7B"
-      ]
-    },
-    "What is the typical outer diameter of microtubules (tubulin heterodimers)?": {
-      "correct": true,
-      "note": "25 nm is within the 24-25 nm gold range.",
-      "pred": "25nm",
-      "models": [
-        "7B"
-      ]
-    },
-    "Which is the gene most commonly mutated in Tay-Sachs disease?": {
-      "correct": true,
-      "note": "Hexosaminidase A gene = HEXA.",
-      "pred": "Hexosaminidase A gene",
-      "models": [
-        "7B"
-      ]
-    },
+    "Which is the receptor for the immunosuppressive drug cyclosporin A (CsA)?": [
+      {
+        "correct": false,
+        "note": "FKBP1a is the tacrolimus receptor, not CsA's; answer is a wrong composite.",
+        "pred": "T-cell surface protein FKBP1a-Cyclophilin complex",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "DEBATABLE: names cyclophilin but adds the false claim that it is a calcium-binding protein / calcineurin (CaN).",
+        "pred": "Calcium-binding protein (CaN) of immunophilin family (Cyclophilin",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "What is the typical outer diameter of microtubules (tubulin heterodimers)?": [
+      {
+        "correct": true,
+        "note": "25 nm is within the 24-25 nm gold range.",
+        "pred": "25nm",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: 25 nm is within the gold '24nm - 25 nm'.",
+        "pred": "25 nanometers",
+        "models": [
+          "Llama-3.1-8B",
+          "OLMo-2-1124-7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: 25 nm is within the gold '24nm - 25 nm'.",
+        "pred": "25 nm (tubulin heterodimers)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "Which is the gene most commonly mutated in Tay-Sachs disease?": [
+      {
+        "correct": true,
+        "note": "Hexosaminidase A gene = HEXA.",
+        "pred": "Hexosaminidase A gene",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Hex A is the standard alternate rendering of HEXA.",
+        "pred": "Hex A",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: the protein name for which the HEXA gene is named; rubric allows gene-for-protein.",
+        "pred": "Hexosaminidase A",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "Which is the substrate of the haspin kinase during mitosis?": {
       "correct": true,
       "note": "Histone H3 is the substrate; Thr3 is just the site.",
@@ -1493,14 +2813,32 @@
         "7B"
       ]
     },
-    "What is blepharospasm?": {
-      "correct": true,
-      "note": "Eyelid spasm matches involuntary eyelid spasms.",
-      "pred": "Eyelid spasm",
-      "models": [
-        "7B"
-      ]
-    },
+    "What is blepharospasm?": [
+      {
+        "correct": true,
+        "note": "Eyelid spasm matches involuntary eyelid spasms.",
+        "pred": "Eyelid spasm",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Matches gold 'involuntary muscle spasms of the eyelid'.",
+        "pred": "Involuntary eyelid spasms",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: 'eyelid twitching' is a lay phrasing of the gold 'involuntary blinking / eyelid spasms'.",
+        "pred": "Eyelid twitching",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "Which disease is treated with lucinactant?": {
       "correct": true,
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. Neonatal RDS is surfactant-deficiency lung disease.",
@@ -1509,22 +2847,50 @@
         "7B"
       ]
     },
-    "Which gene is most frequently mutated in hereditary angioedema ?": {
-      "correct": true,
-      "note": "C1 inhibitor is the protein encoded by SERPING1 (gene vs protein).",
-      "pred": "C1 inhibitor",
-      "models": [
-        "7B"
-      ]
-    },
-    "Which gene is required for the efficient function of clopidogrel?": {
-      "correct": true,
-      "note": "CYP2C19 matches gold typo CYPC19.",
-      "pred": "CYP2C19",
-      "models": [
-        "7B"
-      ]
-    },
+    "Which gene is most frequently mutated in hereditary angioedema ?": [
+      {
+        "correct": true,
+        "note": "C1 inhibitor is the protein encoded by SERPING1 (gene vs protein).",
+        "pred": "C1 inhibitor",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "C1 inhibitor gene = C1NH = SERPING1",
+        "pred": "C1 esterase inhibitor gene",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "C1-INH = C1NH = SERPING1",
+        "pred": "C1-INH (C1 inhibitor)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "Which gene is required for the efficient function of clopidogrel?": [
+      {
+        "correct": true,
+        "note": "CYP2C19 matches gold typo CYPC19.",
+        "pred": "CYP2C19",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Same as gold cytochrome P450, CYP2C19",
+        "pred": "Cytochrome P450 2C19",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "Which is the main reason for the increase in the incidence of cryptococcal disease?": {
       "correct": true,
       "note": "AIDS = advanced HIV infection.",
@@ -1533,30 +2899,85 @@
         "7B"
       ]
     },
-    "The Shingrix vaccine is used to prevent what disease?": {
-      "correct": true,
-      "note": "Shingles = herpes zoster.",
-      "pred": "Shingles",
-      "models": [
-        "7B"
-      ]
-    },
-    "Which protein is the main inhibitor of protein phosphatase 1 (PP1)?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. PPP1R1A (regulatory subunit 1A) is inhibitor-1.",
-      "pred": "Regulatory subunit 1A",
-      "models": [
-        "7B"
-      ]
-    },
-    "What is the usual HER-2 status in breast cancer associated with Li-Fraumeni syndrome?": {
-      "correct": true,
-      "note": "Overexpressed = HER2 positive.",
-      "pred": "Overexpressed",
-      "models": [
-        "7B"
-      ]
-    },
+    "The Shingrix vaccine is used to prevent what disease?": [
+      {
+        "correct": true,
+        "note": "Shingles = herpes zoster.",
+        "pred": "Shingles",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Matches gold 'herpes zooster' (gold typo).",
+        "pred": "Herpes zoster",
+        "models": [
+          "Llama-3.1-8B",
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Matches both golds; shingles = herpes zoster.",
+        "pred": "Shingles (Herpes Zoster)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Matches both golds; shingles = herpes zoster.",
+        "pred": "Herpes zoster (shingles)",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Which protein is the main inhibitor of protein phosphatase 1 (PP1)?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. PPP1R1A (regulatory subunit 1A) is inhibitor-1.",
+        "pred": "Regulatory subunit 1A",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "Hedged with a wrong alternative alongside inhibitor-1.",
+        "pred": "Inhibitor-1 (I-1) or calcineurin B-like 2 (CBLB2",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "What is the usual HER-2 status in breast cancer associated with Li-Fraumeni syndrome?": [
+      {
+        "correct": true,
+        "note": "Overexpressed = HER2 positive.",
+        "pred": "Overexpressed",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: HER-2 amplification is what HER-2 positive status means.",
+        "pred": "Amplified",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: HER-2 amplification/overexpression is HER-2 positive status.",
+        "pred": "Amplified (overexpression)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "Which receptor is inhibited by Tivozanib?": {
       "correct": true,
       "note": "VEGFR = vascular endothelial growth factor receptors.",
@@ -1573,38 +2994,110 @@
         "7B"
       ]
     },
-    "Which kinase does PD98059 inhibit?": {
-      "correct": true,
-      "note": "MAPK/ERK kinase = MEK.",
-      "pred": "MAPK/ERK kinase",
-      "models": [
-        "7B"
-      ]
-    },
-    "What is targeted by Palbociclib?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Palbociclib targets CDK4/6; gold (EGFR) is factually wrong.",
-      "pred": "CDK4/CDK6",
-      "models": [
-        "7B"
-      ]
-    },
-    "What is the role of TAD protein domain?": {
-      "correct": true,
-      "note": "TAD = transactivation domain; role is transcriptional activation.",
-      "pred": "Transcriptional activation",
-      "models": [
-        "7B"
-      ]
-    },
-    "How is the STING protein activated?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. STING is directly activated by cGAMP (made from cytosolic DNA); gold is upstream trigger.",
-      "pred": "By cyclic GMP-AMP",
-      "models": [
-        "7B"
-      ]
-    },
+    "Which kinase does PD98059 inhibit?": [
+      {
+        "correct": true,
+        "note": "MAPK/ERK kinase = MEK.",
+        "pred": "MAPK/ERK kinase",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "PD98059 is a MEK inhibitor; MEK1/2 names the gold MEK.",
+        "pred": "MEK1/2",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      }
+    ],
+    "What is targeted by Palbociclib?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Palbociclib targets CDK4/6; gold (EGFR) is factually wrong.",
+        "pred": "CDK4/CDK6",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: gold is wrong; palbociclib targets CDK4/6, not EGFR.",
+        "pred": "Cyclin-dependent kinase 4 and 6 (CDK4/6)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: gold is wrong; palbociclib targets CDK4/6, not EGFR.",
+        "pred": "CDK4/6",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: gold is wrong; palbociclib is a CDK inhibitor (CDK4/6), not an EGFR inhibitor.",
+        "pred": "CDKs (Cyclin-Dependent Kinases)",
+        "models": [
+          "Qwen2.5-3B"
+        ]
+      }
+    ],
+    "What is the role of TAD protein domain?": [
+      {
+        "correct": true,
+        "note": "TAD = transactivation domain; role is transcriptional activation.",
+        "pred": "Transcriptional activation",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Synonym of transcription activation / transactivation domain.",
+        "pred": "Transcriptional activator domain",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      }
+    ],
+    "How is the STING protein activated?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. STING is directly activated by cGAMP (made from cytosolic DNA); gold is upstream trigger.",
+        "pred": "By cyclic GMP-AMP",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: cyclic dinucleotides are the direct activators of STING; the gold (intracellular DNA) describes the upstream cGAS step.",
+        "pred": "Cyclic dinucleotides",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Cytosolic DNA = intracellular DNA.",
+        "pred": "Cytosolic DNA",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: cGAMP binding is the direct activation step for STING; the gold names the upstream DNA sensing.",
+        "pred": "CGAMP binding",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "What disease can be treated with Lenacapavir?": {
       "correct": true,
       "note": "HIV/AIDS matches HIV-1.",
@@ -1613,14 +3106,32 @@
         "7B"
       ]
     },
-    "Which disease is characterized by congenital absence of intrinsic ganglion cells of the gastrointestinal tract?": {
-      "correct": true,
-      "note": "Hirschsprung's disease matches gold.",
-      "pred": "Hirschsprung's disease",
-      "models": [
-        "7B"
-      ]
-    },
+    "Which disease is characterized by congenital absence of intrinsic ganglion cells of the gastrointestinal tract?": [
+      {
+        "correct": true,
+        "note": "Hirschsprung's disease matches gold.",
+        "pred": "Hirschsprung's disease",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the same condition as the gold 'Aganlionic megacolon'.",
+        "pred": "Aganglionosis",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Names both gold forms explicitly.",
+        "pred": "Aganglionosis (Hirschsprung's disease)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
     "By which method do micro RNAs (miRNAs) primarily aid in transcriptional and post-transcriptional regulation?": {
       "correct": true,
       "note": "JUDGEMENT CALL, re-checked 2026-11-04. Gene silencing encompasses mRNA degradation/translational repression.",
@@ -1637,14 +3148,40 @@
         "7B"
       ]
     },
-    "How early during pregnancy does non-invasive cffDNA testing allow sex determination of the fetus?": {
-      "correct": true,
-      "note": "10 weeks falls within 6th-10th week range.",
-      "pred": "10 weeks",
-      "models": [
-        "7B"
-      ]
-    },
+    "How early during pregnancy does non-invasive cffDNA testing allow sex determination of the fetus?": [
+      {
+        "correct": true,
+        "note": "10 weeks falls within 6th-10th week range.",
+        "pred": "10 weeks",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: 9 weeks falls inside the gold range of the 6th to 10th week of gestation.",
+        "pred": "At 9 weeks",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: 10 weeks is the endpoint of the gold range 6th to 10th week of gestation.",
+        "pred": "At 10 weeks",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: week 7 falls inside the gold range 6th to 10th week of gestation.",
+        "pred": "Week 7\n<|pad|><|pad|><|pad|><|pad|><|pad|><|pad|><|pad|><|pad|><|pad|><|pad|>",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
     "Which molecule is targeted by Fenebrutinib?": {
       "correct": true,
       "note": "BTK = Bruton's tyrosine kinase.",
@@ -1669,13 +3206,1412 @@
         "7B"
       ]
     },
-    "What is a exposome?": {
-      "correct": true,
-      "note": "JUDGEMENT CALL, re-checked 2026-11-04. Exposure history ~ environmental exposure record.",
-      "pred": "Exposure history",
+    "What is a exposome?": [
+      {
+        "correct": true,
+        "note": "JUDGEMENT CALL, re-checked 2026-11-04. Exposure history ~ environmental exposure record.",
+        "pred": "Exposure history",
+        "models": [
+          "7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: this is the standard definition of the exposome (lifetime totality of environmental exposures); equivalent to the gold.",
+        "pred": "Total exposure to environmental factors throughout life",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "Aleglitazar is agonist of which receptor?": [
+      {
+        "correct": true,
+        "note": "PPAR-alpha and PPAR-gamma is the expansion of the gold 'peroxisome proliferator-activated receptor-alpha/gamma'.",
+        "pred": "PPAR-alpha and PPAR-gamma",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "PPAR-alpha and PPAR-gamma is the gold receptor pair, written with Greek letters.",
+        "pred": "PPAR-α and PPAR-γ",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "Approximately how many recombination hotspots have been found in the yeast genome?": {
+      "correct": false,
+      "note": "DEBATABLE: gold is ~200; the answer's 100-200 range is hedged and its lower bound is wrong, so it does not match the gold number.",
+      "pred": "100-200 (depending on the strain)",
       "models": [
-        "7B"
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Erenumab, used to treat migraine headaches, binds to what protein?": {
+      "correct": true,
+      "note": "Calcitonin gene-related peptide receptor is the expansion of CGRP receptor.",
+      "pred": "Calcitonin gene-related peptide receptor",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "From where is gamabufotalin (GBT) isolated?": {
+      "correct": false,
+      "note": "DEBATABLE: names the wrong toad species (gamabufotalin comes from Bufo gargarizans venom, not Bufo alvarius); adds a false specific claim.",
+      "pred": "Bufo alvarius gland (toad)",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "From which cell type is leptin secreted?": {
+      "correct": true,
+      "note": "Adipose cells = adipocytes.",
+      "pred": "Adipose cells",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "HER-2 belongs to what family of proteins?": {
+      "correct": true,
+      "note": "The ErbB family is the EGFR family; HER-2 is ErbB2.",
+      "pred": "ErbB",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "How are Arboviruses transmitted?": [
+      {
+        "correct": true,
+        "note": "Answer says arthropod-borne, which is the gold 'by arthropods'; the trailing text is truncation, not a wrong claim.",
+        "pred": "Arthropod-borne (Arthropod-borne viruses, or Arboviruses, are",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names arthropods (the gold); 'insects and' is redundant rather than false.",
+        "pred": "Insects and arthropods",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "How is bladder wall thickness measured?": {
+      "correct": true,
+      "note": "Ultrasonography = ultrasound.",
+      "pred": "Ultrasonography",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "How is oprozomib administered?": [
+      {
+        "correct": true,
+        "note": "Oral capsules = administered orally.",
+        "pred": "Oral capsules",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Oral administration = orally.",
+        "pred": "Oral administration",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "How many PML isoforms exist in the human genome?": [
+      {
+        "correct": true,
+        "note": "Seven = the gold's 7 isoforms (I to VII).",
+        "pred": "Seven",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Seven isoforms = the gold's 7, designated I to VII.",
+        "pred": "seven isoforms",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "How many amino acids does davunetide consist of?": {
+      "correct": true,
+      "note": "8 = eight.",
+      "pred": "8",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "How many genes outside of the MHC locus have been genetically associated to Rheumatoid Arthritis through GWAS?": [
+      {
+        "correct": true,
+        "note": "DEBATABLE: gold is the open range 'more than 30'; 'over 100' falls inside it and is factually right for RA GWAS loci.",
+        "pred": "Over 100",
+        "models": [
+          "Llama-3.1-8B",
+          "Qwen2.5-7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: same as 'Over 100' - inside the gold's open range 'more than 30'.",
+        "pred": "Over 100 genes (approximate value)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "How much should be the duration of the QT interval in patients with short QT syndrome?": {
+      "correct": true,
+      "note": "DEBATABLE: gold 'below 300-330 msec'; the answer states the lower threshold of that gold range.",
+      "pred": "Less than 300 milliseconds",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "In which cellular compartment do stress granules localize?": {
+      "correct": true,
+      "note": "DEBATABLE: cytosol and cytoplasm name the same compartment here.",
+      "pred": "Cytosol",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "In which phase of clinical trials was sutezolid in 2018?": {
+      "correct": true,
+      "note": "DEBATABLE: phase 2b is a phase II trial, matching gold 'phase II'.",
+      "pred": "Phase 2b",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Ladybird homeobox (Lbx) transcription factors regulate the development of what body systems/organs?": {
+      "correct": false,
+      "note": "DEBATABLE: gold is 'muscle and nervous system' and the question asks for systems; the muscle half, which the question asks for, is missing.",
+      "pred": "Nervous system",
+      "models": [
+        "Llama-3.2-3B"
+      ]
+    },
+    "Mutation of which gene is associated with McLeod syndrome?": {
+      "correct": true,
+      "note": "DEBATABLE: Kx is the historical name of the XK gene/antigen, the same entity as gold 'XK'.",
+      "pred": "KX gene",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Mutation of which gene is implicated in the Brain-lung-thyroid syndrome?": {
+      "correct": true,
+      "note": "NKX2-1 is the gene encoding thyroid transcription factor 1 (TTF-1).",
+      "pred": "NKX2-1",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Name a method for enrichment of arginine-methylated peptides.": [
+      {
+        "correct": true,
+        "note": "Synonym of gold 'Immunoaffinity purification'.",
+        "pred": "Immunoaffinity capture",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: antibody-based affinity enrichment is immunoaffinity purification, phrased descriptively.",
+        "pred": "Affinity chromatography with anti-arginine-methylated antibodies",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: antibody immunoprecipitation is the immunoaffinity purification named by the gold.",
+        "pred": "Immunoprecipitation with anti-arginine methylated antibodies",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Name monoclonal antibody against SLAMF7.": {
+      "correct": true,
+      "note": "DEBATABLE: the gold merely expands the SLAMF7 acronym instead of naming an antibody; elotuzumab is the anti-SLAMF7 monoclonal antibody, so the gold is at fault.",
+      "pred": "Elotuzumab",
+      "models": [
+        "Llama-3.1-8B",
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Rickettsia felis was described as a human pathogen almost two decades ago, what is it's main arthropod vector?": {
+      "correct": false,
+      "note": "DEBATABLE: genus-level 'Flea' drops the cat flea (Ctenocephalides felis) the gold names, parallel to the rubric's 'Tick' for Ixodes ricinus.",
+      "pred": "Flea",
+      "models": [
+        "Llama-3.1-8B",
+        "OLMo-2-1124-7B",
+        "Qwen2.5-7B"
+      ]
+    },
+    "Symptoms of which disorder are evaluated with the Davidson Trauma Scale?": {
+      "correct": false,
+      "note": "DEBATABLE: complex PTSD is a distinct ICD-11 diagnosis; the DTS assesses PTSD, so the qualifier changes the entity.",
+      "pred": "Complex post-traumatic stress disorder",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Telomestatin is derived from what organism?": {
+      "correct": false,
+      "note": "DEBATABLE: genus only, drops anulatus; the matcher already called 'The Streptomyces genus' wrong, so this keeps the two consistent.",
+      "pred": "Streptomyces",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "The pathogen Fusarium graminearum affects what type of plant species?": {
+      "correct": true,
+      "note": "DEBATABLE: 'small grains' is the standard agronomic term for small-grain cereal crops (wheat, barley), the gold's entity.",
+      "pred": "Small grains",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "What are positive cell-cycle regulators that can cause cancer when mutated called?": {
+      "correct": false,
+      "note": "DEBATABLE: the question asks for the regulators that cause cancer WHEN MUTATED, i.e. proto-oncogenes; an oncogene is the mutated form, the precursor/active-form distinction in the rubric.",
+      "pred": "Oncogenes",
+      "models": [
+        "Llama-3.1-8B",
+        "Llama-3.2-3B",
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "What are the clinical indication for Transarterial Chemoembolization (TACE) in liver metastasis for colorectal cancer?": [
+      {
+        "correct": true,
+        "note": "Matches golds 'Unresectable chemotherapy refractory liver metastasis' / 'liver metastases not amenable to curative surgical resection'.",
+        "pred": "Unresectable, advanced-stage liver metastases",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: says unresectable liver disease rather than metastasis, but in the question's context conveys the gold's unresectable-liver-metastasis indication.",
+        "pred": "Unresectable liver disease\n<|pad|><|pad|>",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "What are episignatures?": {
+      "correct": true,
+      "note": "Same entity as 'unique genomic DNA methylation patterns'; the parallel answer 'Methylation patterns on DNA' was already graded correct.",
+      "pred": "DNA methylation marks",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "What brain procedure can be done using the NeuroBlate system?": {
+      "correct": true,
+      "note": "DEBATABLE: NeuroBlate performs laser interstitial thermal therapy, i.e. laser ablation; same procedure named with fewer words.",
+      "pred": "Laser ablation",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "What can Nothobranchius furzeri be used as a model system for?": {
+      "correct": true,
+      "note": "DEBATABLE: names aging research; 'genetic studies' is an addition, not a wrong alternative.",
+      "pred": "Short-lived vertebrate model for aging and genetic studies.",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "What causes Black Lung?": [
+      {
+        "correct": true,
+        "note": "Same cause as the gold 'Chronic exposure to coal dust'.",
+        "pred": "Coal dust inhalation",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Names the causative agent in the gold; the question asks what causes it.",
+        "pred": "Coal dust",
+        "models": [
+          "Mistral-7B-v0.3",
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "What disease can be treated with Tebentafusp?": {
+      "correct": false,
+      "note": "DEBATABLE: tebentafusp is approved only for uveal melanoma; bare 'melanoma' drops the detail the question turns on",
+      "pred": "Melanoma",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "What disease is mirtazapine predominantly used for?": [
+      {
+        "correct": true,
+        "note": "major depressive disorder is a synonym of major depression",
+        "pred": "Major depressive disorder",
+        "models": [
+          "Llama-3.1-8B",
+          "Llama-3.2-3B",
+          "OLMo-2-1124-7B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "major depressive disorder is a synonym of major depression",
+        "pred": "Major Depressive Disorder (MDD)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "What disease is presenilin involved in?": {
+      "correct": true,
+      "note": "DEBATABLE: same answer as 'Alzheimer's disease', which was graded correct against the same gold",
+      "pred": "Alzheimer's",
+      "models": [
+        "Llama-3.2-3B"
+      ]
+    },
+    "What does RUNX2 stand for?": {
+      "correct": true,
+      "note": "DEBATABLE: 'RUNX family transcription factor 2' is the current HGNC name; RUNX = runt-related",
+      "pred": "RUNX transcription factor 2",
+      "models": [
+        "Qwen2.5-7B"
+      ]
+    },
+    "What does the human ABCC gene  product do?": [
+      {
+        "correct": true,
+        "note": "DEBATABLE: ABCC products are ATP-dependent efflux transporters of drugs/small molecules",
+        "pred": "Multidrug transporter",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: ATP-dependent efflux of small-molecule drugs is what ABCC/MRP proteins do",
+        "pred": "Drug efflux",
+        "models": [
+          "Qwen2.5-7B"
+        ]
+      }
+    ],
+    "What does the pembrolizumab companion diagnostic test assess?": {
+      "correct": true,
+      "note": "PD-L1 expression is PD-L1 status; same as the variants graded correct",
+      "pred": "Tumor PD-L1 expression",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "What fruit causes Jamaican vomiting sickness?": {
+      "correct": true,
+      "note": "ackee, and unripe ackee is in fact the toxic form",
+      "pred": "Unripe ackee",
+      "models": [
+        "Mistral-7B-v0.3",
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "What gene is mutated in Sickle Cell Anemia?": [
+      {
+        "correct": true,
+        "note": "HBB is hemoglobin subunit beta",
+        "pred": "Hemoglobin beta",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "beta-globin gene is HBB",
+        "pred": "β-globin gene",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "What is Luteolin?": {
+      "correct": true,
+      "note": "DEBATABLE: luteolin is a flavone, a subclass of flavonoid; correct and more specific than the gold",
+      "pred": "Flavone",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "What is Telangiectasia?": {
+      "correct": true,
+      "note": "dilated small vessels is the gold's 'prominent small vessels'",
+      "pred": "Dilated capillaries",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "What is a likely origin of intronless genes?": {
+      "correct": true,
+      "note": "DEBATABLE: retrotransposons/retrotransposition name the same origin mechanism as the gold.",
+      "pred": "Ancient retrotransposons",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "What is an approximate number of CTCF binding sites in the human genome?": {
+      "correct": true,
+      "note": "DEBATABLE: ~30,000 is the lower endpoint of the gold range 30,000-50,000.",
+      "pred": "Around 30,000",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "What is drug target for olaparib?": {
+      "correct": true,
+      "note": "PARP1 is the principal PARP targeted by olaparib; same entity as gold 'PARP'.",
+      "pred": "PARP1",
+      "models": [
+        "Llama-3.1-8B",
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "What is marked by DNaseI hypersensitive sites?": {
+      "correct": true,
+      "note": "'Active regulatory regions of DNA' matches gold 'gene regulatory sites / cis-regulatory elements'.",
+      "pred": "Active regulatory regions (of DNA)",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "What is resistin?": {
+      "correct": true,
+      "note": "'Adipocyte-derived cytokine' is the definition of an adipokine.",
+      "pred": "Adipocyte-derived cytokine",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "What is the Her2 status in Li-Fraumeni syndrome?": {
+      "correct": true,
+      "note": "'Overexpressed' is equivalent to the gold 'Her2 status is positive'.",
+      "pred": "Overexpressed",
+      "models": [
+        "Llama-3.1-8B",
+        "Llama-3.2-3B"
+      ]
+    },
+    "What is the Versene Solution used for?": {
+      "correct": true,
+      "note": "Versene (EDTA) is used for cell dissociation, i.e. detachment of cells.",
+      "pred": "Cell dissociation",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "What is the administration route of IVIG in Alzheimer's disease patients?": {
+      "correct": true,
+      "note": "States the intravenous route, matching the gold.",
+      "pred": "IVIG is administered intravenously",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "What is the appropriate treatment in HER2Neu amplificated refractory advanced colorectal cancer patients?": {
+      "correct": false,
+      "note": "Gold is tucatinib plus trastuzumab; 'plus chemotherapy' names the wrong partner agent.",
+      "pred": "Trastuzumab plus chemotherapy",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "What is the effect of a defective CLN3 gene?": {
+      "correct": false,
+      "note": "CLN3 causes juvenile NCL; 'late-infantile' is the wrong subtype.",
+      "pred": "Late-infantile neuronal ceroid lipofuscinosis",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "What is the function of the cGAS pathway?": {
+      "correct": true,
+      "note": "DEBATABLE: names innate immune activation, i.e. the gold's immune defence, plus the sensing step.",
+      "pred": "DNA sensing and activation of innate immune response",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "What is the function of the protein Magt1?": {
+      "correct": true,
+      "note": "DEBATABLE: indirect phrasing of magnesium transporter; MAGT1's function is Mg2+ transport.",
+      "pred": "Regulation of magnesium homeostasis",
+      "models": [
+        "Llama-3.2-3B"
+      ]
+    },
+    "What is the generic name of the Xofluza?": {
+      "correct": true,
+      "note": "The gold 'Baloxavir marboxi' is a typo; the answer gives the correct generic name.",
+      "pred": "Baloxavir marboxil",
+      "models": [
+        "Llama-3.1-8B",
+        "Mistral-7B-v0.3",
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "What is the incidence of Oculopharyngeal Muscular Dystrophy (OPMD)?": {
+      "correct": true,
+      "note": "DEBATABLE: falls inside the gold range 1:600 to 1:80,000.",
+      "pred": "1 in 6000 to 1 in 10000",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "What is the indication for prophylactic use of antibiotics in COPD?": {
+      "correct": true,
+      "note": "Same as the gold 'reduction of number of exacerbations'.",
+      "pred": "Prevention of exacerbations",
+      "models": [
+        "Llama-3.2-3B"
+      ]
+    },
+    "What is the inheritance of Barth syndrome?": {
+      "correct": true,
+      "note": "DEBATABLE: names the inheritance pattern correctly but omits 'recessive'; treated like 'Dominant' for an autosomal dominant gold.",
+      "pred": "X-linked",
+      "models": [
+        "Llama-3.2-3B"
+      ]
+    },
+    "What is the lay name of the treatment for CCSVI (chronic cerebro-spinal venous insufficiency)  in multiple sclerosis.": {
+      "correct": true,
+      "note": "Same lay name as 'Liberation therapy'.",
+      "pred": "The Liberation Procedure",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "What is the link between psoriatic arthritis and depression": {
+      "correct": true,
+      "note": "DEBATABLE: states the co-occurrence the gold calls comorbidity.",
+      "pred": "Increased risk of depression",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "What is the localization of the protein encoded by the gene DNAJC11?": {
+      "correct": false,
+      "note": "Outer membrane is not the inner membrane; the matcher accepted it on token overlap.",
+      "pred": "Mitochondrial outer membrane",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "What is the major adverse effect of adriamycin(doxorubicin)?": {
+      "correct": true,
+      "note": "DEBATABLE: anthracycline cardiomyopathy is the cardiotoxicity named in the gold.",
+      "pred": "Cardiomyopathy",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "What is the mode of inheritance of  long QT  Jervell and Lange-Nielsen syndrome?": {
+      "correct": false,
+      "note": "DEBATABLE: hedged answer offering autosomal dominant alongside the correct recessive; JLNS is recessive only.",
+      "pred": "Autosomal recessive and dominant, respectively (two distinct forms exist)",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "What is the mode of inheritance of Facioscapulohumeral muscular\ndystrophy (FSHD)?": {
+      "correct": true,
+      "note": "DEBATABLE: same content as 'Dominant', which was graded correct for this gold.",
+      "pred": "Dominant inheritance",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "What is the mode of inheritance of Facioscapulohumeral muscular dystrophy (FSHD)?": {
+      "correct": true,
+      "note": "DEBATABLE: same content as 'Dominant', graded correct on the duplicate of this question.",
+      "pred": "Dominant inheritance",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "What is the outcome of TAF10 interacting with the GATA1 transcription factor?": {
+      "correct": true,
+      "note": "DEBATABLE: erythroid differentiation names the same process as 'control of erythropoiesis'.",
+      "pred": "Erythroid differentiation",
+      "models": [
+        "Qwen2.5-7B"
+      ]
+    },
+    "What is the role of eteplirsen in DMD patients?": [
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the mechanism asked for; drops only the exon number.",
+        "pred": "Exon skipping therapy",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the mechanism asked for; drops only the exon number.",
+        "pred": "Exon skipping",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the mechanism asked for; drops only the exon number.",
+        "pred": "Exon skipping agent",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "What is the role of the UBC9 enzyme in the protein sumoylation pathway?": {
+      "correct": false,
+      "note": "UBC9 is the SUMO-conjugating enzyme, not a ubiquitin-conjugating enzyme; names the wrong modifier.",
+      "pred": "Ubiquitin-conjugating enzyme",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "What is the structural fold of bromodomain proteins?": {
+      "correct": true,
+      "note": "States the all-alpha-helical fold in a sentence.",
+      "pred": "Bromodomain-containing proteins have an alpha-helix fold.",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "What is the technique of choice to perform a caesarean section?": {
+      "correct": true,
+      "note": "DEBATABLE: lower (uterine) segment incision is the low transverse technique.",
+      "pred": "Lower segment incision",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "What is the vector for coxiella burnetii transmission?": {
+      "correct": false,
+      "note": "DEBATABLE: hedged answer pairing the right vector with lice, which are not C. burnetii vectors.",
+      "pred": "Ticks and lice",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "What is usually the age of diagnosis in Duchenne muscular dystrophy?": {
+      "correct": true,
+      "note": "DEBATABLE: falls inside the gold range 'between 3 and 11 years of age'.",
+      "pred": "5 to 6 years old",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "What molecule is targeted by brodalumab?": [
+      {
+        "correct": true,
+        "note": "Brodalumab targets IL-17RA; equivalent to the accepted 'IL-17 receptor'.",
+        "pred": "IL-17A receptor",
+        "models": [
+          "Llama-3.1-8B",
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: IL-17A is the gold 'Interleukin-17'; brodalumab blocks the IL-17A receptor.",
+        "pred": "IL-17A",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      }
+    ],
+    "What mutation is associated with the VEXAS syndrome?": {
+      "correct": true,
+      "note": "Matches gold 'UBA1 gene'.",
+      "pred": "UBA1 mutation",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "What percentage of Homo sapiens DNA is of Neanderthal origin?": {
+      "correct": true,
+      "note": "2-3% falls inside the gold range 2-4%.",
+      "pred": "Between 2 and 3 percent",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "What type of DMD can casimersen be used for?": {
+      "correct": false,
+      "note": "DEBATABLE: does not name exon 45, which is exactly what the question asks.",
+      "pred": "Duchenne DMD (with specific mutations amenable to exon skipping)",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "What type of topoisomerase inhibitor is gepotidacin?": [
+      {
+        "correct": true,
+        "note": "DEBATABLE: bacterial type II topoisomerases are all type IIA; gyrase is a correct target.",
+        "pred": "Type II topoisomerase inhibitor (DNA gyrase)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: bacterial type II topoisomerases are all type IIA.",
+        "pred": "Type II topoisomerase inhibitor",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "What types of DMD can eteplirsen be used for?": {
+      "correct": true,
+      "note": "DEBATABLE: names exon 51, the detail the gold asks for.",
+      "pred": "DMD caused by mutations in exon 51",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "Where are promoters typically found in DNA?": [
+      {
+        "correct": true,
+        "note": "'Upstream of genes' is the same as 'upstream of the coding region'.",
+        "pred": "Upstream of genes",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Same as gold: upstream of genes.",
+        "pred": "Promoters are typically found upstream of genes on DNA strands.",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Where in the body would  Schlemm's canal be found": {
+      "correct": false,
+      "note": "Hedged answer leading with a wrong alternative (inner ear).",
+      "pred": "Inner ear (specifically, the ciliary body of the eye in the context of glaucoma)",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Where is base J found in the genome of Leishmania tarentolae?": {
+      "correct": true,
+      "note": "Telomeres is the same location as 'telomeric repeats'.",
+      "pred": "Telomeres",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Where is corticosterone synthesized?": [
+      {
+        "correct": true,
+        "note": "Adrenal cortex is the part of the adrenal gland where corticosterone is made; more specific, not less.",
+        "pred": "The adrenal cortex",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Adrenal cortex is more specific than 'adrenal glands', same entity.",
+        "pred": "Adrenal cortex",
+        "models": [
+          "Llama-3.2-3B",
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Adrenal cortex is more specific than 'adrenal glands', same entity.",
+        "pred": "adrenal cortex",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Where is the enzyme PM20D1 localized?": {
+      "correct": true,
+      "note": "DEBATABLE: names the right tissue; gold's UCP1+ adipocytes are adipose tissue, less specific but same compartment",
+      "pred": "adipose tissue",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "Where is the respirasome located?": {
+      "correct": true,
+      "note": "Same as gold 'inner mitochondrial membrane', only word order differs",
+      "pred": "Mitochondria inner membrane",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Where is the the protein perforin localized?": [
+      {
+        "correct": true,
+        "note": "Cytotoxic (lytic) granules are the secretory granules of the gold",
+        "pred": "Cytotoxic granules",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Describes the same secretory/lytic granules of CTLs and NK cells",
+        "pred": "Cytoplasmic granules of cytotoxic T cells and natural killer cells",
+        "models": [
+          "Mistral-7B-v0.3",
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Which  is the execution time (complexity) of the Smith-Waterman algorithm for the alignment of two sequences": [
+      {
+        "correct": true,
+        "note": "O(n^2) is quadratic",
+        "pred": "O(n^2)",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "O(n^2) is quadratic; parenthetical is a correct gloss",
+        "pred": "O(n^2) (where n is the length of the sequences)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "Which aminoacid position in the human CREB protein is phosphorylated?": {
+      "correct": true,
+      "note": "Same residue as gold Ser133",
+      "pred": "Serine 133",
+      "models": [
+        "Llama-3.1-8B",
+        "Llama-3.2-3B"
+      ]
+    },
+    "Which are the coactivators of the Yes-associated protein (yap)?": [
+      {
+        "correct": true,
+        "note": "TEAD = TEA domain transcription factors, same as gold",
+        "pred": "TEAD proteins",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "TEAD family = TEA domain transcription factors, same as gold",
+        "pred": "TEAD family proteins",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Which bacteria causes erythrasma?": {
+      "correct": false,
+      "note": "DEBATABLE: genus only; the question asks which bacterium, and the gold species C. minutissimum is the detail dropped",
+      "pred": "Corynebacterium",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Which brain tumors does neuroligin-3 promote?": [
+      {
+        "correct": true,
+        "note": "DEBATABLE: glioblastoma is a high-grade glioma, a more specific instance of the gold",
+        "pred": "Glioblastoma",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: high-grade astrocytoma/glioblastoma is a high-grade glioma, matching the gold",
+        "pred": "Glioblastomas (specifically, high-grade astrocytomas)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: names the right tumor type; the gold's 'high-grade' qualifier is not what the question asks for",
+        "pred": "Gliomas",
+        "models": [
+          "Qwen2.5-3B"
+        ]
+      }
+    ],
+    "Which cell type has the protein Chromogranin A as marker?": {
+      "correct": true,
+      "note": "DEBATABLE: chromaffin cells are neuroendocrine cells, and CgA was first described in their granules",
+      "pred": "Chromaffin cell (in the adrenal medulla and sympathetic nervous system)",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Which chromosome contains the TLR7 locus in the human genome?": {
+      "correct": true,
+      "note": "Same entity as gold 'chromosomeX'; matcher missed the word order.",
+      "pred": "X chromosome",
+      "models": [
+        "Llama-3.2-3B"
+      ]
+    },
+    "Which chromosome is most commonly affected by loss of heterozygosity in glioblastoma?": {
+      "correct": false,
+      "note": "Hedged: offers 1p/19q (oligodendroglioma) as an alternative to the right answer.",
+      "pred": "Chromosome 10 (or Chromosome 1p/19q, depending on the",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Which class of genes are mutated in Diamond Blackfan Anemia patients?": {
+      "correct": false,
+      "note": "rRNA genes are not ribosomal protein genes; DBA is caused by RP gene mutations.",
+      "pred": "Ribosomal RNA genes",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "Which clotting factor is in the Andexxa?": {
+      "correct": false,
+      "note": "DEBATABLE: Andexxa contains a decoy factor Xa, not a factor Xa inhibitor; the added qualifier is false.",
+      "pred": "Factor Xa inhibitor",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Which company developed eptinezumab?": {
+      "correct": true,
+      "note": "DEBATABLE: Lundbeck Seattle BioPharmaceuticals is Lundbeck's subsidiary; names the same company.",
+      "pred": "Lundbeck",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Which de novo mutation in FGFR cause achondroplasia?": {
+      "correct": true,
+      "note": "Gly380Arg is G380R written in three-letter code.",
+      "pred": "Gly380Arg mutation",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Which disease can be diagnosed with the \"probe to bone\" test?": {
+      "correct": true,
+      "note": "DEBATABLE: names the disease; 'diabetic foot' is the setting, not a different disease.",
+      "pred": "Osteomyelitis",
+      "models": [
+        "Llama-3.1-8B",
+        "Llama-3.2-3B"
+      ]
+    },
+    "Which disease can be treated using Tezepelumab?": {
+      "correct": false,
+      "note": "DEBATABLE: tezepelumab is approved for severe asthma irrespective of phenotype; 'eosinophilic' adds a false restriction.",
+      "pred": "Severe eosinophilic asthma",
+      "models": [
+        "Qwen2.5-7B"
+      ]
+    },
+    "Which disease can be treated with Anifrolumab?": {
+      "correct": false,
+      "note": "Primary answer is IgA nephropathy, which is wrong; SLE appears only in a garbled aside.",
+      "pred": "IgA nephropathy (Systemic lupus erythematosus is a disease An",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Which disease is caused by mutations in the gene PRF1?": {
+      "correct": true,
+      "note": "US spelling of the gold 'haemophagocytic lymphohistiocytosis'.",
+      "pred": "Hemophagocytic lymphohistiocytosis",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Which disease of the central nervous system is characterized by the presence of Lewy bodies?": {
+      "correct": true,
+      "note": "DEBATABLE: DLB is defined by Lewy bodies; an equally valid answer where the gold names only PD.",
+      "pred": "Dementia with Lewy bodies",
+      "models": [
+        "Qwen2.5-3B"
+      ]
+    },
+    "Which domain allowing self-association do exist in TDP-43 and FUS proteins?": {
+      "correct": true,
+      "note": "DEBATABLE: the prion-like domain of TDP-43/FUS is the C-terminal low-complexity domain; terms used interchangeably",
+      "pred": "Low-complexity domains",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Which drug is benserazide usually co-administered with?": {
+      "correct": true,
+      "note": "Levodopa = L-Dopa, same drug",
+      "pred": "Levodopa",
+      "models": [
+        "Llama-3.1-8B",
+        "Llama-3.2-3B",
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Which epigenetic mark is deposited by PRC2?": {
+      "correct": true,
+      "note": "Spelled-out form of H3K27me3",
+      "pred": "H3 lysine 27 trimethylation",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "Which epigenetic marks are deposited by PRC1?": {
+      "correct": true,
+      "note": "DEBATABLE: truncated, but names H2Aub = H2Aub1",
+      "pred": "Polycomb repressive complex 1 (PRC1) deposits H2Aub (H2A ub",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Which gene is implicated in Canavan disease?": {
+      "correct": true,
+      "note": "Aspartoacylase is the protein of the ASPA gene",
+      "pred": "Aspartoacylase",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "Which gene strand is targeted by transcription-coupled repair (TCR)?": {
+      "correct": true,
+      "note": "Template strand is the transcribed strand",
+      "pred": "The template strand",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Which genomic positions are preferentially selected for transposon insertion?": {
+      "correct": true,
+      "note": "DEBATABLE: introns/intergenic regions are non-coding DNA, matching the gold",
+      "pred": "Gene-poor regions (e.g., introns, intergenic regions)",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Which histone mutation is associated with gliomas?": [
+      {
+        "correct": true,
+        "note": "K27M in histone H3, same as gold",
+        "pred": "H3 K27M mutation",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "K27M in histone H3, same as gold",
+        "pred": "H3K27M",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Which effects create neighborhoods of transcriptional regulation in eukaryotes?": {
+      "correct": false,
+      "note": "DEBATABLE: the question asks for the effect; the sharing of enhancers is what the gold names, and sharing is dropped",
+      "pred": "Enhancer elements",
+      "models": [
+        "Qwen2.5-3B"
+      ]
+    },
+    "Which hormone abnormalities are characteristic to Pendred syndrome?": {
+      "correct": false,
+      "note": "DEBATABLE: hedged with parathyroid, which is not involved in Pendred syndrome",
+      "pred": "Thyroid and parathyroid",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Which hormone receptor function is altered in patients with Donohue syndrome?": {
+      "correct": false,
+      "note": "Donohue syndrome is caused by insulin receptor (INSR) defects, not IGF-1 receptor",
+      "pred": "Insulin-like growth factor 1 (IGF-1) receptor",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Which is the binding site motif of Sp1?": {
+      "correct": true,
+      "note": "DEBATABLE: GGGCGG is the core GC-box hexamer contained in the gold consensus (G/T)GGGCGG(G/A)(G/A)(C/T); standard reported Sp1 site.",
+      "pred": "GGGCGG",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Which is the chromosomal location of the gene MAOA?": [
+      {
+        "correct": true,
+        "note": "DEBATABLE: Xp11.23 falls inside the gold range Xp21-p11.",
+        "pred": "Xp11.23",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: Xp11.3-Xp11.4 lies inside the gold range Xp21-p11 and matches the commonly cited MAOA band Xp11.3.",
+        "pred": "X chromosome (Xp11.3-Xp11.4)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: the interval lies inside the gold range Xp21-p11.",
+        "pred": "Xp11.23–p11.21",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Which is the enzymatic activity of OTULIN?": [
+      {
+        "correct": true,
+        "note": "Typo for deubiquitinating; names the gold activity (deubiquitination).",
+        "pred": "Deubiquinating enzyme",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Same activity as the gold 'deubiquitination'.",
+        "pred": "Deubiquitinating enzyme",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "Same activity as the gold 'deubiquitination'.",
+        "pred": "Deubiquitinating activity",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "Which is the enzymatic activity of the myotubularin family of proteins?": [
+      {
+        "correct": true,
+        "note": "Identical in substance to 'Phosphatase activity', which the matcher accepted for this question.",
+        "pred": "Phosphatase",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "DEBATABLE: myotubularins are PI(3)P phosphatases; this is the gold 'lipid inositol phosphatase activity' stated more precisely, despite the loose PIP3 abbreviation.",
+        "pred": "Phosphatidylinositol 3-phosphatase (PIP3) activity",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      }
+    ],
+    "Which is the main CHEK2 genetic variant, thought to be involved in familial breast cancer?": {
+      "correct": true,
+      "note": "HGVS notation for the gold CHEK2 1100delC mutation.",
+      "pred": "c.1100delC",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Which is the main calcium pump of the sarcoplasmic reticulum?": {
+      "correct": true,
+      "note": "DEBATABLE: in the question's SR context this names the gold 'Sarcoplasmic reticulum Ca(2+)-ATPase' (SERCA).",
+      "pred": "Calcium ATPase",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Which is the main gene signature in Systemic Lupus Erythematosus (SLE)?": {
+      "correct": true,
+      "note": "The type I IFN signature is the gold 'interferon signature'.",
+      "pred": "Type I interferon",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Which is the primary enzyme metabolizing esomeprazole?": {
+      "correct": true,
+      "note": "Expansion of CYP2C19.",
+      "pred": "Cytochrome P450 2C19",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "Which method has been developed for mapping of Transcription Start Sites (TSS) starting from nanograms of RNA?": [
+      {
+        "correct": false,
+        "note": "DEBATABLE: CAGE is the parent method; the question asks for the nanogram-scale variant SLIC-CAGE.",
+        "pred": "Cap Analysis Gene Expression (CAGE)",
+        "models": [
+          "Mistral-7B-v0.3"
+        ]
+      },
+      {
+        "correct": false,
+        "note": "DEBATABLE: CAGE is the parent method; the question asks for the nanogram-scale variant SLIC-CAGE.",
+        "pred": "Cap analysis gene expression (CAGE)\n<|pad|>",
+        "models": [
+          "OLMo-2-1124-7B"
+        ]
+      }
+    ],
+    "Which molecule is inhibited by ivosidenib?": {
+      "correct": false,
+      "note": "Hedged: ivosidenib inhibits IDH1, not IDH2; the wrong alternative is offered alongside.",
+      "pred": "IDH1/2",
+      "models": [
+        "Llama-3.2-3B"
+      ]
+    },
+    "Which mutated gene causes the Chédiak–Higashi Syndrome?": {
+      "correct": false,
+      "note": "Right gene, but the expansion is false: LYST is lysosomal trafficking regulator, not a lymphocyte tyrosine kinase.",
+      "pred": "LYST (lymphocyte-specific protein tyrosine kinase)",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Which protein does empagliflozin inhibit?": {
+      "correct": true,
+      "note": "Full expansion of SGLT2.",
+      "pred": "Sodium-glucose cotransporter 2",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Which protein is mutated in Erythropoietic Protoporphyria?": {
+      "correct": true,
+      "note": "Ferrochelatase is the gold (FECH).",
+      "pred": "Ferrochelatase",
+      "models": [
+        "Llama-3.1-8B",
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Which receptor is blocked by Finerenone?": {
+      "correct": true,
+      "note": "Aldosterone receptor is a synonym for the mineralocorticoid receptor.",
+      "pred": "aldosterone receptor",
+      "models": [
+        "OLMo-2-1124-7B"
+      ]
+    },
+    "Which receptor is inhibited by Teprotumumab?": [
+      {
+        "correct": true,
+        "note": "IGF-1 receptor is the gold IGF-1 target.",
+        "pred": "Insulin-like growth factor 1 receptor",
+        "models": [
+          "Llama-3.1-8B"
+        ]
+      },
+      {
+        "correct": true,
+        "note": "IGF-1R is the gold IGF-1 receptor.",
+        "pred": "IGF-1R",
+        "models": [
+          "Llama-3.2-3B"
+        ]
+      }
+    ],
+    "Which receptor is inhibited by bimagrumab?": {
+      "correct": false,
+      "note": "Collagen receptor/THBS1 is not the activin type II receptor.",
+      "pred": "Type II collagen receptor (THBS1)",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Which receptor tyrosine kinase is commonly mutated or amplified in pediatric glioma cases?": {
+      "correct": false,
+      "note": "Hedged with EGFR, which is not the gold.",
+      "pred": "PDGFRA or EGFR",
+      "models": [
+        "Mistral-7B-v0.3"
+      ]
+    },
+    "Which receptors does bimagrumab block?": {
+      "correct": false,
+      "note": "DEBATABLE: bimagrumab blocks activin type II receptors; type I is a wrong alternative offered alongside.",
+      "pred": "Activin receptor type I and IIb",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "Which transcription factor controls Drosophila's Hes genes?": {
+      "correct": true,
+      "note": "DEBATABLE: Su(H) is the actual transcription factor of the Notch pathway that drives E(spl)/Hes genes; gold names the receptor.",
+      "pred": "Suppressor of hairless",
+      "models": [
+        "Qwen2.5-3B"
+      ]
+    },
+    "Which transcription factor regulates emergency granulopoiesis?": {
+      "correct": false,
+      "note": "Emergency granulopoiesis is driven by C/EBPbeta; C/EBPalpha governs steady-state granulopoiesis.",
+      "pred": "C/EBPα",
+      "models": [
+        "Llama-3.1-8B"
+      ]
+    },
+    "What is the proportion of non canonical splice sites in the human genome?": {
+      "correct": true,
+      "note": "OVERRULED by review 2026-11-04: 1% is the endpoint of the gold range 1-2%; same rule as the vaxchora and microtubule-diameter calls.",
+      "pred": "About 1%",
+      "models": [
+        "Llama-3.1-8B"
       ]
     }
+  },
+  "meta": {
+    "n_labels": 534
   }
 }

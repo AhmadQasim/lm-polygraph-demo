@@ -162,12 +162,21 @@ makes "PD-1" = "programmed death receptor-1" or "Onpattro" = "patisiran" safe).
 - `apply_manual_labels` applies a label only when the run produced exactly that `pred`.
   The "N labelled questions have no label for this exact answer" note is normal: it
   counts the other model's answers.
-- Built 2026-11-04. Every non-exact-match answer in both n=1000 runs (1,508 unique
-  question/answer pairs) was reviewed by five Claude subagents against a shared rubric.
-  They proposed 204 changes. Claude reviewed all 48 marked debatable and overruled 6,
-  where a true but less specific answer misses the detail the question asks for. One
-  inconsistency was fixed. Result: 199 labels, which replaced or joined the 8 earlier ones. Only verdicts that
-  **differ** from `grade()` are stored.
+- Built 2026-11-04, then **extended the same day to all six runs**. The first pass
+  covered the two Qwen runs (1,508 unique question/answer pairs, five Claude subagents,
+  204 proposed changes, 48 marked debatable of which Claude overruled 6) and produced
+  199 labels. The second pass covered every remaining model: **all 4,156 non-exact-match
+  (question, answer) pairs across the six runs**, of which 3,955 were new. They were
+  grouped by question - so one reviewer sees every model's answer to a question beside
+  the gold set, which keeps the calls consistent - into 14 packets of ~68 questions and
+  reviewed by 14 Claude subagents against the same rubric. They returned 330 verdicts
+  (284 to correct, 46 to wrong, 162 marked debatable). Claude read all 162 debatable
+  calls and overruled 2, both single numbers sitting at a gold range endpoint that one
+  reviewer held wrong while every other packet accepted them ("80%" in "80-100%",
+  "About 1%" in "Between 1% and 2%"); those two carry a note beginning `OVERRULED by
+  review`. No first-pass label was overwritten. Result: **534 labels over 314
+  questions**, and zero unreviewed non-exact-match pairs. Only verdicts that **differ**
+  from `grade()` are stored, so a reviewed pair the matcher got right has no label.
 - **The rubric.** Correct if it names the same entity as any gold: synonym, abbreviation,
   brand/generic, renamed organism, a gene for its protein, or a typo in the gold. A *less*
   specific answer is correct only if the gold's extra detail is not what the question
@@ -186,7 +195,19 @@ makes "PD-1" = "programmed death receptor-1" or "Onpattro" = "patisiran" safe).
   family, not the translocation). The other 41 stand. They were not checked by a
   biomedical expert; one could still disagree with individual calls.
 
-Effect on accuracy: 3B 23.3% → 31.5%, 7B 31.0% → 44.7%.
+Effect on accuracy (matcher alone → with labels), all six runs:
+
+| model | matcher | + labels | labels applied |
+|---|---|---|---|
+| Qwen2.5-3B | 24.3% | **31.8%** | 101 |
+| Qwen2.5-7B | 33.0% | **45.1%** | 137 |
+| Llama-3.2-3B | 24.1% | **30.3%** | 72 |
+| Llama-3.1-8B | 37.2% | **48.8%** | 148 |
+| Mistral-7B | 36.6% | **45.8%** | 132 |
+| OLMo-2-7B | 24.7% | **34.7%** | 120 |
+
+Before the second pass only 19-35 labels reached the four non-Qwen runs, so their
+accuracies were floors and were not comparable with Qwen's. They are now.
 
 ## 6. Results (post-fix labels, n=1000, seed 0)
 
@@ -194,48 +215,53 @@ AUROC for detecting a wrong answer, 95% bootstrap CIs (`analyze_bioasq.py`).
 
 | | Qwen2.5-3B | Qwen2.5-7B |
 |---|---|---|
-| accuracy | 31.5% | 44.7% |
-| best | **Mean token entropy 0.808** | **Mean token entropy 0.786** |
-| next | DegMat 0.799, Lexical sim. 0.799, Perplexity 0.796 | Boosted prob. 0.783, EigVal 0.776, KLE 0.774 |
-| Semantic entropy | 0.769 | 0.765 |
-| p(True) | 0.669 | 0.504 (chance) |
-| p(True) empirical | 0.738 | 0.708 |
+| accuracy | 31.8% | 45.1% |
+| best | **Mean token entropy 0.810** | **Mean token entropy 0.786** |
+| next | Perplexity 0.798, DegMat 0.799, Lexical sim. 0.798 | Boosted prob. 0.785, EigVal 0.778, KLE 0.776 |
+| Semantic entropy | 0.768 | 0.765 |
+| p(True) | 0.669 | 0.508 (chance) |
+| p(True) empirical | 0.739 | 0.707 |
 
-Headline findings, all of which survived the grader fix:
-- **A tier-1 method wins on both models.** Mean token entropy (one forward pass, no
-  sampling, no NLI) beats semantic entropy significantly on both: 3B +0.039 [+0.016,
-  +0.064], 7B +0.020 [+0.004, +0.037] (paired bootstrap).
+Headline findings, all of which survived both label passes. The Qwen pair is what
+slides 10-12 show; the six-model picture is below and on slide 13:
+- **A tier-1 method wins on both Qwen models.** Mean token entropy (one forward pass, no
+  sampling, no NLI) beats semantic entropy significantly on both: 3B +0.042 [+0.018,
+  +0.066], 7B +0.021 [+0.005, +0.038] (paired bootstrap).
 - **Sampling and an NLI model add consistency, not a higher ceiling**: the T3/T4 methods
   cluster just under the best T1 methods, while T1 also holds the worst ones.
-- **The ranking transfers across scale.** Spearman ρ = 0.902 over all 20 methods (p ≈
-  5e-8, 3B vs 7B).
-- **Other families (backup slide 13).** n=1000 runs also exist for Mistral-7B-Instruct-v0.3
-  (38.5% correct), OLMo-2-1124-7B-Instruct (27.6%) and Llama-3.1-8B-Instruct (40.5%). All
-  five are on slide 13. The three non-Qwen runs are graded by `grade()` only (the manual
-  labels were written against the Qwen answers: 129 apply to Qwen-7B but only 19–35 to the
-  others), so their accuracies are under-corrected and their AUROCs carry more label
-  noise. Mean pairwise ρ over the five is 0.863.
-- **One forward pass is not beaten, on four models of five.** Paired bootstrap, the best
-  tier-4 method minus MeanTokenEntropy: Qwen-3B −0.009 [−0.032, +0.014], Qwen-7B −0.009
-  [−0.031, +0.013], **Mistral +0.031 [+0.006, +0.055]**, OLMo-2 +0.003 [−0.023, +0.028],
-  Llama +0.016 [−0.005, +0.037]. Only Mistral is significant. Tier-4 methods take the top
-  *ranks* on Mistral, OLMo and Llama, but the gap is inside the noise except on Mistral,
-  which is also the model whose token probabilities are broken. So the claim is "a single
-  forward pass is statistically indistinguishable from the full sampling+NLI pipeline on
-  four of five models", not "tier 1 wins".
-- **Steadiness across models.** Over the five runs, swing (best minus worst model) ranks:
-  Self-certainty 0.053 but it never clears 0.76; MeanTokenEntropy 0.063 (0.766–0.829);
-  KLE 0.065; EigVal/DegMat/NumSemSets 0.069; SemanticEntropy 0.115; and the collapsing
-  tier-1 trio Boosted prob. 0.173, Perplexity 0.190, MSP 0.197, all of them on Mistral.
-  `fig_model_compare` picks its "steadiest" row with a 0.75 floor for exactly this reason
-  — at 0.70 self-certainty wins the row on being flat and mediocre.
-- **Llama is the only model that abstains**: 22 of 1000 answers are "I couldn't find any
-  information on …". Qwen, Mistral and OLMo abstain zero times. It is also the only model
-  where p(True) sits significantly *below* chance (0.453 [0.418, 0.489]), i.e. it ranks
-  correct answers as less true. p(True) swings 0.215 across the five, the widest of any
-  method.
-- **Detection gets somewhat harder on the bigger model**: mean AUROC change −0.021 over
-  the 17 methods above chance, with 15 of 20 below the diagonal. Before the grader fix
+- **The ranking transfers across scale.** Spearman ρ = 0.907 over all 20 methods, 3B vs 7B.
+- **Six models, four families (backup slide 13).** n=1000 runs exist for Qwen2.5 3B and
+  7B, Llama-3.2-3B, Llama-3.1-8B, Mistral-7B-Instruct-v0.3 and OLMo-2-1124-7B. All six
+  are graded with the full manual label set (section 5), so their accuracies are
+  comparable. Mean pairwise Spearman ρ = 0.870 (min 0.717, max 0.946).
+- **Mean token entropy is the only tier-1 method that holds.** Across the six models it
+  stays in 0.759-0.825 (swing 0.066), while the other useful tier-1 methods collapse on
+  Mistral: max sequence probability 0.599 (swing 0.211), perplexity 0.592 (0.205),
+  boosted prob. 0.640 (0.198). Self-certainty is flatter still (0.051) but never clears
+  0.761, which is why `fig_model_compare` picks its "steadiest" row from tier 1 with a
+  0.75 floor. Several tier-4 methods are just as steady as MTE (KLE 0.064, DegMat and
+  EigVal 0.068) - steadiness alone does not favour tier 1; cost does.
+- **One forward pass is not beaten, on four models of six.** Paired bootstrap, best
+  tier-4 method minus MeanTokenEntropy: Qwen-3B −0.011 [−0.035, +0.012], Qwen-7B −0.008
+  [−0.029, +0.015], Llama-3B +0.005 [−0.018, +0.028], **Llama-8B +0.023 [+0.003,
+  +0.043]**, **Mistral +0.056 [+0.031, +0.081]**, OLMo-2 +0.023 [−0.004, +0.051]. Two of
+  six are significant. The claim to make is "a single forward pass is statistically
+  indistinguishable from the full sampling+NLI pipeline on four of six models", never
+  "tier 1 wins". (On the pre-relabelling grades this was one of five; the Llama-8B
+  comparison crossed into significance when its labels were completed, which is a
+  reminder that label noise flatters the cheap methods.)
+- **Scale does not have one direction.** Qwen gets harder with size (MTE 0.810 → 0.786
+  from 3B to 7B) while Llama does not (0.825 → 0.824), although both roughly gain the
+  same accuracy (Qwen 31.8% → 45.1%, Llama 30.3% → 48.8%). The "harder on the bigger
+  model" finding below is a Qwen result, not a general one.
+- **Llama abstains; nothing else does.** 22 of 1000 answers at 8B and 27 at 3B are "I
+  couldn't find any information on …". Qwen, Mistral and OLMo never abstain. Both Llamas
+  are also the models where p(True) sits below chance (0.467 and 0.461), i.e. it ranks
+  correct answers as less true; p(True) swings 0.207 across the six, p(True) empirical
+  0.199.
+- **Detection gets somewhat harder on the bigger Qwen**: mean AUROC change −0.021 over
+  the 17 methods above chance, with 15 of 20 below the diagonal. It does not replicate
+  on the Llama pair (see above), so do not state it as a scale law. Before the grader fix
   this looked twice as large; part of it was label noise.
 - **Self-report is unreliable**: p(True) collapses to chance at 7B.
 - **Three estimators are sign-inverted** on both models: FisherRao, RenyiNeg,

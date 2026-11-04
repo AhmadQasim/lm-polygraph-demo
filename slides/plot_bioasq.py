@@ -523,11 +523,13 @@ def fig_model_compare(caches, manual, labels_for=None):
     rho = float(np.mean(rhos))
     spread = {n: max(a[n] for a in aucs) - min(a[n] for a in aucs) for n in shown}
     worst = max(spread, key=spread.get)
-    # "Stable" has to mean stable AND useful, or a flat mediocre line wins.
-    # The floor is 0.75, not 0.70: at 0.70 self-certainty takes the row on a
-    # 0.053 swing while never clearing 0.76, which reads as a recommendation
-    # for the flattest line rather than the steadiest useful one.
-    useful = [n for n in shown if min(a[n] for a in aucs) >= 0.75] or shown
+    # "Stable" has to mean stable AND useful, or a flat mediocre line wins: at a
+    # 0.70 floor self-certainty takes the row on a 0.053 swing while never
+    # clearing 0.76. The row is also restricted to tier 1, because that is the
+    # claim the slide makes - several tier-4 methods are just as steady, and the
+    # question here is whether a single forward pass can hold up.
+    useful = [n for n in shown
+              if min(a[n] for a in aucs) >= 0.75 and bioasq.tier_of(n) == 1] or shown
     steady = min(useful, key=spread.get)
 
     x = np.arange(len(caches))
@@ -581,15 +583,24 @@ def fig_model_compare(caches, manual, labels_for=None):
                                     shrinkA=0, shrinkB=5) if abs(dy) > 3 else None,
                     clip_on=False, zorder=7)
 
+    # Family and size on separate lines. On one line, six names at 11 pt (the type
+    # floor) are wider than the column pitch and run into each other; shortening
+    # them instead would drop the version, which is what distinguishes the two
+    # Llama columns.
     for xi, (tag, acc) in enumerate(zip(tags, accs)):
-        ax.annotate(tag.upper(), (xi, 0.0), xycoords=_blend_y(ax),
-                    textcoords="offset points", xytext=(0, -8), ha="center",
-                    va="top", color=DARK, fontproperties=hermann(TYPE["tick"]),
-                    clip_on=False, zorder=7)
-        ax.annotate(f"{acc:.0%} correct", (xi, 0.0), xycoords=_blend_y(ax),
-                    textcoords="offset points", xytext=(0, -18), ha="center",
-                    va="top", color=AXIS, fontproperties=halvar(TYPE["gloss"]),
-                    clip_on=False, zorder=7)
+        family, _, params = tag.rpartition("-")   # not `size`: that is the canvas
+        for dy, text, font, colour in (
+                (-8, (family or tag).upper(), hermann(TYPE["tick"]), DARK),
+                (-18, params.upper(), hermann(TYPE["tick"]), DARK),
+                # bare percentage: "NN% correct" under six columns runs together
+                # at the type floor. The caveat line says what the number is.
+                (-28, f"{acc:.0%}", halvar(TYPE["gloss"]), AXIS)):
+            if not text:
+                continue
+            ax.annotate(text, (xi, 0.0), xycoords=_blend_y(ax),
+                        textcoords="offset points", xytext=(0, dy), ha="center",
+                        va="top", color=colour, fontproperties=font,
+                        clip_on=False, zorder=7)
 
     heading(ax, "AUROC for detecting an incorrect answer", dy=12)
 
@@ -607,7 +618,7 @@ def fig_model_compare(caches, manual, labels_for=None):
          f"mean pairwise Spearman \u03c1 over {len(caches)} models"),
         ("BUT ONE METHOD SWINGS", f"{spread[worst]:.3f}",
          f"{PRETTY.get(worst, worst)}, best to worst model"),
-        ("STEADIEST ABOVE 0.75", f"{spread[steady]:.3f}",
+        ("STEADIEST ONE-PASS METHOD", f"{spread[steady]:.3f}",
          f"{PRETTY.get(steady, steady)}, same range"),
     ]
     inset, pad_x = 1.6, 3.4
@@ -626,6 +637,7 @@ def fig_model_compare(caches, manual, labels_for=None):
 
     caveat(fig, size,
            f"{ds[0].get('n', '?')} BioASQ factoids \u00b7 seed {ds[0].get('seed', 0)}"
+           f"  \u00b7  % under each model = answers graded correct"
            f"  \u00b7  blue = tier 1  \u00b7  {n_omitted} sign-inverted methods off-range")
     out = save(fig, FIGDIR / "model_size_comparison", formats=("png", "svg"))
     plt.close(fig)
@@ -665,14 +677,14 @@ SLIDE_COPY = {
     "model_size_comparison": (
         "13",
         "The same methods on other models",
-        "Mean token entropy is the steadiest method that is also any good.",
-        "Each line is one estimator's AUROC across five models from four families: "
+        "Of the one-pass methods, only mean token entropy holds everywhere.",
+        "Each line is one estimator's AUROC across six models from four families: "
         "flat means it holds. The ranking mostly transfers (mean pairwise Spearman "
-        "\u03c1 0.86). Mean token entropy stays between 0.77 and 0.83, while max "
-        "sequence probability, read from the same forward pass, drops to 0.62 on "
-        "Mistral. A tier-4 method beats mean token entropy significantly on Mistral "
-        "only. The three non-Qwen models were graded mostly by the matcher alone: "
-        "the manual labels were written against the Qwen answers.",
+        "\u03c1 0.87). Mean token entropy is the only tier-1 method that stays above "
+        "0.75 on all six, between 0.76 and 0.83; max sequence probability and "
+        "perplexity, read from the same forward pass, fall to around 0.60 on Mistral. "
+        "A tier-4 method beats mean token entropy significantly on two of the six. "
+        "All six runs were graded with the full manual label set.",
     ),
 }
 
