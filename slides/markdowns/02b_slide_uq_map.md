@@ -17,5 +17,5 @@ one paragraph. Titles do not flow.
 - **caption** — the grey paragraph under the figure — it wraps on its own
   > Position further right indicates greater access required: a hosted API exposes text
   > only, an open model also exposes token probabilities and hidden states. The lower
-  > row samples the same question several times. The following slides treat each family
-  > in turn.
+  > row samples the same question several times. The next slide places every estimator
+  > in these families, and the four after it take each family in turn.

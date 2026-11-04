@@ -47,16 +47,16 @@
       "text": [
         "Where the signal comes from",
         "Two properties locate every estimator: the model access it needs and the number of answers it draws.",
-        "Position further right indicates greater access required: a hosted API exposes text only, an open model also exposes token probabilities and hidden states. The lower row samples the same question several times. The following slides treat each family in turn."
+        "Position further right indicates greater access required: a hosted API exposes text only, an open model also exposes token probabilities and hidden states. The lower row samples the same question several times. The next slide places every estimator in these families, and the four after it take each family in turn."
       ]
     },
     {
       "slide": 7,
       "layout": "Title Only",
       "text": [
-        "Five signal types",
-        "Each estimator reads one of five signals, and each signal requires a different level of model access.",
-        "White-box methods require the model's probabilities or internal states; black-box methods require only its text. Families and method names follow Vazhentsev et al. (arXiv:2605.14570); self-report is added here because p(True) is included in the run. T1–T4 denote the tiers used to group the results."
+        "Every estimator, by type and tier",
+        "Type denotes the signal an estimator reads; tier, what it requires to run.",
+        "The twenty estimators compared in this talk, placed by signal type and tier. Tiers are cumulative: T1 needs only the forward pass that produced the answer, T2 adds a second prompt, T3 adds sampling, and T4 adds a DeBERTa NLI model over the samples. Consistency and sampling methods divide between T3 and T4 according to whether they require the NLI model. The later slides use these tiers to group the results."
       ]
     },
     {
@@ -174,29 +174,13 @@
       "slide": 21,
       "layout": "Title Only",
       "text": [
-        "Every estimator, by type and tier",
-        "Type denotes the signal an estimator reads; tier, what it requires to run.",
-        "Every estimator in the results, placed by signal type and tier. Tiers are cumulative: each adds one requirement to the preceding one. Sampling methods divide between tiers 3 and 4 according to whether they also require the NLI model."
-      ]
-    },
-    {
-      "slide": 22,
-      "layout": "Earth_Custom Layout",
-      "text": [
-        "Example: What it showed"
-      ]
-    },
-    {
-      "slide": 23,
-      "layout": "Title Only",
-      "text": [
         "Every estimator, ranked",
         "Tier 1 contains both the strongest estimator and the weakest.",
         "AUROC for separating incorrect answers from correct ones, with 95% bootstrap confidence intervals. Blue denotes tier 1: one forward pass, no sampling and no second model. Hollow markers are sign-inverted, returning a confidence rather than an uncertainty, and are read as 1−AUROC."
       ]
     },
     {
-      "slide": 24,
+      "slide": 22,
       "layout": "Title Only",
       "text": [
         "What each tier adds",
@@ -205,14 +189,14 @@
       ]
     },
     {
-      "slide": 25,
+      "slide": 23,
       "layout": "Earth_Custom Layout",
       "text": [
         "Conclusions and outlook"
       ]
     },
     {
-      "slide": 26,
+      "slide": 24,
       "layout": "Title Only",
       "text": [
         "Scope and limitations",
@@ -221,7 +205,7 @@
       ]
     },
     {
-      "slide": 27,
+      "slide": 25,
       "layout": "Title Only",
       "text": [
         "Summary",
@@ -230,7 +214,7 @@
       ]
     },
     {
-      "slide": 28,
+      "slide": 26,
       "layout": "Title Only",
       "text": [
         "References",
@@ -239,14 +223,14 @@
       ]
     },
     {
-      "slide": 29,
+      "slide": 27,
       "layout": "Earth_Custom Layout",
       "text": [
         "Backup"
       ]
     },
     {
-      "slide": 30,
+      "slide": 28,
       "layout": "Title Only",
       "text": [
         "The scores behind the AUROC",
@@ -255,7 +239,7 @@
       ]
     },
     {
-      "slide": 31,
+      "slide": 29,
       "layout": "Title Only",
       "text": [
         "The same methods on six models",

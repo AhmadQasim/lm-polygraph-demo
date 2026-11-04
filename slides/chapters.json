@@ -39,7 +39,8 @@
     {
       "slide": 7,
       "title": "Example: What it showed",
-      "pill": "Findings"
+      "pill": "Findings",
+      "_unused": "Kept so the template keeps a titled divider here, but no slide is assigned to this chapter in build_deck.SLIDES: the example is one chapter now. build_deck.drop_empty_chapters() removes this divider from the build. Splitting the example in two again is a matter of moving auroc_by_method and auroc_by_tier back to this chapter."
     },
     {
       "slide": 8,

@@ -14,6 +14,8 @@ one paragraph. Titles do not flow.
   > Type denotes the signal an estimator reads; tier, what it requires to run.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Every estimator in the results, placed by signal type and tier. Tiers are
-  > cumulative: each adds one requirement to the preceding one. Sampling methods divide
-  > between tiers 3 and 4 according to whether they also require the NLI model.
+  > The twenty estimators compared in this talk, placed by signal type and tier. Tiers
+  > are cumulative: T1 needs only the forward pass that produced the answer, T2 adds a
+  > second prompt, T3 adds sampling, and T4 adds a DeBERTa NLI model over the samples.
+  > Consistency and sampling methods divide between T3 and T4 according to whether they
+  > require the NLI model. The later slides use these tiers to group the results.

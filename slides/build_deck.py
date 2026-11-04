@@ -60,9 +60,13 @@ SLIDES: list[tuple[str, str]] = [
     # why it matters
     ("confidently_wrong", "Problem"),
     ("selective_generation", "Problem"),
-    # the method families
+    # the method families. types_by_tier sits here, not in the example chapter,
+    # because it is where T1-T4 are defined and every family slide below refers
+    # to them. It replaced uq_types, which covered the same five families from
+    # the literature without the tiers; its figure and markdown are still on
+    # disk, so restoring it is one line.
     ("uq_map", "Methods"),
-    ("uq_types", "Methods"),
+    ("types_by_tier", "Methods"),
     ("information_based", "Methods"),
     ("self_report", "Methods"),
     ("consistency", "Methods"),
@@ -73,11 +77,13 @@ SLIDES: list[tuple[str, str]] = [
     ("wrap_model", "Tooling: Your model"),
     ("ue_manager", "Tooling: Your model"),
     ("custom_estimator", "Tooling: Your model"),
-    # a worked example, kept short
+    # a worked example, kept short. One chapter, not two: the setup slide alone
+    # did not justify a full-screen divider in front of it. The template still
+    # holds the "Example: What it showed" divider; drop_empty_chapters() takes it
+    # out of the build, so the template itself stays untouched.
     ("dataset", "Example: A small"),
-    ("types_by_tier", "Example: A small"),
-    ("auroc_by_method", "Example: What it showed"),
-    ("auroc_by_tier", "Example: What it showed"),
+    ("auroc_by_method", "Example: A small"),
+    ("auroc_by_tier", "Example: A small"),
     ("limitations", "Conclusions"),
     ("takeaways", "Conclusions"),
     ("references", "Conclusions"),
@@ -138,6 +144,11 @@ def plan(keys: list[str] | None = None) -> list[tuple[str, str, int, int]]:
     insertions already made at or before it; slides sharing an anchor land in list order.
     """
     anchors = chapter_anchors()
+    # Dividers no slide is assigned to are dropped from the build, so the final
+    # number is one lower for every such divider at or before this slide's anchor.
+    # `insert_at` is unaffected: insertion happens while they are still there.
+    used = {anchor_for(ch, anchors) for _, ch in SLIDES}
+    gone = sorted(n for n in anchors.values() if n not in used)
     out, inserted = [], []
     for stem, chapter in SLIDES:
         if keys is not None and stem not in keys:
@@ -145,7 +156,8 @@ def plan(keys: list[str] | None = None) -> list[tuple[str, str, int, int]]:
         anchor = anchor_for(chapter, anchors)
         # After the divider AND after the slides already placed in that chapter.
         insert_at = anchor + sum(1 for a in inserted if a <= anchor)
-        out.append((stem, chapter, insert_at, insert_at + 1))
+        shift = sum(1 for n in gone if n <= anchor)
+        out.append((stem, chapter, insert_at, insert_at + 1 - shift))
         inserted.append(anchor)
     return out
 
@@ -185,6 +197,31 @@ def stamp_nav(prs) -> tuple[int, int]:
     if chapters:
         nav_bar.write_sections(prs, groups)
     return stamped, len(chapters)
+
+
+def drop_empty_chapters(prs) -> list[str]:
+    """Remove divider slides that no content slide was assigned to.
+
+    chapters.json has to list every divider in the template, because that is how
+    set_chapters.py finds the slide to write a title into. Merging two chapters
+    therefore leaves a divider with nothing behind it, which would otherwise
+    render as a full-screen section header for an empty section.
+
+    Detection is structural - a divider with no body slides after it - rather
+    than read from chapters.json, so this keeps working if the running order
+    changes again. The template is never touched: this runs on the build copy.
+    """
+    empty = [c for c in nav_bar.detect_chapters(prs)
+             if c["divider"] is not None and len(c["slides"]) == 1]
+    rel_ns = ("{http://schemas.openxmlformats.org/officeDocument/"
+              "2006/relationships}id")
+    lst = prs.slides._sldIdLst
+    # Highest index first, so earlier indices stay valid as entries are removed.
+    for chapter in sorted(empty, key=lambda c: -c["divider"]):
+        entry = list(lst)[chapter["divider"]]
+        prs.part.drop_rel(entry.get(rel_ns))
+        lst.remove(entry)
+    return [c["name"] for c in empty]
 
 
 def snapshot_outline(prs) -> int:
@@ -334,6 +371,10 @@ def main(argv=None) -> int:
         clicks += n
         built = f"{n} click{'s' if n != 1 else ''}" if n else "-"
         print(f"  slide {pos:2d}  {chapter:<30s} {stem:<28s} {built}")
+    if args.only is None:
+        # Only on a full build: a partial build legitimately leaves chapters empty.
+        for name in drop_empty_chapters(prs):
+            print(f"  dropped empty chapter divider: {name!r}")
     if not args.no_clicks:
         print(f"\nclicks: {clicks} across {len(todo)} slides")
 

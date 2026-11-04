@@ -319,15 +319,27 @@ layout):
 | template slide | chapter | nav pill | content slides |
 |---|---|---|---|
 | 2 | Problem: Confidently wrong | Problem | confidently_wrong, selective_generation |
-| 3 | Methods: Where the uncertainty is | Methods | uq_map, uq_types, information_based, self_report, consistency, trained_probes |
+| 3 | Methods: Where the uncertainty is | Methods | uq_map, types_by_tier, information_based, self_report, consistency, trained_probes |
 | 4 | Tooling: LM-Polygraph | Polygraph | lm_polygraph, polygraph_catalogue |
 | 5 | Tooling: Your model, your data | Your model | wrap_model, ue_manager, custom_estimator |
-| 6 | Example: A small BioASQ study | Example | dataset, types_by_tier |
-| 7 | Example: What it showed | Findings | auroc_by_method, auroc_by_tier |
+| 6 | Example: A small BioASQ study | Example | dataset, auroc_by_method, auroc_by_tier |
+| 7 | *(Example: What it showed)* | — | none: divider dropped at build time |
 | 8 | Conclusions and outlook | Conclusions | limitations, takeaways, references |
 | 9 | Backup | Backup | uncertainty_by_correctness, model_size_comparison |
 
-The built deck has 31 slides and 34 clicks. Markdown numbers (`02b_`, `08c_`, ...) are
+The built deck has 29 slides and 30 clicks. The example is **one chapter**: the
+setup slide alone did not justify a divider, so auroc_by_method and auroc_by_tier
+moved into it. Template slide 7 still carries the "Example: What it showed"
+title, and `build_deck.drop_empty_chapters()` takes any divider with no content
+slides out of the build copy, so the template is never edited to change the
+running order. Splitting the chapter again means moving those two entries back
+in `build_deck.SLIDES`; nothing else. **types_by_tier sits in the Methods
+chapter**, not the example chapter: it is where T1-T4 are defined, and every family
+slide and results slide refers to them. It replaced **uq_types**, which covered the
+same five families from the literature but without the tiers and forward-referenced
+them; uq_types.png and its markdown are still generated and on disk, so putting it
+back is one line in `build_deck.SLIDES`. The Vazhentsev attribution it carried is on
+the references slide, so nothing lost its source. Markdown numbers (`02b_`, `08c_`, ...) are
 decoration only: `build_deck.SLIDES` sets the order.
 
 **The library slides** (`slides/fig_polygraph.py`):
