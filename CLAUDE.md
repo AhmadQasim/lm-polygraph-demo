@@ -53,6 +53,7 @@ slides/             everything that makes the deck (see slides/README.md)
   fonts/              Helmholtz brand OTFs (Hermann, HalvarMittel, TeX Gyre Cursor)
   deck_outline.json   text of every built slide, for review in git
 manual_labels.json  human adjudications of the grader (section 5)
+ui/                 local web UI: pick a model, ask, see every estimator (ui/README.md)
 outputs/            cached runs (gitignored)
 ```
 
@@ -520,6 +521,16 @@ copy; only `FONT_DIR` differs. The full spec is `~/projects/slides/STYLE.md`.
 
 ## 10. Decisions, gotchas and open items
 
+- **The uncertainty explorer** (`ui/`, 2026-11-05): `.venv/bin/python ui/server.py` serves
+  http://127.0.0.1:8765, also `uq-ui` in `.claude/launch.json`. It loads one of the seven
+  project models with the `run_bioasq.py` settings and runs the 20 estimators up to a
+  chosen tier on one prompt. It shows per-token entropy, the samples, and, in BioASQ
+  prompt mode, each score's place in that model's n=1000 run: percentile, the wrong rate
+  among the 100 nearest scores, and AUROC. It grades the answer when the question is one
+  of the 1,000. The estimator names and families are copied from `plot_bioasq.PRETTY` and
+  `fig_methods.TYPE_OF`; keep them in step. Tested on Qwen 0.5B and 3B, all tiers; the
+  other models are untested here (the Llama models are gated, the 7-8B models are tight
+  on memory).
 - **Method slides 8-10 open up one method each** (2026-11-05): mean token entropy, p(True),
   lexical similarity, on the same two Qwen2.5-3B answers (apixaban → "Anticoagulant",
   right; erenumab → "MMP-13", wrong). The per-token distributions, the p(True) verdict
@@ -530,7 +541,7 @@ copy; only `FONT_DIR` differs. The full spec is `~/projects/slides/STYLE.md`.
   footer quotes the run's own similarity too. The erenumab samples are marked right by
   the rubric (`fig_methods.CGRP_SYNONYMS`): `grade()` misses the spelled-out receptor
   name. Each slide's right column (`method_card`) carries the formula, what it needs,
-  AUROC and rank on both Qwen runs (computed from the caches), and one line naming the
+  AUROC and rank on both Qwen runs under the heading "For BioASQ dataset" (computed from the caches), and one line naming the
   rest of the family.
 - **Wording conventions** (fixed 2026-11-05, keep them):
   - Tier glosses are `plot_bioasq.TIER_GLOSS`: T1 "no sampling" (not "one forward pass":

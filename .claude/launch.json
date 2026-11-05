@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "uq-ui",
+      "runtimeExecutable": ".venv/bin/python",
+      "runtimeArgs": ["ui/server.py", "--port", "8765"],
+      "port": 8765
+    }
+  ]
+}

@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Uncertainty Explorer</title>
+<style>
+:root {
+  --ink: #002864; --blue: #005AA0; --blue60: #669CC6; --pale: #E8F1F8;
+  --wrong: #ED7D31; --wrong-ink: #A34A12; --gray: #738084; --rule: #DBDEDF;
+  --bg: #FFFFFF; --panel: #F6F8FA; --text: #1B2430;
+  --fam-info: #005AA0; --fam-self: #7030A0; --fam-cons: #307866; --fam-samp: #A0235A;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #CFE0F5; --blue: #6FA8DC; --blue60: #4F7FA8; --pale: #16263A;
+    --wrong: #F0A06A; --wrong-ink: #F0A06A; --gray: #98A4A8; --rule: #2C3640;
+    --bg: #0F151C; --panel: #161E27; --text: #E3E8EE;
+    --fam-info: #6FA8DC; --fam-self: #B48AD8; --fam-cons: #6CC7AE; --fam-samp: #E07AA4;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+h1 { font-size: 22px; margin: 0; color: var(--ink); }
+h2 { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--blue);
+  margin: 28px 0 10px; }
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pill { font-size: 12px; padding: 3px 10px; border-radius: 99px; background: var(--panel);
+  color: var(--gray); border: 1px solid var(--rule); }
+.pill.ready { color: var(--blue); border-color: var(--blue60); }
+.pill.error { color: var(--wrong-ink); border-color: var(--wrong); }
+.muted { color: var(--gray); font-size: 13px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.card { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 12px;
+  display: flex; flex-direction: column; gap: 6px; }
+.card b { color: var(--ink); }
+.card .id { font: 12px ui-monospace, Menlo, monospace; color: var(--gray); word-break: break-all; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; font-size: 12px; }
+.tag { padding: 1px 7px; border-radius: 6px; background: var(--pale); color: var(--blue); }
+.tag.warn { background: transparent; border: 1px solid var(--rule); color: var(--gray); }
+button { font: inherit; border: 0; border-radius: 8px; padding: 8px 14px; cursor: pointer;
+  background: var(--blue); color: #fff; }
+button.secondary { background: transparent; color: var(--blue); border: 1px solid var(--blue60); }
+button:disabled { opacity: .45; cursor: default; }
+textarea { width: 100%; min-height: 90px; font: inherit; padding: 10px; border-radius: 8px;
+  border: 1px solid var(--rule); background: var(--bg); color: var(--text); resize: vertical; }
+.controls { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+.controls label { font-size: 13px; color: var(--gray); display: flex; gap: 6px; align-items: center; }
+select, input[type=number] { font: inherit; padding: 5px 8px; border-radius: 6px;
+  border: 1px solid var(--rule); background: var(--bg); color: var(--text); }
+input[type=number] { width: 70px; }
+.answer { font-size: 20px; font-weight: 600; color: var(--ink); padding: 12px 14px;
+  background: var(--panel); border-radius: 10px; border-left: 4px solid var(--blue);
+  white-space: pre-wrap; word-break: break-word; }
+.answer.wrong { border-left-color: var(--wrong); color: var(--wrong-ink); }
+.verdict { margin-top: 6px; font-size: 13px; }
+.verdict .ok { color: var(--blue); font-weight: 600; }
+.verdict .bad { color: var(--wrong-ink); font-weight: 600; }
+.tokens { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+.tok { position: relative; padding: 4px 6px 2px; border-radius: 6px; font: 13px ui-monospace, Menlo, monospace;
+  min-width: 26px; text-align: center; cursor: default; }
+.tok small { display: block; font: 10px -apple-system, sans-serif; opacity: .8; }
+.tok .tip { display: none; position: absolute; z-index: 5; top: 100%; left: 0; margin-top: 4px;
+  background: var(--bg); color: var(--text); border: 1px solid var(--rule); border-radius: 8px;
+  padding: 6px 8px; white-space: nowrap; font-size: 12px; text-align: left;
+  box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+.tok:hover .tip, .tok:focus .tip { display: block; }
+.samples { margin: 8px 0 0; padding-left: 22px; font-size: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-size: 11px; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--gray); border-bottom: 1px solid var(--rule); padding: 6px 8px; font-weight: 600; }
+td { border-bottom: 1px solid var(--rule); padding: 6px 8px; vertical-align: middle; }
+td.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+tr.tierhead td { background: var(--panel); font-size: 12px; color: var(--gray); font-weight: 600; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
+.bar { position: relative; height: 8px; background: var(--rule); border-radius: 4px; min-width: 90px; }
+.bar i { position: absolute; top: -3px; width: 3px; height: 14px; border-radius: 2px; background: var(--ink); }
+.inv { font-size: 11px; color: var(--wrong-ink); }
+.wrap { overflow-x: auto; }
+.note { font-size: 13px; color: var(--gray); margin: 6px 0 10px; max-width: 820px; }
+.spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--blue60);
+  border-top-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -2px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <h1>Uncertainty explorer</h1>
+    <span id="status" class="pill">connecting…</span>
+    <button id="change" class="secondary hidden">Change model</button>
+  </div>
+  <p class="muted">LM-Polygraph 0.7.0 estimators from this repo, scored on one prompt at a time.
+    Higher scores mean less certain, except for the sign-inverted estimators.</p>
+
+  <section id="picker">
+    <h2>1 · Choose a model</h2>
+    <div id="models" class="grid"></div>
+    <p class="note">Models not in the local Hugging Face cache are downloaded on load; the Llama
+      models are gated and need a Hub token with access. A 7–8B model plus the tier-4 NLI model
+      (1.6 GB) may not fit in 24 GB of unified memory.</p>
+  </section>
+
+  <section id="ask" class="hidden">
+    <h2>2 · Ask</h2>
+    <textarea id="prompt" placeholder="A biomedical factoid question, e.g. What type of drug is apixaban?"></textarea>
+    <div class="controls">
+      <label><input type="checkbox" id="bioasq" checked> BioASQ few-shot prompt</label>
+      <label>Estimators up to
+        <select id="tier"></select></label>
+      <label>Max new tokens <input type="number" id="maxtok" min="1" max="512" value="24"></label>
+      <button id="run">Run</button>
+      <button id="random" class="secondary">Random BioASQ question</button>
+      <span id="busy" class="muted hidden"><span class="spinner"></span> running…</span>
+    </div>
+    <p class="note" id="modenote"></p>
+  </section>
+
+  <section id="out" class="hidden">
+    <h2>3 · Model output</h2>
+    <div id="answer" class="answer"></div>
+    <div id="verdict" class="verdict"></div>
+    <div class="muted" id="timing"></div>
+    <div id="tokens" class="tokens"></div>
+    <p class="note">Each chip is one generated token, shaded by the entropy (in nats) of the distribution
+      it was chosen from; hover for the top candidates. The end-of-answer token counts as a step.</p>
+    <div id="samplesbox" class="hidden">
+      <h2>Ten sampled answers (temperature 1)</h2>
+      <ol id="samples" class="samples"></ol>
+    </div>
+
+    <h2>Uncertainty estimates</h2>
+    <p class="note" id="refnote"></p>
+    <div class="wrap"><table>
+      <thead><tr><th>Estimator</th><th>Family</th><th class="num">Score</th>
+        <th>Among BioASQ answers</th><th class="num">Similar answers wrong</th>
+        <th class="num">AUROC</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const FAM = {"Information": "--fam-info", "Self-report": "--fam-self",
+             "Consistency": "--fam-cons", "Sampling + likelihood": "--fam-samp"};
+let META = null, STATUS = null, poll = null;
+
+async function api(path, body) {
+  const r = await fetch(path, body ? {method: "POST", headers: {"Content-Type": "application/json"},
+                                     body: JSON.stringify(body)} : {});
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.detail || r.statusText);
+  return j;
+}
+
+function showStatus(s) {
+  STATUS = s;
+  const el = $("status");
+  el.className = "pill " + (s.state === "ready" ? "ready" : s.state === "error" ? "error" : "");
+  el.innerHTML = s.state === "loading" ? `<span class="spinner"></span> ${esc(s.message)}` : esc(s.message);
+  const ready = s.state === "ready";
+  $("picker").classList.toggle("hidden", ready);
+  $("ask").classList.toggle("hidden", !ready);
+  $("change").classList.toggle("hidden", !ready);
+  document.querySelectorAll("#models button").forEach(b => b.disabled = s.state === "loading");
+  if (ready) modeNote();
+}
+
+async function refresh() {
+  const s = await api("/api/status");
+  showStatus(s);
+  if (s.state === "loading") { if (!poll) poll = setInterval(refresh, 1000); }
+  else if (poll) { clearInterval(poll); poll = null; }
+}
+
+function renderModels() {
+  $("models").innerHTML = META.models.map(m => `
+    <div class="card">
+      <b>${esc(m.label)}</b><span class="id">${esc(m.id)}</span>
+      <div class="tags">
+        <span class="tag${m.cached ? "" : " warn"}">${m.cached ? "cached" : "download ~" + m.approx_gb + " GB"}</span>
+        <span class="tag${m.has_run ? "" : " warn"}">${m.has_run ? "BioASQ reference" : "no reference run"}</span>
+        ${m.note ? `<span class="tag warn">${esc(m.note)}</span>` : ""}
+      </div>
+      <button data-id="${esc(m.id)}">Load</button>
+    </div>`).join("");
+  $("models").querySelectorAll("button").forEach(b => b.onclick = async () => {
+    try { showStatus(await api("/api/load", {model: b.dataset.id})); refresh(); }
+    catch (e) { alert(e.message); }
+  });
+}
+
+function modeNote() {
+  const bio = $("bioasq").checked;
+  const ref = STATUS && STATUS.reference;
+  $("modenote").textContent = bio
+    ? "The question is wrapped in the BioASQ prompt from the runs (instruction + three examples) and the answer stops at the first newline, so scores are comparable with the n=1000 run" +
+      (ref ? ` for this model (${ref.n} questions, ${(ref.accuracy * 100).toFixed(1)}% answered correctly).` : "; this model has no run to compare with.")
+    : "The prompt is sent as one chat message. Scores are computed the same way, but the BioASQ comparison is switched off: its numbers only mean something for short factoid answers.";
+}
+
+function shade(h) {   // entropy (nats) -> background mix of the info blue
+  const t = Math.min(h / 3.5, 1);
+  return `color-mix(in srgb, var(--fam-info) ${Math.round(8 + 82 * t)}%, var(--bg))`;
+}
+
+function render(r) {
+  $("out").classList.remove("hidden");
+  const a = $("answer");
+  a.textContent = r.answer || "(empty answer)";
+  a.classList.toggle("wrong", !!(r.graded && !r.graded.correct));
+  $("verdict").innerHTML = r.graded
+    ? `<span class="${r.graded.correct ? "ok" : "bad"}">${r.graded.correct ? "Right" : "Wrong"}</span>
+       against the BioASQ reference: ${r.graded.golds.map(esc).join(" · ")}${r.graded.borderline ? " (a borderline match)" : ""}`
+    : (r.prompt_mode === "bioasq" ? `<span class="muted">Not one of the 1,000 BioASQ questions, so it cannot be graded.</span>` : "");
+  $("timing").textContent = `${r.tokens.length} tokens · estimators up to tier ${r.max_tier} · ${r.elapsed_s} s`;
+
+  $("tokens").innerHTML = r.tokens.map(t => {
+    const end = /^<\|.*\|>$/.test(t.token) || t.token === "</s>";
+    const label = end ? "end" : t.token.replace(/ /g, "␣").replace(/\n/g, "⏎");
+    const dark = t.entropy / 3.5 > 0.5;
+    const tip = t.top.map(([w, p]) => `${esc(w.replace(/\n/g, "⏎"))} &nbsp;${(p * 100).toFixed(1)}%`).join("<br>");
+    return `<span class="tok" tabindex="0" style="background:${shade(t.entropy)};color:${dark ? "#fff" : "inherit"}">
+      ${end ? "<i>end</i>" : esc(label)}<small>${t.entropy.toFixed(2)}</small>
+      <span class="tip">chosen: ${(t.p * 100).toFixed(1)}%<br>${tip}</span></span>`;
+  }).join("");
+
+  $("samplesbox").classList.toggle("hidden", !r.samples.length);
+  $("samples").innerHTML = r.samples.map(s => `<li>${esc(s.trim()) || "<i>(empty)</i>"}</li>`).join("");
+
+  const hasRef = r.estimators.some(e => e.reference);
+  $("refnote").textContent = hasRef
+    ? `“Among BioASQ answers” places the score among this model's 1,000 BioASQ answers (left = more certain). ` +
+      `“Similar answers wrong” is the share of wrong answers among the ${r.estimators.find(e => e.reference).reference.near_n} BioASQ answers with the closest score: ` +
+      `a rough, empirical error rate, not a calibrated probability. AUROC is the estimator's AUROC on that run.`
+    : "No BioASQ comparison: " + (r.prompt_mode === "bioasq" ? "this model has no reference run." : "free chat mode.");
+
+  let html = "", tier = 0;
+  for (const e of r.estimators) {
+    if (e.tier !== tier) {
+      tier = e.tier;
+      html += `<tr class="tierhead"><td colspan="6">T${tier} · ${esc(META.tiers[tier].replace(/^\+ /, "adds "))}</td></tr>`;
+    }
+    const ref = e.reference;
+    const score = e.failed ? `<span class="muted">failed</span>` : fmt(e.score);
+    const bar = ref ? `<div class="bar" title="${(ref.percentile * 100).toFixed(0)}th percentile"><i style="left:calc(${(ref.percentile * 100).toFixed(1)}% - 1px)"></i></div>` : "";
+    html += `<tr><td>${esc(e.name)}${ref && ref.inverted ? `<div class="inv">sign-inverted: higher = more sure</div>` : ""}</td>
+      <td><span class="dot" style="background:var(${FAM[e.family] || "--gray"})"></span>${esc(e.family)}</td>
+      <td class="num">${score}</td><td>${bar}</td>
+      <td class="num">${ref ? (ref.near_wrong * 100).toFixed(0) + "%" : ""}</td>
+      <td class="num">${ref ? ref.auroc.toFixed(3) : ""}</td></tr>`;
+  }
+  $("rows").innerHTML = html;
+}
+
+function fmt(x) {
+  const a = Math.abs(x);
+  return a !== 0 && (a < 0.001 || a >= 1e4) ? x.toExponential(2) : x.toFixed(3);
+}
+
+async function init() {
+  META = await api("/api/models");
+  $("tier").innerHTML = [1, 2, 3, 4].map(t =>
+    `<option value="${t}"${t === 2 ? " selected" : ""}>T${t} ${esc(META.tiers[t])} (${META.estimators[t].length} more)</option>`).join("");
+  renderModels();
+  await refresh();
+}
+
+$("bioasq").onchange = () => { $("maxtok").value = $("bioasq").checked ? 24 : 128; modeNote(); };
+$("change").onclick = () => { $("picker").classList.remove("hidden"); $("picker").scrollIntoView({behavior: "smooth"}); };
+$("random").onclick = async () => {
+  try { const q = await api("/api/random_question"); $("prompt").value = q.question; $("bioasq").checked = true;
+        $("maxtok").value = 24; modeNote(); }
+  catch (e) { alert(e.message); }
+};
+$("run").onclick = async () => {
+  const prompt = $("prompt").value.trim();
+  if (!prompt) return;
+  $("run").disabled = true; $("busy").classList.remove("hidden");
+  try {
+    render(await api("/api/run", {prompt, max_tier: +$("tier").value, bioasq_prompt: $("bioasq").checked,
+                                  max_new_tokens: +$("maxtok").value || null}));
+  } catch (e) { alert(e.message); }
+  finally { $("run").disabled = false; $("busy").classList.add("hidden"); }
+};
+$("prompt").addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) $("run").click(); });
+init().catch(e => { $("status").textContent = "server not reachable: " + e.message; });
+</script>
+</body>
+</html>
