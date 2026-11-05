@@ -546,7 +546,7 @@ def method_card(fig, ax, fam, tex, gloss, needs, tier, estimator, family):
     tag(ax, CW, 27.4, f"T{tier}", tier_hue(tier), ha="right")
     lines(fig, ax, x, 23.8, needs, halvar(S["tick"]), w, DARK, pitch=2.05, max_lines=2)
 
-    header(ax, x, 17.4, "in this study", ink)
+    header(ax, x, 17.4, "for BioASQ dataset", ink)
     for k, (label, auc, rank) in enumerate(study_auroc(estimator)):
         xx = x + k * 20.0
         put(ax, xx, 12.6, f"{auc:.3f}", hermann(S["claim"]), DARK)
