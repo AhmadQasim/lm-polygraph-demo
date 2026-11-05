@@ -35,6 +35,7 @@ orange is a wrong answer. Each figure gets its slide's title / lead / caption
 written beside it as `slides/markdowns/{nn}_slide_{name}.md`.
 """
 
+import json
 import pathlib
 import sys
 
@@ -57,6 +58,7 @@ from hgf_style import (  # noqa: E402
 )
 from hgf_layers import layered_save as save  # noqa: E402  # writes the click layers too
 from plot_bioasq import PRETTY, TIER_GLOSS, load, wrap_measured  # noqa: E402
+from analyze_bioasq import fast_auc  # noqa: E402
 
 FIGDIR = SLIDES / "figures"
 MDDIR = SLIDES / "markdowns"
@@ -471,35 +473,139 @@ def formula_block(ax, x, y, name, tex, gloss, ink=DARK):
     put(ax, x, y - 8.9, gloss, halvar(S["tick"]), GRAY85)
 
 
+# =====================================================================================
+# 04-06. one method per family, opened up on two real answers
+# =====================================================================================
+# The family slides used to list every method in a line each. Each now explains one
+# method properly, on the same two Qwen2.5-3B answers throughout: a right one the
+# model is sure of and a wrong one it is not. The numbers inside the scores come from
+# scripts/method_examples.py (method_examples.json); the AUROCs from the n=1000 runs.
+EXAMPLES_JSON = SLIDES / "method_examples.json"
+EX_W = 80.0          # the worked example, left
+CARD_X = 84.0        # the method card, right
+AUC_OF = {}          # (cache, estimator) -> (AUROC, rank of 20), filled on first use
+
+
+def examples():
+    d = json.loads(EXAMPLES_JSON.read_text())
+    right, wrong = d["examples"]
+    assert right["correct"] and not wrong["correct"], "example order is right, wrong"
+    return d, right, wrong
+
+
+def study_auroc(name):
+    """[(model label, AUROC, rank of 20)] for one estimator, on both Qwen runs."""
+    out = []
+    for label, path in (("Qwen 3B", CACHE_3B), ("Qwen 7B", CACHE_7B)):
+        if (path, name) not in AUC_OF:
+            dd, yy = load(str(path), str(MANUAL))
+            aucs = {n: fast_auc(yy, np.asarray(v, float)) for n, v in dd["scores"].items()}
+            order = sorted(aucs, key=lambda n: -aucs[n])
+            for n in aucs:
+                AUC_OF[(path, n)] = (aucs[n], order.index(n) + 1)
+        auc, rank = AUC_OF[(path, name)]
+        out.append((label, auc, rank))
+    return out
+
+
+def example_panel(ax, fam, title):
+    slab(ax, 0, 0, EX_W, CH, fam_ground(fam), z=0)
+    slab(ax, 0, CH - 1.2, EX_W, 1.2, fam_fill(fam), z=1, radius=0.5)
+    header(ax, 2.0, 40.6, title, fam_ink(fam))
+
+
+def answer_head(fig, ax, x, y, ex, width):
+    """Question, then the model's answer in the right/wrong colour, and the verdict."""
+    put(ax, x, y, ex["question"], halvar(S["tick"]), DARK)
+    colour = DARK if ex["correct"] else WRONG_TEXT
+    t = put(ax, x, y - 3.0, ex["answer"], halvar(S["value"], bold=True), colour)
+    w = text_w(fig, ex["answer"], halvar(S["value"], bold=True))
+    verdict = "right" if ex["correct"] else f"wrong · reference: {ex['golds'][0]}"
+    put(ax, x + w + 1.4, y - 3.0, verdict, halvar(S["tick"], italic=True),
+        DARK if ex["correct"] else WRONG_TEXT)
+    return t
+
+
+def text_w(fig, s, font):
+    r = fig.canvas.get_renderer()
+    art = fig.text(0, 0, s, fontproperties=font)
+    w = art.get_window_extent(r).width / fig.dpi * 10.0
+    art.remove()
+    return w
+
+
+def method_card(fig, ax, fam, tex, gloss, needs, tier, estimator, family):
+    """The right-hand column: the score, what it needs, how it did, its relatives."""
+    x, w = CARD_X, CW - CARD_X
+    ink = fam_ink(fam)
+    header(ax, x, 42.4, "the score", ink)
+    put(ax, x, 37.4, tex, halvar(S["value"] + 1.5), DARK)
+    lines(fig, ax, x, 33.6, gloss, halvar(S["tick"]), w, GRAY85, pitch=2.05, max_lines=2)
+
+    header(ax, x, 27.4, "needs", ink)
+    tag(ax, CW, 27.4, f"T{tier}", tier_hue(tier), ha="right")
+    lines(fig, ax, x, 23.8, needs, halvar(S["tick"]), w, DARK, pitch=2.05, max_lines=2)
+
+    header(ax, x, 17.4, "in this study", ink)
+    for k, (label, auc, rank) in enumerate(study_auroc(estimator)):
+        xx = x + k * 20.0
+        put(ax, xx, 12.6, f"{auc:.3f}", hermann(S["claim"]), DARK)
+        put(ax, xx, 9.9, f"AUROC, {label}", halvar(S["gloss"]), GRAY85)
+        put(ax, xx, 7.9, f"rank {rank} of 20", halvar(S["gloss"]), GRAY85)
+    lines(fig, ax, x, 4.6, family, halvar(S["gloss"]), w, GRAY85, pitch=1.75, max_lines=3)
+
+
+def nice_token(t):
+    """A token as the slide shows it: the end-of-turn marker named, spaces visible."""
+    if t.startswith("<|") and t.endswith("|>"):
+        return "end"
+    return t.replace(" ", "␣") if t.strip() != t else t
+
+
 def fig_information():
     fam = "Information"
+    d, right, wrong = examples()
     fig, ax = board()
-    slab(ax, 0, 0, LEFT_W, CH, fam_ground(fam), z=0)
-    slab(ax, 0, CH - 1.2, LEFT_W, 1.2, fam_fill(fam), z=1, radius=0.5)
+    example_panel(ax, fam, "what the model chose between, token by token")
     x = 2.0
-    formula_block(ax, x, 40.5, "Max sequence probability",
-                  r"$u = -\sum_{l}\ \log p(y_l \mid y_{<l}, x)$",
-                  "the whole answer's log-probability", ink=fam_ink(fam))
-    formula_block(ax, x, 27.5, "Perplexity",
-                  r"$u = -\frac{1}{L}\sum_{l}\ \log p(y_l \mid y_{<l}, x)$",
-                  "the same, per token, so length does not count", ink=fam_ink(fam))
-    formula_block(ax, x, 14.5, "Mean token entropy",
-                  r"$u = \frac{1}{L}\sum_{l}\ \mathcal{H}\left[p(\cdot \mid y_{<l}, x)\right]$",
-                  "how spread every next-token choice was", ink=fam_ink(fam))
-    put(ax, x, 1.6, "x question  ·  y answer, L tokens  ·  higher u = less sure",
-        halvar(S["gloss"]), GRAY85)
+    hmax = 3.6
+    for ex, top in ((right, 37.0), (wrong, 18.6)):
+        answer_head(fig, ax, x, top, ex, EX_W - 4)
+        cx = x
+        chip_y = top - 9.6
+        font = halvar(S["tick"], bold=True)
+        for st in ex["steps"]:
+            label = nice_token(st["token"])
+            is_end = label == "end"
+            cw = max(4.6, text_w(fig, label, font) + 2.0)
+            pct = 10 + 80 * min(st["entropy"] / hmax, 1.0)
+            fill = shade(fam_fill(fam), pct)
+            slab(ax, cx, chip_y, cw, 3.6, fill, z=1, radius=0.5)
+            put(ax, cx + cw / 2, chip_y + 1.8, label,
+                halvar(S["tick"], bold=not is_end, italic=is_end),
+                "white" if pct > 50 else DARK, ha="center", va="center", zorder=2)
+            put(ax, cx + cw / 2, chip_y - 2.3, f"{st['entropy']:.2f}", halvar(S["gloss"]),
+                GRAY85, ha="center")
+            cx += cw + 0.8
+        mean = ex["scores"]["MeanTokenEntropy"]
+        put(ax, EX_W - 2, chip_y + 0.6, f"{mean:.2f}", hermann(S["claim"]),
+            DARK if ex["correct"] else WRONG_TEXT, ha="right")
+        put(ax, EX_W - 2, chip_y - 2.3, "mean", halvar(S["gloss"]), GRAY85, ha="right")
+        first = ex["steps"][0]
+        cands = "   ".join(f"{nice_token(t)} {p:.0%}" for t, p in first["top"])
+        put(ax, x, chip_y - 5.2, f"first-token candidates:  {cands}",
+            halvar(S["gloss"]), DARK)
+    put(ax, x, 1.4, "entropy in nats, one per generated token  ·  the end-of-answer "
+        "token is a step too  ·  darker = more spread", halvar(S["gloss"]), GRAY85)
 
-    method_table(fig, ax, TABLE_X0, CW, 42.5, [
-        ("Max sequence prob.", "log-probability of the answer", 1),
-        ("Perplexity", "the same, per token", 1),
-        ("Mean token entropy", "spread of each next-token distribution", 1),
-        ("Rényi-Neg · Fisher-Rao", "other measures of the same distributions", 1),
-        ("Self-certainty", "distance from a uniform next-token choice", 1),
-        ("Boosted prob.", "token probabilities, re-weighted", 1),
-        ("Mean PMI · cond. PMI", "what the question adds; a 2nd pass without it", 1),
-        ("CCP", "probability pooled over same-meaning tokens", None),
-        ("Attention score · RAUQ", "attention maps of the same pass", None),
-    ], pitch=3.55, accent=fam_fill(fam))
+    method_card(fig, ax, fam,
+                r"$u = \frac{1}{L}\sum_{l}\ \mathcal{H}\left[p(\cdot \mid y_{<l}, x)\right]$",
+                "the entropy of each next-token distribution, averaged over the "
+                "answer's L tokens",
+                "token probabilities from the pass that produced the answer; nothing "
+                "else", 1, "MeanTokenEntropy",
+                "Same pass, other readings: MSP, perplexity, "
+                "Rényi-Neg, Fisher-Rao, self-certainty, boosted prob., PMI.")
     out = save(fig, FIGDIR / "information_based", formats=("png", "svg"))
     plt.close(fig)
     return out[0]
@@ -507,89 +613,101 @@ def fig_information():
 
 def fig_self_report():
     fam = "Self-report"
+    d, right, wrong = examples()
     fig, ax = board()
-    slab(ax, 0, 0, LEFT_W, CH, fam_ground(fam), z=0)
-    slab(ax, 0, CH - 1.2, LEFT_W, 1.2, fam_fill(fam), z=1, radius=0.5)
+    example_panel(ax, fam, "a second prompt, as lm-polygraph sends it")
     x = 2.0
-    header(ax, x, 41.0, "a second prompt, after the answer", fam_ink(fam))
-    slab(ax, x, 21.0, LEFT_W - 4, 17.0, "white", z=1)
+    slab(ax, x, 27.4, EX_W - 4, 11.4, "white", z=1)
     m = mono(S["tick"])
-    for k, ln in enumerate([
-        "Question: What disease can be",
-        "  treatment with Bulevirtide?",
-        "Possible answer: Hepatitis B",
-        "Is the possible answer True or",
-        "  False? The possible answer is:",
-    ]):
-        put(ax, x + 1.5, 35.2 - k * 2.9, ln, m, DARK, zorder=2)
+    for k, ln in enumerate(["Question: [instruction, 3 examples, the question]",
+                            " Possible answer:{the model's answer}",
+                            " Is the possible answer:",
+                            "  (A) True    (B) False",
+                            " The possible answer is:"]):
+        put(ax, x + 1.5, 36.4 - k * 2.1, ln, m, DARK, zorder=2)
 
-    put(ax, x, 16.2, "P(TRUE)", hermann(S["category"]), fam_ink(fam))
-    put(ax, x, 12.0, r'$u = -\log\, p(\mathrm{“True”})$', halvar(S["value"] + 1.5), DARK)
-    put(ax, x + 27, 16.2, "P(TRUE) EMPIRICAL", hermann(S["category"]), fam_ink(fam))
-    put(ax, x + 27, 12.0, "sample the verdict 10×,", halvar(S["tick"]), DARK)
-    put(ax, x + 27, 9.9, "count how often “True”", halvar(S["tick"]), DARK)
-    put(ax, x, 1.6, "prompt as lm-polygraph 0.7.0 builds it; the answer is the "
-        "7B model's", halvar(S["gloss"]), GRAY85)
+    bar_x, bar_w = x + 30.0, 20.0
+    for ex, top in ((right, 23.4), (wrong, 11.8)):
+        answer_head(fig, ax, x, top, ex, EX_W - 4)
+        for k, (t, p) in enumerate(ex["verdict"]["top"][:2]):
+            yy = top - 6.6 - k * 2.4
+            put(ax, bar_x - 1.0, yy, f"“{t}”", halvar(S["tick"], bold=(t == "True")),
+                DARK, ha="right")
+            slab(ax, bar_x, yy - 0.55, max(bar_w * p, 0.25), 1.8, fam_fill(fam), z=1,
+                 radius=0.3)
+            put(ax, bar_x + max(bar_w * p, 0.25) + 0.8, yy, f"{p:.3f}" if p >= 1e-3
+                else f"{p:.1e}", halvar(S["gloss"]), GRAY85)
+        put(ax, x, top - 6.6, "next token:", halvar(S["gloss"]), GRAY85)
+        pt = ex["verdict"]["p_true"]
+        u = ex["scores"]["PTrue"]
+        put(ax, EX_W - 2, top - 3.4, f"{u:.2f}", hermann(S["claim"]),
+            DARK if ex["correct"] else WRONG_TEXT, ha="right")
+        put(ax, EX_W - 2, top - 6.1, f"−log p(“True”), p = {pt:.2g}", halvar(S["gloss"]),
+            GRAY85, ha="right")
 
-    method_table(fig, ax, TABLE_X0, CW, 42.5, [
-        ("p(True)", "log-probability the model puts on “True”", 2),
-        ("p(True) empirical", "share of 10 sampled verdicts that say “True”", 2),
-        ("Verbalized 1S", "a confidence the model states as a number", None),
-    ], pitch=4.2, accent=fam_fill(fam))
-    lines(fig, ax, TABLE_X0, 20.0,
-          "Verbalized 1S was dropped: Qwen2.5 never stated a confidence that "
-          "lm-polygraph could parse, so it has no score to rank by.",
-          halvar(S["tick"], italic=True), CW - TABLE_X0, GRAY85, pitch=2.1)
+    method_card(fig, ax, fam, r'$u = -\log\, p(\mathrm{“True”})$',
+                "the probability the model gives “True” when shown its own answer",
+                "one more forward pass, and one token's probability: white-box, or "
+                "an API that returns log-probabilities", 2, "PTrue",
+                "Also self-report: p(True) empirical samples the verdict 10×. "
+                "Verbalized confidence was not run: Qwen2.5 never gave a number.")
     out = save(fig, FIGDIR / "self_report", formats=("png", "svg"))
     plt.close(fig)
     return out[0]
 
 
+CGRP_SYNONYMS = ["calcitonin gene-related peptide receptor"]
+
+
 def fig_consistency():
     fam = "Consistency"
+    d, right, wrong = examples()
     fig, ax = board()
-    slab(ax, 0, 0, LEFT_W, CH, fam_ground(fam), z=0)
-    slab(ax, 0, CH - 1.2, LEFT_W, 1.2, fam_fill(fam), z=1, radius=0.5)
+    example_panel(ax, fam, "the question asked ten more times, at temperature 1")
     x = 2.0
-    header(ax, x, 41.0, "the same question, sampled again", fam_ink(fam))
-    # five sampled answers, as letters: A' is A in other words
-    chips = ["A", "A", "A′", "B", "A"]
-    cx = [x + 1 + k * 10.4 for k in range(5)]
-    for c, lab in zip(cx, chips):
-        hue = WRONG if lab == "B" else fam_fill(fam)
-        slab(ax, c, 32.0, 8.4, 5.0, hue, z=1, radius=0.8)
-        put(ax, c + 4.2, 34.5, lab, halvar(S["panel_header"], bold=True), "white", ha="center",
-            va="center", zorder=2)
+    ink = fam_ink(fam)
 
-    rows = [
-        ("WORDS", "do the samples share words?", "ROUGE-L", 26.5),
-        ("MEANING", "does each entail the other? A′ joins A", "NLI model", 19.5),
-        ("+ LIKELIHOOD", "weight each sample by its probability", "white-box", 12.5),
-    ]
-    for head, what, how, yy in rows:
-        # the likelihood row is the other family: its colour, not consistency's
-        ink = fam_ink("Sampling + likelihood") if head.startswith("+") else fam_ink(fam)
-        put(ax, x, yy, head, hermann(S["category"]), ink)
-        put(ax, x, yy - 2.6, what, halvar(S["tick"]), DARK)
-        put(ax, LEFT_W - 2, yy, how, halvar(S["tick"], italic=True), ink, ha="right")
-    put(ax, x, 6.0, r"$SE = -\sum_{c}\ p(c \mid x)\,\log p(c \mid x)$",
-        halvar(S["value"] + 1.0), DARK)
-    put(ax, x, 0.9, "c: a cluster of samples with one meaning", halvar(S["gloss"]),
-        GRAY85)
+    def result(ex, y):
+        sim = -ex["scores"]["LexicalSimilarity_rougeL"]
+        put(ax, EX_W - 2, y, f"{sim:.2f}", hermann(S["claim"]),
+            DARK if ex["correct"] else WRONG_TEXT, ha="right")
+        put(ax, EX_W - 2, y - 2.7, "mean ROUGE-L", halvar(S["gloss"]), GRAY85, ha="right")
+        put(ax, EX_W - 2, y - 4.5, "over 45 pairs", halvar(S["gloss"]), GRAY85, ha="right")
 
-    sl, co = fam_ink("Sampling + likelihood"), fam_ink(fam)
-    method_table(fig, ax, TABLE_X0, CW, 42.5, [
-        ("Lexical similarity", "word overlap between samples", 3, co),
-        ("NumSemSets", "how many meaning clusters", 4, co),
-        ("DegMat · Ecc. · EigVal", "graph of pairwise entailment", 4, co),
-        ("Kernel lang. entropy", "entropy of a semantic kernel", 4, co),
-        ("MC sequence entropy", "mean −log P over samples; also length-normalised", 3, sl),
-        ("Semantic entropy", "probability mass over meaning clusters", 4, sl),
-        ("SAR · Sem. density · CoCoA", "likelihood and meaning combined", None, sl),
-    ], pitch=3.7, name_w=23.0, accent=fam_fill(fam))
-    put(ax, TABLE_X0, 8.0, "Consistency", halvar(S["tick"], bold=True), fam_ink(fam))
-    put(ax, TABLE_X0 + 13.5, 8.0, "Sampling + likelihood", halvar(S["tick"], bold=True), sl)
-    put(ax, TABLE_X0 + 33.0, 8.0, "name colour = family", halvar(S["tick"]), GRAY85)
+    answer_head(fig, ax, x, 36.4, right, EX_W - 4)
+    same = len(set(right["samples"])) == 1
+    put(ax, x, 30.4, (f"10 samples:  “{right['samples'][0]}” ×10, every pair identical"
+                      if same else "10 samples: " + ", ".join(right["samples"])),
+        halvar(S["tick"]), ink)
+    result(right, 33.2)
+
+    answer_head(fig, ax, x, 25.0, wrong, EX_W - 4)
+    golds = wrong["golds"]
+    hits = 0
+    for k, s in enumerate(wrong["samples"]):
+        # By the rubric, not the matcher: the full name of the CGRP receptor is the
+        # same entity, but grade() needs a synonym it has no rule for.
+        ok = bioasq.grade(s, golds + CGRP_SYNONYMS)["correct"]
+        hits += ok
+        put(ax, x + 2.0, 20.2 - k * 1.85, s, halvar(S["gloss"], bold=ok),
+            DARK if ok else GRAY85)
+        put(ax, x, 20.2 - k * 1.85, f"{k + 1}", halvar(S["gloss"]), GRAY85)
+    result(wrong, 16.0)
+    lines(fig, ax, 50.0, 7.2, f"{hits} of 10 samples name the CGRP receptor (bold); "
+          f"the greedy answer was {wrong['answer']}. They disagree, and the score says so.",
+          halvar(S["gloss"]), EX_W - 2 - 50.0, DARK, pitch=1.8, max_lines=3)
+    put(ax, x, 0.9, "a fresh draw of 10; the n=1000 run drew its own (similarity "
+        f"{-right['run_scores']['LexicalSimilarity_rougeL']:.2f} and "
+        f"{-wrong['run_scores']['LexicalSimilarity_rougeL']:.2f})",
+        halvar(S["gloss"]), GRAY85)
+
+    method_card(fig, ax, fam,
+                r"$u = -\frac{1}{45}\sum_{i<j}$ ROUGE-L$(s_i, s_j)$",
+                "minus the mean word overlap between every pair of the ten samples",
+                "ten sampled answers and their text only, so it works through any API",
+                3, "LexicalSimilarity_rougeL",
+                "Meaning instead of words, via an NLI model: NumSemSets, DegMat, EigVal, "
+                "KLE. Weighted by probability: MC entropy, semantic entropy.")
     out = save(fig, FIGDIR / "consistency", formats=("png", "svg"))
     plt.close(fig)
     return out[0]
@@ -1121,31 +1239,37 @@ def slide_copy(acc, half, st=None):
         ),
         "information_based": (
             "04",
-            "Information-based estimators",
-            "These estimators need no sampling: the answering pass, plus a "
-            "question-free pass for PMI.",
-            "All three are computed from the generation pass itself, so they"
-            " add no further computation. They require token probabilities, "
-            "which many hosted APIs do not return.",
+            "Information-based: mean token entropy",
+            "A model unsure of the next token spreads its probability; mean "
+            "token entropy averages that spread over the answer.",
+            "Two answers from Qwen2.5-3B. Each chip is one generated token, "
+            "with the entropy of the distribution it was chosen from. The "
+            "right answer was near-certain at every step; the wrong one was "
+            "a guess from its first token. Of the 20 estimators, mean token "
+            "entropy ranked first on both Qwen models.",
         ),
         "self_report": (
             "05",
-            "Self-report estimators",
-            "A second prompt asks the model to assess its own answer.",
-            "p(True) takes the probability the model assigns to “True”; the "
-            "empirical variant samples the verdict ten times and counts. "
-            "Both require a second prompt per answer, which defines tier 2.",
+            "Self-report: p(True)",
+            "Shown its own answer, the model is asked whether it is true; "
+            "the score is the probability it puts on “True”.",
+            "The same two answers, put back to the model in a second prompt."
+            " Here p(True) separates them cleanly, yet over the 1,000 "
+            "questions it ranked 16th of 20 on the 3B model and was at "
+            "chance on the 7B. For the right answer “(A” took 15% of the "
+            "probability, which a score reading only “True” ignores.",
         ),
         "consistency": (
             "06",
-            "Sampling-based estimators",
-            "Disagreement among resampled answers indicates uncertainty; "
-            "some methods also weigh each sample by its probability.",
-            "Two families share the samples. Consistency methods measure "
-            "agreement by shared words or by meaning, with an NLI model "
-            "testing whether two answers entail each other; sampling + "
-            "likelihood methods also weight each sample by its probability. "
-            "Sampling defines tier 3; the NLI model on top defines tier 4.",
+            "Sampling-based: lexical similarity",
+            "Ask the same question again: answers that change from sample to"
+            " sample signal uncertainty.",
+            "Ten answers sampled at temperature 1 for each question, "
+            "compared pair by pair by ROUGE-L word overlap. For the right "
+            "answer all ten agree; for the wrong one they scatter, and four "
+            "of them name the reference answer the greedy answer missed. "
+            "Sampling makes it tier 3; it reads only text, so it works with "
+            "any API.",
         ),
         "trained_probes": (
             "07",
@@ -1201,8 +1325,9 @@ def slide_copy(acc, half, st=None):
         "Position further right indicates greater access required: a hosted API "
         "exposes text only, an open model also exposes token probabilities and hidden "
         "states. The lower row samples the same question several times. The next "
-        "slide places every estimator in these families, and the four after it take "
-        "the families in turn, the two sampling families together.",
+        "slide places every estimator in these families; the three after it "
+        "each open up one method on the same two answers, and the fourth covers "
+        "trained probes.",
     )
     copy["takeaways"] = (
         "15",

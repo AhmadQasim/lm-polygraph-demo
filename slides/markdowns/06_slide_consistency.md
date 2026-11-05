@@ -8,14 +8,14 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > Sampling-based estimators
+  > Sampling-based: lexical similarity
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > Disagreement among resampled answers indicates uncertainty; some methods also weigh
-  > each sample by its probability.
+  > Ask the same question again: answers that change from sample to sample signal
+  > uncertainty.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > Two families share the samples. Consistency methods measure agreement by shared
-  > words or by meaning, with an NLI model testing whether two answers entail each
-  > other; sampling + likelihood methods also weight each sample by its probability.
-  > Sampling defines tier 3; the NLI model on top defines tier 4.
+  > Ten answers sampled at temperature 1 for each question, compared pair by pair by
+  > ROUGE-L word overlap. For the right answer all ten agree; for the wrong one they
+  > scatter, and four of them name the reference answer the greedy answer missed.
+  > Sampling makes it tier 3; it reads only text, so it works with any API.

@@ -55,9 +55,9 @@
     "split_x": [24.08, 49.36, 74.64, 99.92]
   },
 
-  "information_based": {"_": "How it works, then the methods table.", "split_x": [58.5]},
-  "self_report":       {"split_x": [58.5]},
-  "consistency":       {"split_x": [58.5]},
+  "information_based": {"_": "The worked example, then the method card.", "split_x": [82.0]},
+  "self_report":       {"split_x": [82.0]},
+  "consistency":       {"split_x": [82.0]},
   "trained_probes":    {"split_x": [58.5]},
 
   "lm_polygraph": {

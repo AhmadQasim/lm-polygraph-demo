@@ -8,12 +8,14 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > Self-report estimators
+  > Self-report: p(True)
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > A second prompt asks the model to assess its own answer.
+  > Shown its own answer, the model is asked whether it is true; the score is the
+  > probability it puts on “True”.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > p(True) takes the probability the model assigns to “True”; the empirical variant
-  > samples the verdict ten times and counts. Both require a second prompt per answer,
-  > which defines tier 2.
+  > The same two answers, put back to the model in a second prompt. Here p(True)
+  > separates them cleanly, yet over the 1,000 questions it ranked 16th of 20 on the 3B
+  > model and was at chance on the 7B. For the right answer “(A” took 15% of the
+  > probability, which a score reading only “True” ignores.

@@ -47,7 +47,7 @@
       "text": [
         "Where the signal comes from",
         "Two properties locate every estimator: the model access it needs and the number of answers it draws.",
-        "Position further right indicates greater access required: a hosted API exposes text only, an open model also exposes token probabilities and hidden states. The lower row samples the same question several times. The next slide places every estimator in these families, and the four after it take the families in turn, the two sampling families together."
+        "Position further right indicates greater access required: a hosted API exposes text only, an open model also exposes token probabilities and hidden states. The lower row samples the same question several times. The next slide places every estimator in these families; the three after it each open up one method on the same two answers, and the fourth covers trained probes."
       ]
     },
     {
@@ -63,27 +63,27 @@
       "slide": 8,
       "layout": "Title Only",
       "text": [
-        "Information-based estimators",
-        "These estimators need no sampling: the answering pass, plus a question-free pass for PMI.",
-        "All three are computed from the generation pass itself, so they add no further computation. They require token probabilities, which many hosted APIs do not return."
+        "Information-based: mean token entropy",
+        "A model unsure of the next token spreads its probability; mean token entropy averages that spread over the answer.",
+        "Two answers from Qwen2.5-3B. Each chip is one generated token, with the entropy of the distribution it was chosen from. The right answer was near-certain at every step; the wrong one was a guess from its first token. Of the 20 estimators, mean token entropy ranked first on both Qwen models."
       ]
     },
     {
       "slide": 9,
       "layout": "Title Only",
       "text": [
-        "Self-report estimators",
-        "A second prompt asks the model to assess its own answer.",
-        "p(True) takes the probability the model assigns to “True”; the empirical variant samples the verdict ten times and counts. Both require a second prompt per answer, which defines tier 2."
+        "Self-report: p(True)",
+        "Shown its own answer, the model is asked whether it is true; the score is the probability it puts on “True”.",
+        "The same two answers, put back to the model in a second prompt. Here p(True) separates them cleanly, yet over the 1,000 questions it ranked 16th of 20 on the 3B model and was at chance on the 7B. For the right answer “(A” took 15% of the probability, which a score reading only “True” ignores."
       ]
     },
     {
       "slide": 10,
       "layout": "Title Only",
       "text": [
-        "Sampling-based estimators",
-        "Disagreement among resampled answers indicates uncertainty; some methods also weigh each sample by its probability.",
-        "Two families share the samples. Consistency methods measure agreement by shared words or by meaning, with an NLI model testing whether two answers entail each other; sampling + likelihood methods also weight each sample by its probability. Sampling defines tier 3; the NLI model on top defines tier 4."
+        "Sampling-based: lexical similarity",
+        "Ask the same question again: answers that change from sample to sample signal uncertainty.",
+        "Ten answers sampled at temperature 1 for each question, compared pair by pair by ROUGE-L word overlap. For the right answer all ten agree; for the wrong one they scatter, and four of them name the reference answer the greedy answer missed. Sampling makes it tier 3; it reads only text, so it works with any API."
       ]
     },
     {

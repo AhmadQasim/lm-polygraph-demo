@@ -8,12 +8,14 @@ one paragraph. Titles do not flow.
 ## the slide
 
 - **title** — the slide's heading, top left
-  > Information-based estimators
+  > Information-based: mean token entropy
 
 - **lead** — the blue line under the title — one sentence, it wraps on its own
-  > These estimators need no sampling: the answering pass, plus a question-free pass for
-  > PMI.
+  > A model unsure of the next token spreads its probability; mean token entropy
+  > averages that spread over the answer.
 
 - **caption** — the grey paragraph under the figure — it wraps on its own
-  > All three are computed from the generation pass itself, so they add no further
-  > computation. They require token probabilities, which many hosted APIs do not return.
+  > Two answers from Qwen2.5-3B. Each chip is one generated token, with the entropy of
+  > the distribution it was chosen from. The right answer was near-certain at every
+  > step; the wrong one was a guess from its first token. Of the 20 estimators, mean
+  > token entropy ranked first on both Qwen models.

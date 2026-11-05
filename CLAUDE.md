@@ -108,9 +108,15 @@ regex-parses a confidence the model never emits and crashes on Qwen2.5. That is 
 finding, not a bug to fix.
 
 Definitions checked against the lm-polygraph 0.7.0 source: MSP = −Σ log p(y_l|y<l,x);
-Perplexity = the per-token mean of that; MeanTokenEntropy = mean per-step entropy; PTrue =
-−log p("True") after the prompt `Question: {q}\n Possible answer:{a}\n Is the possible
-answer True or False? The possible answer is: `; PTrueEmpirical = 1 − share of 10 sampled
+Perplexity = the per-token mean of that; MeanTokenEntropy = mean per-step entropy (in nats,
+and the end-of-turn token counts as a step); PTrue = −log p("True") for the next token
+after `PromptCalculator`'s prompt `Question: {q}\n Possible answer:{a}\n Is the possible
+answer:\n (A) True\n (B) False\n The possible answer is:`, where {q} is the *whole* input
+(instruction + few-shot examples + question) and `instruct=True` wraps it all in the chat
+template. Verified 2026-11-05: the stored `p_true` equals log-softmax of "True", not a raw
+logit. Mass on "(A" is ignored (15% for the apixaban example). LexicalSimilarity = minus
+mean ROUGE-L over the 45 pairs of the 10 samples (the greedy answer is not one of them);
+samples use temperature 1, top-k 50. PTrueEmpirical = 1 − share of 10 sampled
 one-token verdicts containing "True". Higher score = less certain, except the
 sign-inverted ones below.
 
@@ -514,15 +520,26 @@ copy; only `FONT_DIR` differs. The full spec is `~/projects/slides/STYLE.md`.
 
 ## 10. Decisions, gotchas and open items
 
+- **Method slides 8-10 open up one method each** (2026-11-05): mean token entropy, p(True),
+  lexical similarity, on the same two Qwen2.5-3B answers (apixaban → "Anticoagulant",
+  right; erenumab → "MMP-13", wrong). The per-token distributions, the p(True) verdict
+  and ten fresh samples come from `scripts/method_examples.py`, which re-runs
+  LM-Polygraph on those two questions on MPS (~1 min) and writes the tracked
+  `slides/method_examples.json`; it asserts the greedy answers equal the GPU run's and
+  MTE/p(True) agree within bf16 rounding. The samples are a fresh draw, so the slide
+  footer quotes the run's own similarity too. The erenumab samples are marked right by
+  the rubric (`fig_methods.CGRP_SYNONYMS`): `grade()` misses the spelled-out receptor
+  name. Each slide's right column (`method_card`) carries the formula, what it needs,
+  AUROC and rank on both Qwen runs (computed from the caches), and one line naming the
+  rest of the family.
 - **Wording conventions** (fixed 2026-11-05, keep them):
   - Tier glosses are `plot_bioasq.TIER_GLOSS`: T1 "no sampling" (not "one forward pass":
     the PMI pair needs a second, question-free pass), T2 "+ a second prompt" (not
     "self-query"), T3 "+ sampling", T4 "+ NLI model". Captions use the same words.
   - Chart headings say "detecting a wrong answer"; the method is "Rényi-Neg"; the full
     name "Lexical similarity" everywhere.
-  - The consistency slide is titled "Sampling-based estimators" and covers both
-    sampling families; its method names are coloured by family (`method_table` takes an
-    optional fourth element, the name colour). Slide 6's caption says so.
+  - `method_table` takes an optional fourth element per row, the name colour; it is
+    unused since slides 8-10 dropped their tables.
   - LM-Polygraph implements "most of" the methods: the trained probes on the methods
     slides are not in 0.7.0.
 - **Take-home slide** (`fig_methods.TAKEAWAYS`) closes the talk with five points:
